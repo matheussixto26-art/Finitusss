@@ -1,6 +1,5 @@
 const axios = require('axios');
 
-// A função para introduzir erros permanece a mesma
 function introduceErrors(answers, errorCount) {
     if (errorCount <= 0) return answers;
     const newAnswers = JSON.parse(JSON.stringify(answers));
@@ -29,6 +28,7 @@ module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método não permitido.' });
     }
+    // Recebe os novos parâmetros do frontend
     const { taskId, token, room, tempo, is_expired, submission_type, errorCount } = req.body;
     if (!taskId || !token || !room || !submission_type) {
         return res.status(400).json({ error: 'Parâmetros em falta.' });
@@ -46,6 +46,7 @@ module.exports = async (req, res) => {
             return res.status(500).json({ error: 'O serviço externo não retornou as respostas da tarefa.' });
         }
 
+        // Usa o novo parâmetro de contagem de erros
         if (errorCount > 0) {
             answers = introduceErrors(answers, errorCount);
         }
@@ -53,26 +54,22 @@ module.exports = async (req, res) => {
         const tipoTarefa = is_expired ? "Expirada" : "Pendente";
         const submitPayload = {
             type: "submit", taskId, token, tipo: tipoTarefa,
-            tempo: parseInt(tempo, 10) || 60, status: submission_type,
+            tempo: parseFloat(tempo) || 1, // Usa o tempo enviado pelo utilizador
+            status: submission_type,
             accessed_on: "room", executed_on: room, answers
         };
         
         const submitResponse = await axios.post(API_URL, submitPayload);
         const responseData = submitResponse.data;
 
-        // LÓGICA FINAL E ROBUSTA DE VERIFICAÇÃO
-        // 1. Procura por erros explícitos
         if (responseData && (responseData.error || responseData.success === false)) {
              const errorMessage = responseData.message || responseData.error || 'Erro desconhecido retornado pelo serviço externo.';
              return res.status(400).json({ error: errorMessage });
         }
         
-        // 2. Se não houver erros explícitos, considera a operação um sucesso.
-        // Isto aceita o 'status: "waiting"' como um resultado positivo.
         res.status(200).json(responseData);
 
     } catch (error) {
-        // 3. Lida com o servidor estar offline ou com outros erros de rede
         if (error.response && error.response.headers['content-type']?.includes('text/html')) {
             return res.status(502).json({ error: 'O serviço externo de tarefas parece estar offline ou com problemas. Por favor, tente novamente mais tarde.' });
         }
@@ -80,4 +77,3 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: `Falha na comunicação com o serviço de tarefas. Detalhes: ${errorDetails}` });
     }
 };
-    
