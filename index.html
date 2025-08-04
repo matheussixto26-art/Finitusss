@@ -324,7 +324,6 @@
 
             try {
                 // 3. Faz a chamada para a API (backend)
-                // O caminho '/api/login' funcionará automaticamente na Vercel
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: {
@@ -336,28 +335,23 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // Se a resposta não for 2xx, trata como erro
                     throw new Error(data.error || 'Erro desconhecido no servidor.');
                 }
                 
-                // 4. Se a chamada for bem-sucedida, preenche o dashboard
                 populateDashboard(data);
                 
-                // 5. Exibe o dashboard
                 loadingSpinner.style.display = 'none';
                 dashboardContainer.style.display = 'block';
 
             } catch (error) {
-                // 6. Se ocorrer um erro, exibe a mensagem de erro
                 loginError.textContent = `Falha no login: ${error.message}`;
                 loginError.style.display = 'block';
                 loadingSpinner.style.display = 'none';
-                loginContainer.style.display = 'block'; // Mostra o formulário de novo
+                loginContainer.style.display = 'block';
             }
         });
         
         logoutButton.addEventListener('click', () => {
-            // Limpa o formulário e reseta a UI para a tela de login
             loginForm.reset();
             dashboardContainer.style.display = 'none';
             loginContainer.style.display = 'block';
@@ -366,13 +360,14 @@
 
         // Função para preencher o dashboard com os dados da API
         function populateDashboard(data) {
-            // Informações do Aluno
-            document.getElementById('student-name').textContent = `Bem-vindo(a), ${data.userInfo.NOME_COMPLETO.split(' ')[0]}!`;
+            // Informações do Aluno (COM A CORREÇÃO)
+            const studentFirstName = data.userInfo.NOME_COMPLETO?.split(' ')[0] ?? 'Aluno(a)';
+            document.getElementById('student-name').textContent = `Bem-vindo(a), ${studentFirstName}!`;
             document.getElementById('school-name').textContent = data.userInfo.NOME_ESCOLA || 'Escola não informada';
 
             // Popula lista de Notificações
             const notificationsList = document.getElementById('notifications-list');
-            notificationsList.innerHTML = ''; // Limpa a lista
+            notificationsList.innerHTML = '';
             if (data.notificacoes && data.notificacoes.length > 0) {
                 data.notificacoes.forEach(item => {
                     const li = document.createElement('li');
@@ -389,7 +384,6 @@
             if (data.tarefas && data.tarefas.length > 0) {
                 data.tarefas.forEach(task => {
                     const li = document.createElement('li');
-                    // A API de tarefas retorna a data em formato ISO 8601 (ex: "2024-08-15T23:59:00Z")
                     const dueDate = new Date(task.due_date).toLocaleDateString('pt-BR');
                     li.innerHTML = `<strong>${task.title}</strong><span class="date">Entrega: ${dueDate}</span>`;
                     tasksList.appendChild(li);
