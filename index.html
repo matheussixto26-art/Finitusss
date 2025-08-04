@@ -6,7 +6,7 @@
     <title>Finituss</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark:#1c1e2e; --bg-medium:#252940; --border-color:#3a3f6a; --text-primary:#ffffff; --text-secondary:#a3a7d2; --accent-color:#e53965; --red-color: #e53965; --blue-color: #388bfd; --orange-color: #f77829; --green-color: #23d183; }
+        :root { --bg-dark:#1c1e2e; --bg-medium:#252940; --border-color:#3a3f6a; --text-primary:#ffffff; --text-secondary:#a3a7d2; --accent-color:#e53965; --red-color: #e53965; --green-color: #23d183; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-dark); color: var(--text-primary); font-family: 'Poppins', sans-serif; overflow: hidden; }
         .hidden { display: none !important; }
@@ -15,64 +15,51 @@
         .login-container h1 { margin-bottom: 10px; font-size: 2.5em; }
         .login-container label { display: block; text-align: left; margin-bottom: 5px; color: var(--text-secondary); }
         .input-group { margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); }
+        input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); }
         button { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
         button:hover { background-color: #c22a51; }
         #login-message { margin-top: 20px; min-height: 20px; color: var(--red-color); }
         #dashboard-screen { display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; transition: transform 0.3s ease, width 0.3s ease; z-index: 2000; }
-        .sidebar.compact { width: 80px; }
-        .sidebar .brand h2 { display: block; } .sidebar.compact .brand h2 { display: none; }
-        .sidebar .brand p { display: block; font-size: 0.8rem; color: var(--text-secondary); } .sidebar.compact .brand p { display: none; }
-        .sidebar .nav-item span { display: inline; } .sidebar.compact .nav-item span { display: none; }
-        .sidebar .nav-list { list-style: none; margin-top: 2rem; }
-        .sidebar .nav-item { margin-bottom: 1.5rem; }
-        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; font-size: 1rem; }
+        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; }
+        .sidebar .brand { margin-bottom: 2rem; }
+        .sidebar .brand p { font-size: 0.8rem; color: var(--text-secondary); }
         .sidebar .logout { margin-top: auto; background: none; border: 1px solid var(--accent-color); color: var(--accent-color); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .sidebar.compact .logout span { display: none; }
-        .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; transition: margin-left 0.3s ease; }
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
+        .main-header { margin-bottom: 1rem; }
         .main-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
         .dashboard-card { background-color: var(--bg-medium); border-radius: 8px; padding: 20px; cursor: pointer; transition: transform 0.2s; }
         .dashboard-card:hover { transform: translateY(-5px); }
         .card-header { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
         .card-data { font-size: 2.8em; font-weight: 700; margin-top: 10px; }
-        .modal-overlay, #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; flex-direction:column; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
-        .modal-overlay.is-visible, #loading-overlay.is-visible { opacity: 1; pointer-events: all; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+        .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
         .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-        .modal-list .list-item { display: flex; flex-direction: column; align-items: flex-start; list-style: none; padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .list-item:last-child { border-bottom: none; }
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
-        .toast { background-color: var(--accent-color); color: white; padding: 15px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateX(100%); animation: slideIn 0.5s forwards; }
-        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
-        #menu-toggle { background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+        .task-card { background-color: var(--bg-dark); border-left: 4px solid var(--accent-color); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+        .task-card .task-header { display: flex; justify-content: space-between; align-items: center; }
+        .task-card .task-details { color: var(--text-secondary); font-size: 0.8em; margin-top: 8px; }
+        .task-actions { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        .task-card:hover .task-actions { max-height: 200px; }
+        .action-controls { display: flex; gap: 20px; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
         .button-group { display: flex; gap: 10px; }
         .btn-fazer-tarefa { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
         .btn-fazer-tarefa.submit { background-color: var(--accent-color); color: white; border: none; }
-        .btn-fazer-tarefa:disabled { background-color: var(--text-secondary); cursor: not-allowed; color: var(--bg-dark); }
+        .modal-list { list-style: none; }
     </style>
 </head>
 <body>
-    <div id="loading-overlay"><h2 id="loading-text" style="color:white; font-size: 1.5em;"></h2></div>
-    <div id="toast-container"></div>
     <div id="login-screen">
         <div class="login-container"><h1>Finituss</h1><form id="login-form"><label for="ra">Registro Acadêmico (RA):</label><div class="input-group"><input type="text" id="ra" required></div><label for="senha">Senha:</label><div class="input-group"><input type="password" id="senha" required></div><button type="submit" id="login-button">Entrar</button></form><div id="login-message"></div></div>
     </div>
     <div id="dashboard-screen" class="hidden">
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar">
             <div class="brand"><h2>Finituss</h2><p>Criado por ?</p></div>
-            <ul class="nav-list">
-                <li class="nav-item"><a href="#" id="settings-btn"><span>⚙️</span> <span>Configurações</span></a></li>
-            </ul>
-            <button class="logout" id="logout-button"><span>🚪</span> <span>Sair</span></button>
+            <div id="theme-settings" style="margin-top: 2rem;"></div>
+            <button class="logout" id="logout-button">Sair</button>
         </aside>
-        <main class="main-content" id="main-content">
-            <header class="main-header">
-                <button id="menu-toggle">&#9776;</button>
-                <h1 id="welcome-message"></h1>
-            </header>
+        <main class="main-content">
+            <header class="main-header"><h1 id="welcome-message"></h1></header>
             <div class="info-bar"><span id="school-name"></span></div>
             <div class="cards-container">
                 <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-header"><span>🗓️</span><div>Faltas</div></div><div class="card-data" id="faltas-count">0</div></div>
@@ -83,41 +70,35 @@
         </main>
     </div>
     
-    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas</h2><div style="margin: 15px 0; display:flex; gap: 20px; align-items:center;"><label for="task-delay">Simular tempo (segundos):</label><input type="number" id="task-delay" value="60" min="1" style="width: 80px;"><label for="error-count">Questões para errar:</label><input type="number" id="error-count" value="0" min="0" style="width: 80px;"></div><ul class="modal-list" id="tarefas-list"></ul></div></div>
-    <div id="settings-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Configurações de Tema</h2><div id="theme-settings"></div></div></div>
-    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul class="modal-list" id="faltas-list"></ul></div></div>
-    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
-    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul class="modal-list" id="notificacoes-list"></ul></div></div>
+    <div id="welcome-modal" class="modal-overlay"><div class="modal-content" style="text-align:center;"><h2 id="welcome-modal-message"></h2><p style="color:var(--text-secondary); margin: 15px 0;">Esperamos que aproveite as plataformas educacionais!</p><button id="welcome-start-btn">Começar</button></div></div>
+    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas Pendentes</h2><div id="tarefas-list"></div></div></div>
+    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul id="faltas-list" class="modal-list"></ul></div></div>
+    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul id="conquistas-list" class="modal-list"></ul></div></div>
+    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul id="notificacoes-list" class="modal-list"></ul></div></div>
         <script>
         document.addEventListener('DOMContentLoaded', () => {
             let fullData = {};
             let tokenB = '';
 
-            const loadingOverlay = document.getElementById('loading-overlay');
-            const loadingText = document.getElementById('loading-text');
             const loginScreen = document.getElementById('login-screen');
             const dashboardScreen = document.getElementById('dashboard-screen');
             const loginForm = document.getElementById('login-form');
             const loginButton = document.getElementById('login-button');
             const logoutButton = document.getElementById('logout-button');
             const loginMessage = document.getElementById('login-message');
-            const menuToggle = document.getElementById('menu-toggle');
-            const sidebar = document.getElementById('sidebar');
-
+            const welcomeModal = document.getElementById('welcome-modal');
+            const welcomeStartBtn = document.getElementById('welcome-start-btn');
+            
             // --- Lógica do Tema ---
             const themeSettingsContainer = document.getElementById('theme-settings');
             const colorProperties = [
-                { name: '--bg-dark', label: 'Fundo Escuro' },
-                { name: '--bg-medium', label: 'Fundo Médio' },
-                { name: '--accent-color', label: 'Cor de Destaque' },
-                { name: '--text-primary', label: 'Texto Principal' },
-                { name: '--text-secondary', label: 'Texto Secundário' }
+                { name: '--bg-dark', label: 'Fundo' },
+                { name: '--bg-medium', label: 'Painéis' },
+                { name: '--accent-color', label: 'Destaque' }
             ];
 
             function applyColors(colors) {
-                for (const key in colors) {
-                    document.documentElement.style.setProperty(key, colors[key]);
-                }
+                Object.keys(colors).forEach(key => document.documentElement.style.setProperty(key, colors[key]));
             }
 
             function loadTheme() {
@@ -125,13 +106,13 @@
                 if (savedColors) {
                     applyColors(JSON.parse(savedColors));
                 }
-                themeSettingsContainer.innerHTML = '';
+                themeSettingsContainer.innerHTML = '<h3 style="color:var(--text-secondary); margin-bottom:1rem;">Configurações</h3>';
                 colorProperties.forEach(prop => {
                     const currentColor = getComputedStyle(document.documentElement).getPropertyValue(prop.name).trim();
                     const settingHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <label for="${prop.name}">${prop.label}</label>
-                            <input type="color" id="${prop.name}" value="${currentColor}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <label for="${prop.name}" style="font-size:0.9em; color:var(--text-secondary);">${prop.label}</label>
+                            <input type="color" id="${prop.name}" value="${currentColor}" style="width:50px; height:25px; border:none; background:none;">
                         </div>`;
                     themeSettingsContainer.innerHTML += settingHTML;
                 });
@@ -152,34 +133,12 @@
                 localStorage.setItem('finitussTheme', JSON.stringify(currentColors));
             }
             loadTheme();
-
-            // --- Lógica de Notificações "Toast" ---
-            function showToast(message) {
-                const toastContainer = document.getElementById('toast-container');
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                toast.textContent = message;
-                toastContainer.appendChild(toast);
-                setTimeout(() => {
-                    toast.remove();
-                }, 3000);
-            }
             
             // --- Lógica do Login ---
-            async function showLoadingSequence() {
-                const messages = ["Conectando...", "Autenticando...", "A carregar dados do aluno...", "A buscar tarefas..."];
-                loadingOverlay.classList.add('is-visible');
-                for (const msg of messages) {
-                    loadingText.textContent = msg;
-                    await new Promise(resolve => setTimeout(resolve, 700));
-                }
-            }
-
             loginForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 loginButton.disabled = true;
-                loginMessage.textContent = '';
-                showLoadingSequence();
+                loginMessage.textContent = 'A entrar...';
                 try {
                     const response = await fetch('/api/login', {
                         method: 'POST',
@@ -191,39 +150,33 @@
                     
                     fullData = data;
                     tokenB = data.tokenB;
-                    
-                    loadingText.textContent = "Pronto!";
-                    setTimeout(() => {
-                        loadingOverlay.classList.remove('is-visible');
-                        showDashboard();
-                    }, 500);
+                    showDashboard();
                 } catch (error) {
-                    loadingOverlay.classList.remove('is-visible');
                     loginMessage.textContent = `❌ ${error.message}`;
                 } finally {
                     loginButton.disabled = false;
                 }
             });
 
-            // --- Lógica Geral do Dashboard ---
             logoutButton.addEventListener('click', () => {
                 loginScreen.classList.remove('hidden');
                 dashboardScreen.classList.add('hidden');
                 loginForm.reset();
             });
-
-            menuToggle.addEventListener('click', () => sidebar.classList.toggle('compact'));
             
+            welcomeStartBtn.addEventListener('click', () => welcomeModal.classList.remove('is-visible'));
+
             function showDashboard() {
                 populateDashboard();
                 setupEventListeners();
                 loginScreen.classList.add('hidden');
                 dashboardScreen.classList.remove('hidden');
+                document.getElementById('welcome-modal-message').textContent = `Bem-vindo, ${fullData.userInfo?.NAME.split(' ')[0]}!`;
+                welcomeModal.classList.add('is-visible');
             }
 
             function populateDashboard() {
-                const userName = fullData.userInfo?.NAME || 'Aluno(a)';
-                document.getElementById('welcome-message').textContent = `Bem-vindo(a), ${userName.split(' ')[0]}!`;
+                document.getElementById('welcome-message').textContent = `Bem-vindo, ${fullData.userInfo?.NAME}!`;
                 document.getElementById('school-name').textContent = `🏫 ${fullData.userInfo?.NOME_ESCOLA || 'Escola não encontrada'}`;
                 document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
                 document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
@@ -232,10 +185,7 @@
             }
 
             function setupEventListeners() {
-                document.querySelectorAll('.dashboard-card, #settings-btn').forEach(card => card.addEventListener('click', () => {
-                    const modalId = card.id === 'settings-btn' ? 'settings-modal' : card.dataset.modalTarget;
-                    showModal(modalId);
-                }));
+                document.querySelectorAll('.dashboard-card').forEach(card => card.addEventListener('click', () => showModal(card.dataset.modalTarget)));
                 document.querySelectorAll('.modal-overlay').forEach(modal => modal.addEventListener('click', (e) => e.target === modal && hideModal(modal.id)));
                 document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', () => hideModal(btn.closest('.modal-overlay').id)));
             }
@@ -243,31 +193,37 @@
             function showModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
-                showToast(`A abrir ${modal.querySelector('h2').textContent}`);
+                
+                const list = modal.querySelector('.modal-list, .boletim-grid, #tarefas-list');
+                let content = '<p style="padding: 15px;">Nenhuma informação encontrada.</p>';
                 
                 if (modalId === 'tarefas-modal') {
-                    const list = modal.querySelector('.modal-list');
-                    let content = '<p style="padding: 15px;">Nenhuma tarefa encontrada.</p>';
                     if (fullData.tarefas?.length > 0) {
-                        content = fullData.tarefas.map(item => {
-                            let tagHTML = '';
-                            let buttonHTML = '';
-                            if (item.answer_status === 'draft') tagHTML += '<span class="tag rascunho">RASCUNHO</span>';
-                            if (item.task_expired) tagHTML += '<span class="tag expirada">EXPIRADA</span>';
+                        content = fullData.tarefas.map((item, index) => {
+                            const isExpired = item.task_expired;
+                            let statusText = 'Pendente';
+                            if (isExpired) statusText = 'Expirada';
+                            if (item.answer_status === 'draft') statusText = 'Rascunho';
 
-                            if (item.tags?.includes('redacaopaulista')) {
-                                tagHTML += '<span class="tag redacao">REDAÇÃO</span>';
-                                buttonHTML = `<p style="color: var(--text-secondary); font-style: italic;">Em Breve</p>`;
-                            } else {
-                                buttonHTML = `<div class="button-group">
-                                    <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="draft">Salvar Rascunho</button>
-                                    <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="submitted">Enviar</button>
-                                </div>`;
-                            }
-                            return `<li class="list-item">
-                                <div><h3>${item.title}${tagHTML}</h3><p>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</p></div>
-                                ${buttonHTML}
-                            </li>`;
+                            const controlsId = `controls-${item.id}`;
+
+                            const buttonHTML = item.tags?.includes('redacaopaulista') 
+                                ? `<p style="color: var(--text-secondary); font-style: italic;">Redações em breve</p>`
+                                : `<div class="action-controls">
+                                      <div><label style="font-size:0.8em">Errar:</label><input type="number" id="error-count-${item.id}" value="0" min="0" style="width: 50px;"></div>
+                                      <div class="button-group">
+                                          <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
+                                          <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
+                                      </div>
+                                  </div>`;
+
+                            return `<div class="task-card" style="border-left-color: ${item.style?.backgroundColor || 'var(--accent-color)'};">
+                                <div class="task-header"><h3>${item.title}</h3></div>
+                                <div class="task-details">
+                                    <span>Autor: ${item.author}</span> | <span>Status: ${statusText}</span> | <span>ID: ${item.id}</span>
+                                </div>
+                                <div class="task-actions">${buttonHTML}</div>
+                            </div>`;
                         }).join('');
                     }
                     list.innerHTML = content;
@@ -279,9 +235,11 @@
             async function handleFazerTarefa(event) {
                 const button = event.target;
                 const action = button.dataset.action;
-                const parentGroup = button.parentElement;
+                const taskId = button.dataset.taskId;
+                const parentActions = button.closest('.task-actions');
+                const errorCountInput = document.getElementById(`error-count-${taskId}`);
                 
-                parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                parentActions.querySelectorAll('button').forEach(btn => btn.disabled = true);
                 button.textContent = 'Aguarde...';
                 
                 try {
@@ -289,27 +247,26 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            taskId: parseInt(button.dataset.taskId), 
+                            taskId: parseInt(taskId), 
                             token: tokenB, 
                             room: button.dataset.room, 
-                            tempo: parseInt(document.getElementById('task-delay').value), 
+                            tempo: 60,
                             is_expired: button.dataset.isExpired === 'true',
                             submission_type: action,
-                            errorCount: parseInt(document.getElementById('error-count').value, 10)
+                            errorCount: parseInt(errorCountInput.value, 10)
                         }),
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
                     
-                    parentGroup.innerHTML = `<p style="color: var(--green-color);">Sucesso!</p>`;
-                    showToast('Tarefa processada!');
+                    parentActions.innerHTML = `<p style="color: var(--green-color); padding-top:15px; border-top:1px solid var(--border-color);">Sucesso!</p>`;
                 } catch (error) {
                     alert(`Falha na operação: ${error.message}`);
-                    parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    parentActions.querySelectorAll('button').forEach(btn => btn.disabled = false);
                     button.textContent = action === 'draft' ? 'Salvar Rascunho' : 'Enviar';
                 }
             }
-
+            
             function hideModal(modalId) {
                 document.getElementById(modalId)?.classList.remove('is-visible');
             }
