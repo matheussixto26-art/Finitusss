@@ -5,9 +5,9 @@ module.exports = async (req, res) => {
         return res.status(405).json({ error: 'Método não permitido.' });
     }
 
-    const { taskId, token, room, tempo, is_expired } = req.body;
+    const { taskId, token, room, tempo, is_expired, submission_type } = req.body;
 
-    if (!taskId || !token || !room || !tempo) {
+    if (!taskId || !token || !room || !tempo || !submission_type) {
         return res.status(400).json({ error: 'Parâmetros em falta. Tente fazer login novamente.' });
     }
 
@@ -34,7 +34,7 @@ module.exports = async (req, res) => {
             token: token,
             tipo: tipoTarefa,
             tempo: parseInt(tempo, 10),
-            status: "draft", // ALTERAÇÃO PRINCIPAL AQUI
+            status: submission_type,
             accessed_on: "room",
             executed_on: room,
             answers: answers
@@ -42,9 +42,16 @@ module.exports = async (req, res) => {
 
         const submitResponse = await axios.post(API_URL, submitPayload);
 
-        if (submitResponse.data && (submitResponse.data.error || submitResponse.data.success === false)) {
-             const errorMessage = submitResponse.data.message || submitResponse.data.error || 'Erro desconhecido retornado pelo servidor de tarefas.';
-             return res.status(400).json({ error: errorMessage });
+        // MODIFICAÇÃO DE DIAGNÓSTICO:
+        // Vamos verificar a resposta de uma forma mais rigorosa.
+        // Se a resposta não contiver um campo específico que indique sucesso, consideramos um erro.
+        // Vamos assumir que uma resposta de sucesso DEVE ter um campo "answer".
+        if (!submitResponse.data || !submitResponse.data.answer) {
+             console.error("[ERRO TAREFA DIAGNÓSTICO] O servidor externo não retornou uma confirmação de sucesso. Resposta recebida:", submitResponse.data);
+             
+             // Envia a resposta completa do erro para o frontend.
+             const detailedError = JSON.stringify(submitResponse.data);
+             return res.status(400).json({ error: `O servidor externo não confirmou o sucesso. Resposta completa: ${detailedError}` });
         }
 
         res.status(200).json(submitResponse.data);
