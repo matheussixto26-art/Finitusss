@@ -40,19 +40,22 @@
         .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
         .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-        .task-card { background-color: var(--bg-dark); border-left: 4px solid var(--accent-color); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+        .modal-list { list-style: none; padding: 0; }
+        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .modal-list li:last-child { border-bottom: none; }
+        .task-card { background-color: var(--bg-dark); border-left: 4px solid var(--accent-color); border-radius: 6px; padding: 15px; margin-bottom: 15px; cursor: pointer; }
         .task-card .task-header { display: flex; justify-content: space-between; align-items: center; }
         .task-card .task-details { color: var(--text-secondary); font-size: 0.8em; margin-top: 8px; }
-        .task-card .task-actions { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
-        .task-card:hover .task-actions { max-height: 200px; }
-        .settings-section { margin-top: 1.5rem; }
-        .settings-section h3 { color: var(--text-secondary); margin-bottom: 1rem; font-size: 1em; }
-        .saved-account { display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-dark); padding: 15px; border-radius: 6px; margin-bottom: 10px; }
-        .saved-account .info { text-align: left; }
-        .saved-account .info span { font-size: 0.8em; color: var(--text-secondary); }
-        .saved-account .actions { display: flex; gap: 10px; }
-        .btn-remover { background-color: var(--red-color); color: white; border: none; padding: 5px 10px; font-size: 0.8em; border-radius: 4px; cursor: pointer; }
-        .btn-logar { background-color: var(--accent-color); color: white; border: none; padding: 5px 10px; font-size: 0.8em; border-radius: 4px; cursor: pointer; }
+        .task-actions { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        .task-card.open .task-actions { max-height: 200px; } /* Revela as ações ao clicar */
+        .action-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        .button-group { display: flex; gap: 10px; }
+        .btn-fazer-tarefa, .btn-enviar-rascunho { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .btn-fazer-tarefa.submit, .btn-enviar-rascunho { background-color: var(--accent-color); color: white; border: none; }
+        .conquista-icon { width: 48px; height: 48px; }
+        .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
+        .tag.expirada { background-color: var(--red-color); color: white; }
+        .tag.rascunho { background-color: var(--orange-color); color: white; }
     </style>
 </head>
 <body>
@@ -91,13 +94,12 @@
                     <div class="input-group"><input type="text" id="new-ra" required></div>
                     <label for="new-senha">Senha</label>
                     <div class="input-group"><input type="password" id="new-senha" required></div>
-                    <button type="submit" class="btn">Salvar e Autenticar</button>
+                    <button type="submit" class="btn">Salvar Conta</button>
                 </form>
             </div>
             <div class="settings-section">
                 <h3>Contas Salvas</h3>
-                <div id="saved-accounts-list">
-                    </div>
+                <div id="saved-accounts-list"></div>
             </div>
         </div>
     </div>
@@ -119,7 +121,6 @@
             const logoutButton = document.getElementById('logout-button');
             const loginMessage = document.getElementById('login-message');
             
-            // --- Lógica do Gestor de Contas ---
             const settingsBtn = document.getElementById('settings-btn');
             const settingsModal = document.getElementById('settings-modal');
             const addAccountForm = document.getElementById('add-account-form');
@@ -130,7 +131,7 @@
 
             function addAccount(ra, senha, nome) {
                 let accounts = getAccounts();
-                const existingAccountIndex = accounts.findIndex(acc => acc.ra === ra);
+                const existingAccountIndex = accounts.findIndex(acc => acc.ra.toLowerCase() === ra.toLowerCase());
                 const accountData = { ra, senha, nome: nome || `Aluno ${ra}` };
                 if (existingAccountIndex > -1) {
                     accounts[existingAccountIndex] = accountData;
@@ -142,8 +143,7 @@
             }
 
             function removeAccount(ra) {
-                let accounts = getAccounts();
-                accounts = accounts.filter(acc => acc.ra !== ra);
+                let accounts = getAccounts().filter(acc => acc.ra.toLowerCase() !== ra.toLowerCase());
                 saveAccounts(accounts);
                 populateSettingsModal();
             }
@@ -156,12 +156,12 @@
                     return;
                 }
                 accounts.forEach(acc => {
-                    const isActive = acc.ra === currentAccountRA;
+                    const isActive = acc.ra.toLowerCase() === currentAccountRA.toLowerCase();
                     const accountEl = document.createElement('div');
                     accountEl.className = 'saved-account';
                     accountEl.innerHTML = `
                         <div class="info">
-                            <strong>${acc.nome} ${isActive ? '(Ativo)' : ''}</strong>
+                            <strong>${acc.nome} ${isActive ? '<span style="color:var(--green-color); font-size:0.8em;">(Ativo)</span>' : ''}</strong>
                             <span>${acc.ra}</span>
                         </div>
                         <div class="actions">
@@ -172,15 +172,13 @@
                     savedAccountsList.appendChild(accountEl);
                 });
 
-                document.querySelectorAll('.btn-remover').forEach(btn => btn.addEventListener('click', (e) => {
-                    removeAccount(e.target.dataset.ra);
-                }));
+                document.querySelectorAll('.btn-remover').forEach(btn => btn.addEventListener('click', (e) => removeAccount(e.target.dataset.ra)));
                 document.querySelectorAll('.btn-logar').forEach(btn => btn.addEventListener('click', (e) => {
                     const acc = getAccounts().find(a => a.ra === e.target.dataset.ra);
                     if(acc) {
                         document.getElementById('ra').value = acc.ra;
                         document.getElementById('senha').value = acc.senha;
-                        loginForm.dispatchEvent(new Event('submit'));
+                        performLogin(acc.ra, acc.senha);
                         hideModal('settings-modal');
                     }
                 }));
@@ -190,9 +188,9 @@
                 e.preventDefault();
                 const ra = document.getElementById('new-ra').value;
                 const senha = document.getElementById('new-senha').value;
-                addAccount(ra, senha, `Aluno ${ra}`);
+                addAccount(ra, senha);
                 addAccountForm.reset();
-                alert('Conta adicionada! Agora pode selecioná-la e clicar em "Logar".');
+                alert('Conta salva! Para usá-la, clique em "Logar".');
             });
             
             async function performLogin(ra, senha) {
@@ -209,9 +207,9 @@
                     
                     fullData = data;
                     tokenB = data.tokenB;
-                    currentAccountRA = ra; // Define a conta ativa
+                    currentAccountRA = ra;
                     
-                    addAccount(ra, senha, data.userInfo?.NAME); // Salva/Atualiza a conta com o nome correto
+                    addAccount(ra, senha, data.userInfo?.NAME);
                     showDashboard();
                 } catch (error) {
                     loginMessage.textContent = `❌ ${error.message}`;
@@ -257,49 +255,96 @@
             }
 
             function showModal(modalId) {
-                if (modalId === 'settings-modal') {
-                    populateSettingsModal();
-                }
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
                 
-                let list;
-                let content = '<p style="padding: 15px;">Nenhuma informação encontrada.</p>';
-                
-                 switch(modalId) {
-                    case 'tarefas-modal':
-                        list = document.getElementById('tarefas-list');
-                        if (fullData.tarefas?.length > 0) {
-                            content = fullData.tarefas.map(item => {
-                                const isExpired = item.task_expired;
-                                let statusText = 'Pendente';
-                                let tagHTML = '';
-                                if (isExpired) {
-                                    statusText = 'Expirada';
-                                    tagHTML = '<span class="tag expirada">EXPIRADA</span>';
-                                }
-                                if (item.answer_status === 'draft') {
-                                    statusText = 'Rascunho';
-                                    tagHTML = '<span class="tag rascunho">RASCUNHO</span>';
-                                }
-                                
-                                const buttonHTML = item.tags?.includes('redacaopaulista') 
-                                    ? `<p style="color: var(--text-secondary); font-style: italic;">Redações em breve</p>`
-                                    : `<div class="action-controls" style="display:none;"><div class="button-group">...</div></div>`; // Placeholder
+                if (modalId === 'settings-modal') {
+                    populateSettingsModal();
+                } else {
+                    let list = modal.querySelector('.modal-list, #tarefas-list');
+                    let content = '<p style="padding: 15px;">Nenhuma informação encontrada.</p>';
+                    
+                    switch(modalId) {
+                        case 'tarefas-modal':
+                            if (fullData.tarefas?.length > 0) {
+                                content = fullData.tarefas.map(item => {
+                                    const isExpired = item.task_expired;
+                                    let tagHTML = '';
+                                    if (item.answer_status === 'draft') tagHTML += '<span class="tag rascunho">RASCUNHO</span>';
+                                    if (isExpired) tagHTML += '<span class="tag expirada">EXPIRADA</span>';
+                                    
+                                    const buttonHTML = item.tags?.includes('redacaopaulista') 
+                                        ? `<p style="color: var(--text-secondary); font-style: italic;">Redações em breve</p>`
+                                        : `<div class="task-actions">
+                                              <div class="action-controls">
+                                                  <div><label style="font-size:0.8em">Errar:</label><input type="number" id="error-count-${item.id}" value="0" min="0" style="width: 50px;"></div>
+                                                  <div class="button-group">
+                                                      <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
+                                                      <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
+                                                  </div>
+                                              </div>
+                                          </div>`;
 
-                                return `<div class="task-card" style="border-left-color: ${item.style?.backgroundColor || 'var(--accent-color)'};">
-                                    <div class="task-header"><h3>${item.title}${tagHTML}</h3></div>
-                                    <div class="task-details">
-                                        <span>Autor: ${item.author}</span> | <span>Status: ${statusText}</span>
-                                    </div>
-                                </div>`;
-                            }).join('');
-                        }
-                        list.innerHTML = content;
-                        break;
-                    // ... outros cases
+                                    return `<div class="task-card" style="border-left-color: ${item.style?.backgroundColor || 'var(--accent-color)'};">
+                                        <div class="task-header"><h3>${item.title}${tagHTML}</h3></div>
+                                        <div class="task-details">
+                                            <span>Autor: ${item.author}</span> | <span>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</span>
+                                        </div>
+                                        ${buttonHTML}
+                                    </div>`;
+                                }).join('');
+                            }
+                            list.innerHTML = content;
+                            list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => btn.addEventListener('click', handleFazerTarefa));
+                            list.querySelectorAll('.task-card').forEach(card => card.addEventListener('click', (e) => e.currentTarget.classList.toggle('open')));
+                            break;
+                        case 'faltas-modal':
+                            if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li class="list-item"><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
+                            list.innerHTML = content;
+                            break;
+                        case 'conquistas-modal':
+                             if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li class="list-item"><img src="${item.linkIcone}" style="width:48px; height:48px;"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
+                            list.innerHTML = content;
+                            break;
+                        case 'notificacoes-modal':
+                             if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li class="list-item"><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
+                            list.innerHTML = content;
+                            break;
+                    }
                 }
                 modal.classList.add('is-visible');
+            }
+
+            async function handleFazerTarefa(event) {
+                event.stopPropagation(); // Impede que o clique no botão abra/feche as ações
+                const button = event.target;
+                const action = button.dataset.action;
+                const taskId = button.dataset.taskId;
+                const parentActions = button.closest('.task-actions');
+                const errorCountInput = document.getElementById(`error-count-${taskId}`);
+                
+                parentActions.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                button.textContent = 'Aguarde...';
+                
+                try {
+                    const response = await fetch('/api/fazer-tarefa', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            taskId: parseInt(taskId), token: tokenB, room: button.dataset.room, 
+                            tempo: 60, is_expired: button.dataset.isExpired === 'true',
+                            submission_type: action, errorCount: parseInt(errorCountInput.value, 10)
+                        }),
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
+                    
+                    parentActions.innerHTML = `<p style="color: var(--green-color); padding-top:15px; border-top:1px solid var(--border-color);">Sucesso!</p>`;
+                } catch (error) {
+                    alert(`Falha na operação: ${error.message}`);
+                    parentActions.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    button.textContent = action === 'draft' ? 'Salvar Rascunho' : 'Enviar';
+                }
             }
             
             function hideModal(modalId) {
