@@ -6,7 +6,7 @@
     <title>Finituss</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark:#0d1117; --bg-medium:#161b22; --border-color:#30363d; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#238636; --red-color: #da3633; --blue-color: #388bfd; }
+        :root { --bg-dark:#0d1117; --bg-medium:#161b22; --border-color:#30363d; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#238636; --red-color: #da3633; --blue-color: #388bfd; --orange-color: #f77829; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-dark); color: var(--text-primary); font-family: 'Poppins', sans-serif; overflow: hidden; }
         .hidden { display: none !important; }
@@ -38,12 +38,15 @@
         .list-item .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
         .tag.redacao { background-color: var(--blue-color); color: white; }
         .tag.expirada { background-color: var(--red-color); color: white; }
+        .tag.rascunho { background-color: var(--orange-color); color: white; }
         .conquista-icon { width: 48px; height: 48px; }
         .boletim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 1.5rem; }
         .disciplina-card { background-color: var(--bg-dark); border-radius: 6px; padding: 15px; }
         .disciplina-card h3 { font-size: 1em; margin-bottom: 5px; }
-        .btn-fazer-tarefa { background-color: var(--accent-color); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
-        .btn-fazer-tarefa:disabled { background-color: var(--text-secondary); cursor: not-allowed; }
+        .button-group { display: flex; gap: 10px; }
+        .btn-fazer-tarefa, .btn-enviar-rascunho { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .btn-fazer-tarefa.submit, .btn-enviar-rascunho { background-color: var(--accent-color); color: white; border: none; }
+        .btn-fazer-tarefa:disabled { background-color: var(--text-secondary); cursor: not-allowed; color: var(--bg-dark); }
         #menu-toggle { display: none; background: none; border: none; color: var(--text-primary); font-size: 2rem; cursor: pointer; }
         @media (max-width: 768px) {
             #menu-toggle { display: block; }
@@ -87,8 +90,7 @@
     <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
     <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul class="modal-list" id="notificacoes-list"></ul></div></div>
     <div id="boletim-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Boletim</h2><div class="boletim-grid" id="boletim-grid"></div></div></div>
-
-    <script>
+                        <script>
         document.addEventListener('DOMContentLoaded', () => {
             let fullData = {};
             let tokenB = '';
@@ -185,14 +187,21 @@
                                         let buttonHTML = '';
                                         const isExpired = item.task_expired;
 
-                                        if (item.tags?.includes('redacaopaulista')) {
+                                        if (item.answer_status === 'draft') {
+                                            tagHTML = '<span class="tag rascunho">RASCUNHO</span>';
+                                            buttonHTML = `<button class="btn-enviar-rascunho" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-answer-id="${item.answer_id}">Enviar Rascunho</button>`;
+                                        } else if (item.tags?.includes('redacaopaulista')) {
                                             tagHTML = '<span class="tag redacao">REDAÇÃO</span>';
-                                            buttonHTML = `<button class="btn-fazer-tarefa redacao" data-task-id="${item.id}" data-room="${item.publication_target}">Gerar Rascunho</button>`;
+                                            buttonHTML = `<div class="button-group">
+                                                <button class="btn-fazer-tarefa redacao" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="draft">Gerar Rascunho</button>
+                                                <button class="btn-fazer-tarefa redacao submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="submitted">Gerar e Enviar</button>
+                                            </div>`;
                                         } else {
-                                            if (isExpired) {
-                                                tagHTML = '<span class="tag expirada">EXPIRADA</span>';
-                                            }
-                                            buttonHTML = `<button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}">Salvar Rascunho</button>`;
+                                            if (isExpired) tagHTML = '<span class="tag expirada">EXPIRADA</span>';
+                                            buttonHTML = `<div class="button-group">
+                                                <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
+                                                <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
+                                            </div>`;
                                         }
                                         return `<li class="list-item">
                                             <div><h3>${item.title}${tagHTML}</h3><p>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</p></div>
@@ -211,12 +220,10 @@
                         list.innerHTML = content;
                         if (modalId === 'tarefas-modal') {
                             list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => {
-                                if (btn.classList.contains('redacao')) {
-                                    btn.addEventListener('click', handleFazerRedacao);
-                                } else {
-                                    btn.addEventListener('click', handleFazerTarefa);
-                                }
+                                if (btn.classList.contains('redacao')) btn.addEventListener('click', handleFazerRedacao);
+                                else btn.addEventListener('click', handleFazerTarefa);
                             });
+                            list.querySelectorAll('.btn-enviar-rascunho').forEach(btn => btn.addEventListener('click', handleEnviarRascunho));
                         }
                     }
                 } catch(e) { console.error("Erro ao popular modal:", e); }
@@ -225,8 +232,12 @@
 
             async function handleFazerTarefa(event) {
                 const button = event.target;
-                button.disabled = true;
-                button.textContent = 'A salvar...';
+                const action = button.dataset.action;
+                const parentGroup = button.parentElement;
+
+                parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                button.textContent = 'Aguarde...';
+
                 try {
                     const response = await fetch('/api/fazer-tarefa', {
                         method: 'POST',
@@ -236,24 +247,30 @@
                             token: tokenB, 
                             room: button.dataset.room, 
                             tempo: parseInt(document.getElementById('task-delay').value), 
-                            is_expired: button.dataset.isExpired === 'true'
+                            is_expired: button.dataset.isExpired === 'true',
+                            submission_type: action
                         }),
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
-                    button.textContent = 'Salvo!';
-                    button.style.backgroundColor = '#28a745';
+                    
+                    parentGroup.innerHTML = `<p style="color: #28a745;">Sucesso!</p>`;
                 } catch (error) {
                     button.textContent = 'Erro!';
-                    button.style.backgroundColor = 'var(--red-color)';
-                    alert(`Falha ao salvar rascunho: ${error.message}`);
+                    alert(`Falha na operação: ${error.message}`);
+                    parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    button.textContent = action === 'draft' ? 'Salvar Rascunho' : 'Enviar';
                 }
             }
             
             async function handleFazerRedacao(event) {
                 const button = event.target;
-                button.disabled = true;
-                button.textContent = 'A gerar...';
+                const action = button.dataset.action;
+                const parentGroup = button.parentElement;
+
+                parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                button.textContent = 'Aguarde...';
+
                 try {
                     const response = await fetch('/api/fazer-redacao', {
                         method: 'POST',
@@ -261,17 +278,47 @@
                         body: JSON.stringify({
                             taskId: parseInt(button.dataset.taskId),
                             token: tokenB,
-                            room: button.dataset.room
+                            room: button.dataset.room,
+                            submission_type: action
                         }),
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
-                    button.textContent = 'Salvo!';
-                    button.style.backgroundColor = '#28a745';
+
+                    parentGroup.innerHTML = `<p style="color: #28a745;">Sucesso!</p>`;
                 } catch (error) {
                     button.textContent = 'Erro!';
-                    button.style.backgroundColor = 'var(--red-color)';
-                    alert(`Falha ao gerar rascunho: ${error.message}`);
+                    alert(`Falha na operação: ${error.message}`);
+                    parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    button.textContent = action === 'draft' ? 'Gerar Rascunho' : 'Gerar e Enviar';
+                }
+            }
+            
+            async function handleEnviarRascunho(event) {
+                const button = event.target;
+                button.disabled = true;
+                button.textContent = 'A enviar...';
+                
+                try {
+                    const response = await fetch('/api/enviar-rascunho', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            taskId: parseInt(button.dataset.taskId),
+                            token: tokenB,
+                            room: button.dataset.room,
+                            is_expired: button.dataset.isExpired === 'true',
+                            answerId: parseInt(button.dataset.answerId)
+                        }),
+                    });
+                     const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
+
+                    button.parentElement.innerHTML = `<p style="color: #28a745;">Enviado com Sucesso!</p>`;
+                } catch (error) {
+                    button.textContent = 'Erro!';
+                    alert(`Falha ao enviar rascunho: ${error.message}`);
+                    button.disabled = false;
                 }
             }
 
@@ -281,5 +328,4 @@
         });
     </script>
 </body>
-                                                                                      </html>
-                                                                                      
+</html>
