@@ -187,12 +187,12 @@
 
                                         if (item.tags?.includes('redacaopaulista')) {
                                             tagHTML = '<span class="tag redacao">REDAÇÃO</span>';
-                                            buttonHTML = '<button class="btn-fazer-tarefa" disabled>Indisponível</button>';
+                                            // ALTERAÇÃO: Ativar botão para redações
+                                            buttonHTML = `<button class="btn-fazer-tarefa redacao" data-task-id="${item.id}" data-room="${item.publication_target}">Fazer Redação</button>`;
                                         } else {
                                             if (isExpired) {
                                                 tagHTML = '<span class="tag expirada">EXPIRADA</span>';
                                             }
-                                            // ALTERAÇÃO: Agora o botão aparece para pendentes e expiradas.
                                             buttonHTML = `<button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}">Fazer Tarefa</button>`;
                                         }
                                         return `<li class="list-item">
@@ -212,7 +212,12 @@
                         list.innerHTML = content;
                         if (modalId === 'tarefas-modal') {
                             list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => {
-                                if (!btn.disabled) btn.addEventListener('click', handleFazerTarefa);
+                                // Adicionar listener para o tipo de botão
+                                if (btn.classList.contains('redacao')) {
+                                    btn.addEventListener('click', handleFazerRedacao);
+                                } else {
+                                    btn.addEventListener('click', handleFazerTarefa);
+                                }
                             });
                         }
                     }
@@ -222,31 +227,54 @@
 
             async function handleFazerTarefa(event) {
                 const button = event.target;
-                const taskId = button.dataset.taskId;
-                const room = button.dataset.room;
-                const isExpired = button.dataset.isExpired === 'true'; // Converte a string para booleano
-                const tempo = document.getElementById('task-delay').value;
-
                 button.disabled = true;
                 button.textContent = 'A fazer...';
-
                 try {
                     const response = await fetch('/api/fazer-tarefa', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        // NOVO: Enviando o status de expiração para o backend.
-                        body: JSON.stringify({ taskId: parseInt(taskId), token: tokenB, room: room, tempo: parseInt(tempo), is_expired: isExpired }),
+                        body: JSON.stringify({ 
+                            taskId: parseInt(button.dataset.taskId), 
+                            token: tokenB, 
+                            room: button.dataset.room, 
+                            tempo: parseInt(document.getElementById('task-delay').value), 
+                            is_expired: button.dataset.isExpired === 'true'
+                        }),
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
-
                     button.textContent = 'Feito!';
                     button.style.backgroundColor = '#28a745';
                 } catch (error) {
                     button.textContent = 'Erro!';
                     button.style.backgroundColor = 'var(--red-color)';
-                    console.error('Erro ao fazer tarefa:', error);
                     alert(`Falha ao fazer a tarefa: ${error.message}`);
+                }
+            }
+            
+            // NOVA FUNÇÃO para lidar com redações
+            async function handleFazerRedacao(event) {
+                const button = event.target;
+                button.disabled = true;
+                button.textContent = 'A gerar...';
+                try {
+                    const response = await fetch('/api/fazer-redacao', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            taskId: parseInt(button.dataset.taskId),
+                            token: tokenB,
+                            room: button.dataset.room
+                        }),
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
+                    button.textContent = 'Feito!';
+                    button.style.backgroundColor = '#28a745';
+                } catch (error) {
+                    button.textContent = 'Erro!';
+                    button.style.backgroundColor = 'var(--red-color)';
+                    alert(`Falha ao fazer a redação: ${error.message}`);
                 }
             }
 
