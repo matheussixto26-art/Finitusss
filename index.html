@@ -90,7 +90,7 @@
     <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul id="faltas-list" class="modal-list"></ul></div></div>
     <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul id="conquistas-list" class="modal-list"></ul></div></div>
     <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul id="notificacoes-list" class="modal-list"></ul></div></div>
-        <script>
+                                                               <script>
         document.addEventListener('DOMContentLoaded', () => {
             let fullData = {};
             let tokenB = '';
@@ -163,6 +163,7 @@
                 document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', (e) => hideModal(e.currentTarget.closest('.modal-overlay').id)));
             }
 
+            // FUNÇÃO SHOWMODAL TOTALMENTE CORRIGIDA
             function showModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
@@ -178,7 +179,7 @@
                                     const isExpired = item.task_expired;
                                     let tagHTML = '';
                                     if (isExpired) tagHTML += '<span class="tag expirada">EXPIRADA</span>';
-
+                                    
                                     const buttonHTML = `<div class="action-controls">
                                         <div><label style="font-size:0.8em">Errar:</label><input type="number" class="error-count-input" value="0" min="0" style="width: 50px;"></div>
                                         <div class="button-group">
@@ -206,12 +207,12 @@
                             break;
 
                         case 'conquistas-modal':
-                            if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
+                             if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
                             list.innerHTML = content;
                             break;
                         
                         case 'notificacoes-modal':
-                            if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
+                             if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
                             list.innerHTML = content;
                             break;
                     }
