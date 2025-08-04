@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoonFuturo</title>
+    <title>Finituss</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --bg-dark:#0d1117; --bg-medium:#161b22; --border-color:#30363d; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#238636; }
@@ -19,24 +19,28 @@
         #login-message { margin-top: 20px; min-height: 20px; color: #da3633; }
         #dashboard-screen { display: flex; height: 100vh; }
         .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; }
+        .sidebar .brand p { font-size: 0.8rem; color: var(--text-secondary); }
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
         .main-header p { color: var(--text-secondary); }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
-        .dashboard-card { background-color: var(--bg-medium); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; cursor: pointer; }
+        .dashboard-card { background-color: var(--bg-medium); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; cursor: pointer; transition: transform 0.2s; }
+        .dashboard-card:hover { transform: translateY(-5px); }
         .card-data { font-size: 2.8em; font-weight: 700; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
         .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
         .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; }
         .modal-close { float: right; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-        .modal-list .list-item, .boletim-grid .disciplina-card { list-style: none; padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .boletim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 1.5rem; }
-        .disciplina-card h3 { font-size: 1.1em; }
+        .modal-list .list-item { list-style: none; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .list-item:last-child { border-bottom: none; }
+        .boletim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 1.5rem; }
+        .disciplina-card { background-color: var(--bg-dark); border-radius: 6px; padding: 15px; }
+        .disciplina-card h3 { font-size: 1em; margin-bottom: 5px; }
     </style>
 </head>
 <body>
     <div id="login-screen">
         <div class="login-container">
-            <h1>MoonFuturo</h1>
+            <h1>Finituss</h1>
             <form id="login-form">
                 <div class="input-group"><input type="text" id="ra" placeholder="RA com dígito e UF" required></div>
                 <div class="input-group"><input type="password" id="senha" placeholder="Senha da SED" required></div>
@@ -46,7 +50,12 @@
         </div>
     </div>
     <div id="dashboard-screen" class="hidden">
-        <aside class="sidebar"><h2>MoonFuturo</h2></aside>
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>Finituss</h2>
+                <p>Criado por Ruan</p>
+            </div>
+        </aside>
         <main class="main-content">
             <header class="main-header"><h1 id="welcome-message"></h1><p id="school-name"></p></header>
             <div class="cards-container">
@@ -63,7 +72,7 @@
     <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas Pendentes</h2><ul class="modal-list" id="tarefas-list"></ul></div></div>
     <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
     <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul class="modal-list" id="notificacoes-list"></ul></div></div>
-    <div id="boletim-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Boletim (1º Bimestre)</h2><div class="boletim-grid" id="boletim-grid"></div></div></div>
+    <div id="boletim-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Boletim</h2><div class="boletim-grid" id="boletim-grid"></div></div></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -103,7 +112,7 @@
             }
 
             function populateDashboard() {
-                const userName = fullData.userInfo?.NOME_COMPLETO || fullData.userInfo?.NAME || fullData.userInfo?.NOME || 'Aluno(a)';
+                const userName = fullData.userInfo?.NOME_COMPLETO || 'Aluno(a)';
                 const firstName = userName.split(' ')[0];
                 document.getElementById('welcome-message').textContent = `Bem-vindo(a), ${firstName}!`;
                 document.getElementById('school-name').textContent = fullData.userInfo?.NOME_ESCOLA || 'Escola não encontrada';
@@ -123,29 +132,29 @@
             function showModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
-                let content = '<p>Nenhuma informação encontrada.</p>';
+                let content = '<p style="padding: 15px;">Nenhuma informação encontrada.</p>';
                 
                 try {
                     if (modalId === 'boletim-modal') {
                         const grid = document.getElementById('boletim-grid');
                         if (fullData.boletim?.length > 0) {
-                            content = fullData.boletim.map(d => `<div class="disciplina-card"><h3>${d.descricaoDisciplina}</h3><p>Nota: ${d.notaBimestre1 || '-'}</p></div>`).join('');
+                            content = fullData.boletim.map(d => `<div class="disciplina-card"><h3>${d.ComponenteCurricular}</h3><p>Nota: ${d.Nota || '-'}</p><p>Faltas: ${d.Faltas || '0'}</p></div>`).join('');
                         }
                         grid.innerHTML = content;
                     } else {
                         const list = modal.querySelector('.modal-list');
                          switch(modalId) {
                             case 'faltas-modal':
-                                if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li class="list-item"><h3>${item.disciplina}</h3><p>Faltas: ${item.numeroFaltas}</p></li>`).join('');
+                                if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li class="list-item"><h3>${item.disciplina}</h3><p>Faltas: ${item.totalFaltas}</p></li>`).join('');
                                 break;
                             case 'tarefas-modal':
-                                if (fullData.tarefas?.length > 0) content = fullData.tarefas.map(item => `<li class="list-item"><h3>${item.title}</h3><p>Status: ${item.answer?.status || 'Pendente'}</p></li>`).join('');
+                                if (fullData.tarefas?.length > 0) content = fullData.tarefas.map(item => `<li class="list-item"><h3>${item.title}</h3><p>Prazo: ${new Date(item.due_date).toLocaleDateString('pt-BR')}</p></li>`).join('');
                                 break;
                             case 'conquistas-modal':
-                                if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li class="list-item"><h3>${item.projeto}</h3><p>Medalha: ${item.medalha}</p></li>`).join('');
+                                if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li class="list-item"><h3>${item.Nome}</h3><p>${item.Descricao || 'Sem descrição'}</p></li>`).join('');
                                 break;
                             case 'notificacoes-modal':
-                                if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li class="list-item"><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></li>`).join('');
+                                if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li class="list-item"><h3>${item.Titulo}</h3><p>${item.Mensagem}</p></li>`).join('');
                                 break;
                         }
                         list.innerHTML = content;
@@ -161,4 +170,5 @@
         });
     </script>
 </body>
-</html>
+    </html>
+    
