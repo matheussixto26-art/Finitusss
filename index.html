@@ -6,55 +6,28 @@
     <title>Finituss</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark:#0D1117; --bg-medium:#161B22; --border-color:#30363D; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#00A9E0; --red-color: #e53965; --green-color: #23d183; --orange-color: #f77829; }
+        :root { --bg-dark:#0D1117; --bg-medium:#161B22; --border-color:#30363D; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#00A9E0; --red-color: #e53965; --green-color: #23d183; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-dark); color: var(--text-primary); font-family: 'Poppins', sans-serif; overflow: hidden; }
         .hidden { display: none !important; }
         #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
         .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: center; }
-        .login-container h1 { margin-bottom: 10px; font-size: 2.5em; }
-        .login-container label { display: block; text-align: left; margin-bottom: 5px; color: var(--text-secondary); }
-        .input-group { margin-bottom: 20px; }
         input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); }
         button, .btn { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; transition: background-color 0.2s; text-align: center; }
-        button:hover, .btn:hover { background-color: #0087b3; }
-        #login-message { margin-top: 20px; min-height: 20px; color: var(--red-color); }
         #dashboard-screen { display: flex; height: 100vh; }
         .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; }
-        .sidebar .brand { margin-bottom: 2rem; }
-        .sidebar .brand p { font-size: 0.8rem; color: var(--text-secondary); }
-        .sidebar .nav-list { list-style: none; padding: 0; margin-top: 1rem; }
-        .sidebar .nav-item { margin-bottom: 1rem; }
-        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; font-size: 1rem; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .sidebar .nav-item a:hover { background-color: var(--bg-dark); color: var(--text-primary); }
-        .sidebar .logout { margin-top: auto; background: none; border: 1px solid var(--red-color); color: var(--red-color); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; }
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
-        .main-header { margin-bottom: 1rem; }
-        .main-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
         .dashboard-card { background-color: var(--bg-medium); border-radius: 8px; padding: 20px; cursor: pointer; transition: transform 0.2s; }
-        .dashboard-card:hover { transform: translateY(-5px); }
-        .card-header { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
-        .card-data { font-size: 2.8em; font-weight: 700; margin-top: 10px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
         .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
         .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
         .task-card { background-color: var(--bg-dark); border-left: 4px solid var(--accent-color); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
-        .task-card .task-header { display: flex; justify-content: space-between; align-items: center; }
-        .task-card .task-details { color: var(--text-secondary); font-size: 0.8em; margin-top: 8px; }
         .action-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
         .button-group { display: flex; gap: 10px; }
-        .btn-fazer-tarefa, .btn-enviar-rascunho { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
-        .btn-fazer-tarefa.submit, .btn-enviar-rascunho { background-color: var(--accent-color); color: white; border: none; }
-        .modal-list { list-style: none; padding: 0; }
-        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .modal-list li:last-child { border-bottom: none; }
-        .conquista-icon { width: 48px; height: 48px; }
-        .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
-        .tag.redacao { background-color: var(--blue-color); color: white; }
-        .tag.expirada { background-color: var(--red-color); color: white; }
-        .tag.rascunho { background-color: var(--orange-color); color: white; }
+        .btn-fazer-tarefa { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .btn-fazer-tarefa.submit { background-color: var(--accent-color); color: white; border: none; }
     </style>
 </head>
 <body>
@@ -81,24 +54,18 @@
             </div>
         </main>
     </div>
-
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close">&times;</button>
-            <h2 style="text-align:center; margin-bottom: 2rem;">Configurações de Conta</h2>
-            <div id="accounts-container"></div>
+    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas</h2>
+        <div style="margin: 15px 0; display:flex; gap: 20px; align-items:center; flex-wrap:wrap;">
+            <label for="task-delay">Tempo (segundos):</label><input type="number" id="task-delay" value="1" min="0.1" step="0.1" style="width: 80px;">
+            <label for="error-count">Questões para errar:</label><input type="number" id="error-count" value="0" min="0" style="width: 80px;">
         </div>
-    </div>
-    
-    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas</h2><div id="tarefas-list"></div></div></div>
-    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul id="faltas-list" class="modal-list"></ul></div></div>
-    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul id="conquistas-list" class="modal-list"></ul></div></div>
-    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul id="notificacoes-list" class="modal-list"></ul></div></div>
-        <script>
+        <div id="tarefas-list"></div>
+    </div></div>
+</body>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             let fullData = {};
             let tokenB = '';
-            let currentAccountRA = '';
 
             const loginScreen = document.getElementById('login-screen');
             const dashboardScreen = document.getElementById('dashboard-screen');
@@ -121,8 +88,6 @@
                     
                     fullData = data;
                     tokenB = data.tokenB;
-                    currentAccountRA = ra;
-                    
                     showDashboard();
                 } catch (error) {
                     loginMessage.textContent = `❌ ${error.message}`;
@@ -166,80 +131,32 @@
                 document.querySelectorAll('.modal-overlay').forEach(modal => modal.addEventListener('click', (e) => e.target === modal && hideModal(modal.id)));
                 document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', (e) => hideModal(e.currentTarget.closest('.modal-overlay').id)));
             }
-            
-            // Lógica dos Modais Totalmente Corrigida
+
             function showModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
                 
-                let list = modal.querySelector('.modal-list, #tarefas-list');
-                let content = '<p style="padding: 15px; color: var(--text-secondary);">Nenhuma informação encontrada.</p>';
-                
-                try {
-                    switch(modalId) {
-                        case 'tarefas-modal':
-                            if (fullData.tarefas?.length > 0) {
-                                content = fullData.tarefas.map(item => {
-                                    const isExpired = item.task_expired;
-                                    let tagHTML = '';
-                                    let buttonHTML = '';
+                if (modalId === 'tarefas-modal') {
+                    const list = document.getElementById('tarefas-list');
+                    let content = '<p style="padding: 15px;">Nenhuma tarefa encontrada.</p>';
+                    if (fullData.tarefas?.length > 0) {
+                        content = fullData.tarefas.map(item => {
+                             const buttonHTML = `<div class="action-controls">
+                                <div class="button-group">
+                                    <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${item.task_expired}" data-action="draft">Salvar Rascunho</button>
+                                    <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${item.task_expired}" data-action="submitted">Enviar</button>
+                                </div>
+                            </div>`;
 
-                                    // Lógica de Tags e Botões
-                                    if (item.is_essay) { // Método de deteção de redação corrigido
-                                        tagHTML += '<span class="tag redacao" style="background-color: #bf38e5;">REDAÇÃO</span>';
-                                        if (item.answer_status === 'draft') {
-                                            tagHTML += '<span class="tag rascunho">RASCUNHO</span>';
-                                        }
-                                        buttonHTML = `<div class="button-group">
-                                            <button class="btn-fazer-tarefa redacao" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="draft">Gerar Rascunho</button>
-                                            <button class="btn-fazer-tarefa redacao submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="submitted">Gerar e Enviar</button>
-                                        </div>`;
-                                    } else if (item.answer_status === 'draft') {
-                                        tagHTML += '<span class="tag rascunho">RASCUNHO</span>';
-                                        buttonHTML = `<button class="btn-enviar-rascunho" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-answer-id="${item.answer_id}">Enviar Rascunho</button>`;
-                                    } else {
-                                        if (isExpired) tagHTML += '<span class="tag expirada">EXPIRADA</span>';
-                                        buttonHTML = `<div class="button-group">
-                                            <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
-                                            <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
-                                        </div>`;
-                                    }
-
-                                    return `<div class="task-card" style="border-left-color: ${item.style?.backgroundColor || 'var(--accent-color)'};">
-                                        <div class="task-header"><h3>${item.title}${tagHTML}</h3></div>
-                                        <div class="task-details">
-                                            <span>Autor: ${item.author}</span> | <span>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</span>
-                                        </div>
-                                        <div class="action-controls">${buttonHTML}</div>
-                                    </div>`;
-                                }).join('');
-                            }
-                            list.innerHTML = content;
-                            // Reatribuir todos os event listeners
-                            list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => {
-                                if (btn.classList.contains('redacao')) btn.addEventListener('click', handleFazerRedacao);
-                                else btn.addEventListener('click', handleFazerTarefa);
-                            });
-                            list.querySelectorAll('.btn-enviar-rascunho').forEach(btn => btn.addEventListener('click', handleEnviarRascunho));
-                            break;
-                        
-                        case 'faltas-modal':
-                            if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
-                            list.innerHTML = content;
-                            break;
-
-                        case 'conquistas-modal':
-                             if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
-                            list.innerHTML = content;
-                            break;
-                        
-                        case 'notificacoes-modal':
-                             if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
-                            list.innerHTML = content;
-                            break;
+                            return `<div class="task-card">
+                                <div class="task-header"><h3>${item.title}</h3></div>
+                                ${buttonHTML}
+                            </div>`;
+                        }).join('');
                     }
-                } catch(e) { console.error("Erro ao popular modal:", e); }
-                
+                    list.innerHTML = content;
+                    list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => btn.addEventListener('click', handleFazerTarefa));
+                }
                 modal.classList.add('is-visible');
             }
 
@@ -256,9 +173,13 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            taskId: parseInt(button.dataset.taskId), token: tokenB, room: button.dataset.room, 
-                            tempo: 60, is_expired: button.dataset.isExpired === 'true',
-                            submission_type: action, errorCount: 0
+                            taskId: parseInt(button.dataset.taskId), 
+                            token: tokenB, 
+                            room: button.dataset.room, 
+                            tempo: document.getElementById('task-delay').value, 
+                            is_expired: button.dataset.isExpired === 'true',
+                            submission_type: action, 
+                            errorCount: document.getElementById('error-count').value
                         }),
                     });
                     const result = await response.json();
