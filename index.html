@@ -44,8 +44,8 @@
         .disciplina-card { background-color: var(--bg-dark); border-radius: 6px; padding: 15px; }
         .disciplina-card h3 { font-size: 1em; margin-bottom: 5px; }
         .button-group { display: flex; gap: 10px; }
-        .btn-fazer-tarefa, .btn-enviar-rascunho { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
-        .btn-fazer-tarefa.submit, .btn-enviar-rascunho { background-color: var(--accent-color); color: white; border: none; }
+        .btn-fazer-tarefa { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .btn-fazer-tarefa.submit { background-color: var(--accent-color); color: white; border: none; }
         .btn-fazer-tarefa:disabled { background-color: var(--text-secondary); cursor: not-allowed; color: var(--bg-dark); }
         #menu-toggle { display: none; background: none; border: none; color: var(--text-primary); font-size: 2rem; cursor: pointer; }
         @media (max-width: 768px) {
@@ -90,7 +90,7 @@
     <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
     <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul class="modal-list" id="notificacoes-list"></ul></div></div>
     <div id="boletim-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Boletim</h2><div class="boletim-grid" id="boletim-grid"></div></div></div>
-                        <script>
+        <script>
         document.addEventListener('DOMContentLoaded', () => {
             let fullData = {};
             let tokenB = '';
@@ -188,16 +188,17 @@
                                         const isExpired = item.task_expired;
 
                                         if (item.answer_status === 'draft') {
-                                            tagHTML = '<span class="tag rascunho">RASCUNHO</span>';
-                                            buttonHTML = `<button class="btn-enviar-rascunho" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-answer-id="${item.answer_id}">Enviar Rascunho</button>`;
-                                        } else if (item.tags?.includes('redacaopaulista')) {
-                                            tagHTML = '<span class="tag redacao">REDAÇÃO</span>';
+                                            tagHTML += '<span class="tag rascunho">RASCUNHO</span>';
+                                        }
+
+                                        if (item.tags?.includes('redacaopaulista')) {
+                                            tagHTML += '<span class="tag redacao">REDAÇÃO</span>';
                                             buttonHTML = `<div class="button-group">
                                                 <button class="btn-fazer-tarefa redacao" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="draft">Gerar Rascunho</button>
                                                 <button class="btn-fazer-tarefa redacao submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="submitted">Gerar e Enviar</button>
                                             </div>`;
                                         } else {
-                                            if (isExpired) tagHTML = '<span class="tag expirada">EXPIRADA</span>';
+                                            if (isExpired) tagHTML += '<span class="tag expirada">EXPIRADA</span>';
                                             buttonHTML = `<div class="button-group">
                                                 <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
                                                 <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
@@ -223,7 +224,6 @@
                                 if (btn.classList.contains('redacao')) btn.addEventListener('click', handleFazerRedacao);
                                 else btn.addEventListener('click', handleFazerTarefa);
                             });
-                            list.querySelectorAll('.btn-enviar-rascunho').forEach(btn => btn.addEventListener('click', handleEnviarRascunho));
                         }
                     }
                 } catch(e) { console.error("Erro ao popular modal:", e); }
@@ -291,34 +291,6 @@
                     alert(`Falha na operação: ${error.message}`);
                     parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = false);
                     button.textContent = action === 'draft' ? 'Gerar Rascunho' : 'Gerar e Enviar';
-                }
-            }
-            
-            async function handleEnviarRascunho(event) {
-                const button = event.target;
-                button.disabled = true;
-                button.textContent = 'A enviar...';
-                
-                try {
-                    const response = await fetch('/api/enviar-rascunho', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            taskId: parseInt(button.dataset.taskId),
-                            token: tokenB,
-                            room: button.dataset.room,
-                            is_expired: button.dataset.isExpired === 'true',
-                            answerId: parseInt(button.dataset.answerId)
-                        }),
-                    });
-                     const result = await response.json();
-                    if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
-
-                    button.parentElement.innerHTML = `<p style="color: #28a745;">Enviado com Sucesso!</p>`;
-                } catch (error) {
-                    button.textContent = 'Erro!';
-                    alert(`Falha ao enviar rascunho: ${error.message}`);
-                    button.disabled = false;
                 }
             }
 
