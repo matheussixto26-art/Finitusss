@@ -187,13 +187,12 @@
 
                                         if (item.tags?.includes('redacaopaulista')) {
                                             tagHTML = '<span class="tag redacao">REDAÇÃO</span>';
-                                            // ALTERAÇÃO: Ativar botão para redações
-                                            buttonHTML = `<button class="btn-fazer-tarefa redacao" data-task-id="${item.id}" data-room="${item.publication_target}">Fazer Redação</button>`;
+                                            buttonHTML = `<button class="btn-fazer-tarefa redacao" data-task-id="${item.id}" data-room="${item.publication_target}">Gerar Rascunho</button>`;
                                         } else {
                                             if (isExpired) {
                                                 tagHTML = '<span class="tag expirada">EXPIRADA</span>';
                                             }
-                                            buttonHTML = `<button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}">Fazer Tarefa</button>`;
+                                            buttonHTML = `<button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}">Salvar Rascunho</button>`;
                                         }
                                         return `<li class="list-item">
                                             <div><h3>${item.title}${tagHTML}</h3><p>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</p></div>
@@ -212,7 +211,6 @@
                         list.innerHTML = content;
                         if (modalId === 'tarefas-modal') {
                             list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => {
-                                // Adicionar listener para o tipo de botão
                                 if (btn.classList.contains('redacao')) {
                                     btn.addEventListener('click', handleFazerRedacao);
                                 } else {
@@ -228,7 +226,7 @@
             async function handleFazerTarefa(event) {
                 const button = event.target;
                 button.disabled = true;
-                button.textContent = 'A fazer...';
+                button.textContent = 'A salvar...';
                 try {
                     const response = await fetch('/api/fazer-tarefa', {
                         method: 'POST',
@@ -243,16 +241,15 @@
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
-                    button.textContent = 'Feito!';
+                    button.textContent = 'Salvo!';
                     button.style.backgroundColor = '#28a745';
                 } catch (error) {
                     button.textContent = 'Erro!';
                     button.style.backgroundColor = 'var(--red-color)';
-                    alert(`Falha ao fazer a tarefa: ${error.message}`);
+                    alert(`Falha ao salvar rascunho: ${error.message}`);
                 }
             }
             
-            // NOVA FUNÇÃO para lidar com redações
             async function handleFazerRedacao(event) {
                 const button = event.target;
                 button.disabled = true;
@@ -269,12 +266,12 @@
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
-                    button.textContent = 'Feito!';
+                    button.textContent = 'Salvo!';
                     button.style.backgroundColor = '#28a745';
                 } catch (error) {
                     button.textContent = 'Erro!';
                     button.style.backgroundColor = 'var(--red-color)';
-                    alert(`Falha ao fazer a redação: ${error.message}`);
+                    alert(`Falha ao gerar rascunho: ${error.message}`);
                 }
             }
 
@@ -284,4 +281,5 @@
         });
     </script>
 </body>
-</html>
+                                                                                      </html>
+                                                                                      
