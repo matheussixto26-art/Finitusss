@@ -1,6 +1,5 @@
 const axios = require('axios');
 
-// Função para alterar um número específico de respostas para incorretas
 function introduceErrors(answers, errorCount) {
     if (errorCount <= 0) return answers;
     const newAnswers = JSON.parse(JSON.stringify(answers));
@@ -56,16 +55,19 @@ module.exports = async (req, res) => {
         };
         const submitResponse = await axios.post(API_URL, submitPayload);
         
-        // MODO DE DIAGNÓSTICO ATIVADO
         const responseData = submitResponse.data;
-        if (!responseData || responseData.status !== 'waiting') {
-             const detailedError = JSON.stringify(responseData);
-             return res.status(400).json({ error: `O servidor externo não confirmou o sucesso ('status: waiting'). Resposta completa: ${detailedError}` });
+        if (responseData && (responseData.error || responseData.success === false)) {
+             const errorMessage = responseData.message || responseData.error || 'Erro desconhecido retornado pelo servidor.';
+             return res.status(400).json({ error: errorMessage });
         }
+        
         res.status(200).json(responseData);
     } catch (error) {
+        // DETEÇÃO INTELIGENTE DE ERRO
+        if (error.response && typeof error.response.data === 'string' && error.response.data.includes('Cloudflare')) {
+            return res.status(502).json({ error: 'O serviço de tarefas (moonscripts) parece estar offline ou com problemas. Por favor, tente novamente mais tarde.' });
+        }
         const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
         res.status(500).json({ error: `Falha na comunicação. Detalhes: ${errorDetails}` });
     }
 };
-        
