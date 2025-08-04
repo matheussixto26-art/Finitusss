@@ -83,11 +83,13 @@ module.exports = async (req, res) => {
         const [faltasData, tarefas, conquistas, notificacoes, dadosAluno, boletimData] = await Promise.all(requests);
         
         if(dadosAluno?.aluno?.nome) {
-            userInfo.NOME_COMPLETO = dadosAluno.aluno.nome;
-            userInfo.NOME_ESCOLA = dadosAluno.aluno.nmEscola;
+            userInfo.NOME_COMPLETO = dadosAluno.aluno.nome; // Usado no frontend
+            userInfo.NOME_ESCOLA = dadosAluno.aluno.nmEscola; // Usado no frontend
+            userInfo.NAME = dadosAluno.aluno.nome; // Adicionando NAME para garantir compatibilidade
         }
 
         const dashboardData = {
+            tokenB: tokenB, // <-- A CORREÇÃO ESTÁ AQUI. Adicionando o token à resposta.
             userInfo: userInfo,
             faltas: faltasData?.data || [],
             tarefas: Array.isArray(tarefas) ? tarefas : [],
@@ -103,4 +105,4 @@ module.exports = async (req, res) => {
         res.status(error.response?.status || 500).json({ error: errorMessage });
     }
 };
-                                                
+                
