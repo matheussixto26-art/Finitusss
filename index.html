@@ -20,49 +20,60 @@
         button:hover { background-color: #c22a51; }
         #login-message { margin-top: 20px; min-height: 20px; color: var(--red-color); }
         #dashboard-screen { display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; }
-        .sidebar .brand { margin-bottom: 2rem; }
-        .sidebar .brand p { font-size: 0.8rem; color: var(--text-secondary); }
+        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; transition: transform 0.3s ease, width 0.3s ease; z-index: 2000; }
+        .sidebar.compact { width: 80px; }
+        .sidebar .brand h2 { display: block; } .sidebar.compact .brand h2 { display: none; }
+        .sidebar .brand p { display: block; font-size: 0.8rem; color: var(--text-secondary); } .sidebar.compact .brand p { display: none; }
+        .sidebar .nav-item span { display: inline; } .sidebar.compact .nav-item span { display: none; }
+        .sidebar .nav-list { list-style: none; margin-top: 2rem; }
+        .sidebar .nav-item { margin-bottom: 1.5rem; }
+        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; font-size: 1rem; }
         .sidebar .logout { margin-top: auto; background: none; border: 1px solid var(--accent-color); color: var(--accent-color); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
-        .main-header { margin-bottom: 1rem; }
+        .sidebar.compact .logout span { display: none; }
+        .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; transition: margin-left 0.3s ease; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
         .main-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
         .dashboard-card { background-color: var(--bg-medium); border-radius: 8px; padding: 20px; cursor: pointer; transition: transform 0.2s; }
         .dashboard-card:hover { transform: translateY(-5px); }
         .card-header { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
         .card-data { font-size: 2.8em; font-weight: 700; margin-top: 10px; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
-        .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
+        .modal-overlay, #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; flex-direction:column; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+        .modal-overlay.is-visible, #loading-overlay.is-visible { opacity: 1; pointer-events: all; }
         .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
         .modal-list .list-item { display: flex; flex-direction: column; align-items: flex-start; list-style: none; padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .list-item .task-info { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .list-item .task-details { color: var(--text-secondary); font-size: 0.8em; margin-top: 8px; }
         .list-item:last-child { border-bottom: none; }
-        .list-item .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
-        .tag.redacao { background-color: var(--blue-color); color: white; }
-        .tag.expirada { background-color: var(--red-color); color: white; }
-        .tag.rascunho { background-color: var(--orange-color); color: white; }
-        .conquista-icon { width: 48px; height: 48px; }
-        .button-group { display: flex; gap: 10px; margin-top: 10px; width: 100%; }
-        .btn-fazer-tarefa, .btn-enviar-rascunho { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; flex-grow: 1; }
-        .btn-fazer-tarefa.submit, .btn-enviar-rascunho { background-color: var(--accent-color); color: white; border: none; }
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
+        .toast { background-color: var(--accent-color); color: white; padding: 15px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateX(100%); animation: slideIn 0.5s forwards; }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        #menu-toggle { background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+        .button-group { display: flex; gap: 10px; }
+        .btn-fazer-tarefa { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .btn-fazer-tarefa.submit { background-color: var(--accent-color); color: white; border: none; }
         .btn-fazer-tarefa:disabled { background-color: var(--text-secondary); cursor: not-allowed; color: var(--bg-dark); }
     </style>
 </head>
 <body>
+    <div id="loading-overlay"><h2 id="loading-text" style="color:white; font-size: 1.5em;"></h2></div>
+    <div id="toast-container"></div>
     <div id="login-screen">
         <div class="login-container"><h1>Finituss</h1><form id="login-form"><label for="ra">Registro Acadêmico (RA):</label><div class="input-group"><input type="text" id="ra" required></div><label for="senha">Senha:</label><div class="input-group"><input type="password" id="senha" required></div><button type="submit" id="login-button">Entrar</button></form><div id="login-message"></div></div>
     </div>
     <div id="dashboard-screen" class="hidden">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="brand"><h2>Finituss</h2><p>Criado por ?</p></div>
-            <button class="logout" id="logout-button">Sair</button>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="#" id="settings-btn"><span>⚙️</span> <span>Configurações</span></a></li>
+            </ul>
+            <button class="logout" id="logout-button"><span>🚪</span> <span>Sair</span></button>
         </aside>
-        <main class="main-content">
-            <header class="main-header"><h1 id="welcome-message"></h1></header>
-            <div class="info-bar"><span id="school-name"></span><span id="class-name"></span></div>
+        <main class="main-content" id="main-content">
+            <header class="main-header">
+                <button id="menu-toggle">&#9776;</button>
+                <h1 id="welcome-message"></h1>
+            </header>
+            <div class="info-bar"><span id="school-name"></span></div>
             <div class="cards-container">
                 <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-header"><span>🗓️</span><div>Faltas</div></div><div class="card-data" id="faltas-count">0</div></div>
                 <div class="dashboard-card" data-modal-target="tarefas-modal"><div class="card-header"><span>📚</span><div>Tarefas Pendentes</div></div><div class="card-data" id="tarefas-count">0</div></div>
@@ -72,29 +83,103 @@
         </main>
     </div>
     
-    <div id="welcome-modal" class="modal-overlay"><div class="modal-content" style="text-align:center;"><h2 id="welcome-modal-message"></h2><p style="color:var(--text-secondary); margin: 15px 0;">Esperamos que aproveite as plataformas educacionais!</p><button id="welcome-start-btn">Começar</button></div></div>
-    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas</h2><ul class="modal-list" id="tarefas-list"></ul></div></div>
-    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas por Disciplina</h2><ul class="modal-list" id="faltas-list"></ul></div></div>
-    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
+    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas</h2><div style="margin: 15px 0; display:flex; gap: 20px; align-items:center;"><label for="task-delay">Simular tempo (segundos):</label><input type="number" id="task-delay" value="60" min="1" style="width: 80px;"><label for="error-count">Questões para errar:</label><input type="number" id="error-count" value="0" min="0" style="width: 80px;"></div><ul class="modal-list" id="tarefas-list"></ul></div></div>
+    <div id="settings-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Configurações de Tema</h2><div id="theme-settings"></div></div></div>
+    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul class="modal-list" id="faltas-list"></ul></div></div>
+    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
     <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul class="modal-list" id="notificacoes-list"></ul></div></div>
         <script>
         document.addEventListener('DOMContentLoaded', () => {
             let fullData = {};
             let tokenB = '';
 
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
             const loginScreen = document.getElementById('login-screen');
             const dashboardScreen = document.getElementById('dashboard-screen');
             const loginForm = document.getElementById('login-form');
             const loginButton = document.getElementById('login-button');
             const logoutButton = document.getElementById('logout-button');
             const loginMessage = document.getElementById('login-message');
-            const welcomeModal = document.getElementById('welcome-modal');
-            const welcomeStartBtn = document.getElementById('welcome-start-btn');
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+
+            // --- Lógica do Tema ---
+            const themeSettingsContainer = document.getElementById('theme-settings');
+            const colorProperties = [
+                { name: '--bg-dark', label: 'Fundo Escuro' },
+                { name: '--bg-medium', label: 'Fundo Médio' },
+                { name: '--accent-color', label: 'Cor de Destaque' },
+                { name: '--text-primary', label: 'Texto Principal' },
+                { name: '--text-secondary', label: 'Texto Secundário' }
+            ];
+
+            function applyColors(colors) {
+                for (const key in colors) {
+                    document.documentElement.style.setProperty(key, colors[key]);
+                }
+            }
+
+            function loadTheme() {
+                const savedColors = localStorage.getItem('finitussTheme');
+                if (savedColors) {
+                    applyColors(JSON.parse(savedColors));
+                }
+                themeSettingsContainer.innerHTML = '';
+                colorProperties.forEach(prop => {
+                    const currentColor = getComputedStyle(document.documentElement).getPropertyValue(prop.name).trim();
+                    const settingHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <label for="${prop.name}">${prop.label}</label>
+                            <input type="color" id="${prop.name}" value="${currentColor}">
+                        </div>`;
+                    themeSettingsContainer.innerHTML += settingHTML;
+                });
+                
+                document.querySelectorAll('#theme-settings input[type="color"]').forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        document.documentElement.style.setProperty(e.target.id, e.target.value);
+                        saveTheme();
+                    });
+                });
+            }
+
+            function saveTheme() {
+                const currentColors = {};
+                colorProperties.forEach(prop => {
+                    currentColors[prop.name] = getComputedStyle(document.documentElement).getPropertyValue(prop.name).trim();
+                });
+                localStorage.setItem('finitussTheme', JSON.stringify(currentColors));
+            }
+            loadTheme();
+
+            // --- Lógica de Notificações "Toast" ---
+            function showToast(message) {
+                const toastContainer = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+            
+            // --- Lógica do Login ---
+            async function showLoadingSequence() {
+                const messages = ["Conectando...", "Autenticando...", "A carregar dados do aluno...", "A buscar tarefas..."];
+                loadingOverlay.classList.add('is-visible');
+                for (const msg of messages) {
+                    loadingText.textContent = msg;
+                    await new Promise(resolve => setTimeout(resolve, 700));
+                }
+            }
 
             loginForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 loginButton.disabled = true;
-                loginMessage.textContent = 'Entrando na plataforma...';
+                loginMessage.textContent = '';
+                showLoadingSequence();
                 try {
                     const response = await fetch('/api/login', {
                         method: 'POST',
@@ -107,40 +192,39 @@
                     fullData = data;
                     tokenB = data.tokenB;
                     
-                    showDashboard();
+                    loadingText.textContent = "Pronto!";
+                    setTimeout(() => {
+                        loadingOverlay.classList.remove('is-visible');
+                        showDashboard();
+                    }, 500);
                 } catch (error) {
+                    loadingOverlay.classList.remove('is-visible');
                     loginMessage.textContent = `❌ ${error.message}`;
                 } finally {
                     loginButton.disabled = false;
                 }
             });
 
+            // --- Lógica Geral do Dashboard ---
             logoutButton.addEventListener('click', () => {
                 loginScreen.classList.remove('hidden');
                 dashboardScreen.classList.add('hidden');
                 loginForm.reset();
-                loginMessage.textContent = '';
-            });
-            
-            welcomeStartBtn.addEventListener('click', () => {
-                welcomeModal.classList.remove('is-visible');
             });
 
+            menuToggle.addEventListener('click', () => sidebar.classList.toggle('compact'));
+            
             function showDashboard() {
                 populateDashboard();
                 setupEventListeners();
                 loginScreen.classList.add('hidden');
                 dashboardScreen.classList.remove('hidden');
-                document.getElementById('welcome-modal-message').textContent = `Bem-vindo, ${fullData.userInfo?.NAME.split(' ')[0]}!`;
-                welcomeModal.classList.add('is-visible');
             }
 
             function populateDashboard() {
                 const userName = fullData.userInfo?.NAME || 'Aluno(a)';
-                document.getElementById('welcome-message').textContent = `Bem-vindo, ${userName}!`;
-                document.getElementById('school-name').textContent = `🏫 Escola: ${fullData.userInfo?.NOME_ESCOLA || 'Não encontrada'}`;
-                document.getElementById('class-name').textContent = `👨‍🏫 Sala: ${fullData.userInfo?.SALA || 'Não encontrada'}`;
-                
+                document.getElementById('welcome-message').textContent = `Bem-vindo(a), ${userName.split(' ')[0]}!`;
+                document.getElementById('school-name').textContent = `🏫 ${fullData.userInfo?.NOME_ESCOLA || 'Escola não encontrada'}`;
                 document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
                 document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
                 document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
@@ -148,7 +232,10 @@
             }
 
             function setupEventListeners() {
-                document.querySelectorAll('.dashboard-card').forEach(card => card.addEventListener('click', () => showModal(card.dataset.modalTarget)));
+                document.querySelectorAll('.dashboard-card, #settings-btn').forEach(card => card.addEventListener('click', () => {
+                    const modalId = card.id === 'settings-btn' ? 'settings-modal' : card.dataset.modalTarget;
+                    showModal(modalId);
+                }));
                 document.querySelectorAll('.modal-overlay').forEach(modal => modal.addEventListener('click', (e) => e.target === modal && hideModal(modal.id)));
                 document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', () => hideModal(btn.closest('.modal-overlay').id)));
             }
@@ -156,141 +243,70 @@
             function showModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
-                let content = '<p style="padding: 15px;">Nenhuma informação encontrada.</p>';
+                showToast(`A abrir ${modal.querySelector('h2').textContent}`);
                 
-                try {
-                     const list = modal.querySelector('.modal-list');
-                     switch(modalId) {
-                        case 'faltas-modal':
-                            if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li class="list-item"><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
-                            break;
-                        case 'tarefas-modal':
-                            if (fullData.tarefas?.length > 0) {
-                                content = fullData.tarefas.map(item => {
-                                    let tagHTML = '';
-                                    let buttonHTML = '';
-                                    const isExpired = item.task_expired;
+                if (modalId === 'tarefas-modal') {
+                    const list = modal.querySelector('.modal-list');
+                    let content = '<p style="padding: 15px;">Nenhuma tarefa encontrada.</p>';
+                    if (fullData.tarefas?.length > 0) {
+                        content = fullData.tarefas.map(item => {
+                            let tagHTML = '';
+                            let buttonHTML = '';
+                            if (item.answer_status === 'draft') tagHTML += '<span class="tag rascunho">RASCUNHO</span>';
+                            if (item.task_expired) tagHTML += '<span class="tag expirada">EXPIRADA</span>';
 
-                                    if (item.answer_status === 'draft') {
-                                        tagHTML = '<span class="tag rascunho">RASCUNHO</span>';
-                                        buttonHTML = `<button class="btn-enviar-rascunho" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-answer-id="${item.answer_id}">Enviar Rascunho</button>`;
-                                    } else if (item.tags?.includes('redacaopaulista')) {
-                                        tagHTML = '<span class="tag redacao">REDAÇÃO</span>';
-                                        buttonHTML = `<div class="button-group">
-                                            <button class="btn-fazer-tarefa redacao" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="draft">Gerar Rascunho</button>
-                                            <button class="btn-fazer-tarefa redacao submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="submitted">Gerar e Enviar</button>
-                                        </div>`;
-                                    } else {
-                                        if (isExpired) tagHTML = '<span class="tag expirada">EXPIRADA</span>';
-                                        buttonHTML = `<div class="button-group">
-                                            <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
-                                            <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
-                                        </div>`;
-                                    }
-                                    return `<li class="list-item" style="border-left: 4px solid ${item.style?.backgroundColor || 'var(--border-color)'};">
-                                        <div class="task-info">
-                                            <div><h3>${item.title}${tagHTML}</h3></div>
-                                        </div>
-                                        <div class="task-details">
-                                            <span>Autor: ${item.author}</span> | <span>ID: ${item.id}</span> | <span>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</span>
-                                        </div>
-                                        ${buttonHTML}
-                                    </li>`;
-                                }).join('');
+                            if (item.tags?.includes('redacaopaulista')) {
+                                tagHTML += '<span class="tag redacao">REDAÇÃO</span>';
+                                buttonHTML = `<p style="color: var(--text-secondary); font-style: italic;">Em Breve</p>`;
+                            } else {
+                                buttonHTML = `<div class="button-group">
+                                    <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="draft">Salvar Rascunho</button>
+                                    <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-action="submitted">Enviar</button>
+                                </div>`;
                             }
-                            break;
-                        case 'conquistas-modal':
-                            if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li class="list-item"><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p><p>Nota: ${item.nota}</p></div></li>`).join('');
-                            break;
-                        case 'notificacoes-modal':
-                            if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li class="list-item"><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
-                            break;
+                            return `<li class="list-item">
+                                <div><h3>${item.title}${tagHTML}</h3><p>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</p></div>
+                                ${buttonHTML}
+                            </li>`;
+                        }).join('');
                     }
                     list.innerHTML = content;
-                    if (modalId === 'tarefas-modal') {
-                        list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => {
-                            if (btn.classList.contains('redacao')) btn.addEventListener('click', handleFazerRedacao);
-                            else btn.addEventListener('click', handleFazerTarefa);
-                        });
-                        list.querySelectorAll('.btn-enviar-rascunho').forEach(btn => btn.addEventListener('click', handleEnviarRascunho));
-                    }
-                } catch(e) { console.error("Erro ao popular modal:", e); }
+                    list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => btn.addEventListener('click', handleFazerTarefa));
+                }
                 modal.classList.add('is-visible');
             }
 
             async function handleFazerTarefa(event) {
                 const button = event.target;
                 const action = button.dataset.action;
-                const parentGroup = button.closest('.list-item').querySelector('.button-group');
+                const parentGroup = button.parentElement;
+                
                 parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = true);
                 button.textContent = 'Aguarde...';
-
+                
                 try {
                     const response = await fetch('/api/fazer-tarefa', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            taskId: parseInt(button.dataset.taskId), token: tokenB, room: button.dataset.room, 
-                            tempo: 1, is_expired: button.dataset.isExpired === 'true', submission_type: action
+                            taskId: parseInt(button.dataset.taskId), 
+                            token: tokenB, 
+                            room: button.dataset.room, 
+                            tempo: parseInt(document.getElementById('task-delay').value), 
+                            is_expired: button.dataset.isExpired === 'true',
+                            submission_type: action,
+                            errorCount: parseInt(document.getElementById('error-count').value, 10)
                         }),
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
                     
                     parentGroup.innerHTML = `<p style="color: var(--green-color);">Sucesso!</p>`;
+                    showToast('Tarefa processada!');
                 } catch (error) {
                     alert(`Falha na operação: ${error.message}`);
                     parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = false);
                     button.textContent = action === 'draft' ? 'Salvar Rascunho' : 'Enviar';
-                }
-            }
-            
-            async function handleFazerRedacao(event) {
-                const button = event.target;
-                const action = button.dataset.action;
-                const parentGroup = button.closest('.list-item').querySelector('.button-group');
-                parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = true);
-                button.textContent = 'Aguarde...';
-
-                try {
-                    const response = await fetch('/api/fazer-redacao', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ taskId: parseInt(button.dataset.taskId), token: tokenB, room: button.dataset.room, submission_type: action }),
-                    });
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
-
-                    parentGroup.innerHTML = `<p style="color: var(--green-color);">Sucesso!</p>`;
-                } catch (error) {
-                    alert(`Falha na operação: ${error.message}`);
-                    parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = false);
-                    button.textContent = action === 'draft' ? 'Gerar Rascunho' : 'Gerar e Enviar';
-                }
-            }
-            
-            async function handleEnviarRascunho(event) {
-                const button = event.target;
-                const parentItem = button.closest('.list-item');
-                button.disabled = true;
-                button.textContent = 'A enviar...';
-                
-                try {
-                    const response = await fetch('/api/enviar-rascunho', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            taskId: parseInt(button.dataset.taskId), token: tokenB, room: button.dataset.room,
-                            is_expired: button.dataset.isExpired === 'true', answerId: parseInt(button.dataset.answerId)
-                        }),
-                    });
-                     const result = await response.json();
-                    if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
-
-                    button.outerHTML = `<p style="color: var(--green-color);">Enviado com Sucesso!</p>`;
-                } catch (error) {
-                    alert(`Falha ao enviar rascunho: ${error.message}`);
-                    button.disabled = false;
                 }
             }
 
