@@ -1,10 +1,15 @@
 const axios = require('axios');
+const https = require('https'); // NOVO: Importamos o módulo https do Node.js
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Acessa a chave da API de forma segura a partir das Variáveis de Ambiente
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Função para extrair o objeto JSON de dentro de uma string de callback
+// NOVO: Criamos um "agente" especial que ignora os erros de certificado
+const agent = new https.Agent({
+  rejectUnauthorized: false
+});
+
 function extractJSONObject(str) {
     try {
         const startIndex = str.indexOf('(');
@@ -12,7 +17,7 @@ function extractJSONObject(str) {
         if (startIndex !== -1 && endIndex !== -1) {
             return JSON.parse(str.substring(startIndex + 1, endIndex));
         }
-        return JSON.parse(str); // Tenta fazer o parse direto se não for callback
+        return JSON.parse(str);
     } catch {
         return null;
     }
@@ -25,33 +30,33 @@ module.exports = async (req, res) => {
 
     const { taskId, token, room, submission_type, ra, senha } = req.body;
     if (!taskId || !token || !room || !submission_type || !ra || !senha) {
-        return res.status(400).json({ error: 'Parâmetros em falta: ra e senha são necessários para esta operação.' });
+        return res.status(400).json({ error: 'Parâmetros em falta.' });
     }
     
     const PROXY_URL = "https://crimsonstrauss.xyz/eclipseprocess.php";
 
     try {
-        // ETAPA 1: Autenticar no serviço de proxy para obter o nick
-        const authResponse = await axios.post(`${PROXY_URL}?action=login_external_api`, { ra, senha });
+        // ETAPA 1: Autenticar no serviço de proxy
+        const authResponse = await axios.post(`${PROXY_URL}?action=login_external_api`, { ra, senha }, { httpsAgent: agent }); // Usamos o agente
         const nick = authResponse.data.nick;
         if (!nick) throw new Error("Falha ao obter o nick na autenticação do proxy.");
 
-        // ETAPA 2: Obter a lista de redações disponíveis
+        // ETAPA 2: Obter a lista de redações
         const fetchRedacoesResponse = await axios.post(`${PROXY_URL}?action=login_and_fetch_redacoes`, {
             ra: ra,
-            authToken: token, // Usamos o tokenB que já temos
+            authToken: token,
             nick: nick
-        });
+        }, { httpsAgent: agent }); // Usamos o agente
         
         const redacoesData = extractJSONObject(fetchRedacoesResponse.data);
         if (!redacoesData || !redacoesData.redacoes) throw new Error("A resposta da lista de redações é inválida.");
         const targetRedaction = redacoesData.redacoes.find(r => r.id === taskId);
-        if (!targetRedaction) throw new Error(`Redação com ID ${taskId} não encontrada na sua lista.`);
+        if (!targetRedaction) throw new Error(`Redação com ID ${taskId} não encontrada.`);
 
         // ETAPA 3: Obter o prompt detalhado da API oficial
          const taskDetailsResponse = await axios.get(
             `https://edusp-api.ip.tv/tms/task/${taskId}/apply?preview_mode=false&room_name=${room}`,
-            { headers: { 'x-api-key': token } }
+            { headers: { 'x-api-key': token }, httpsAgent: agent } // Usamos o agente
         );
         const taskData = taskDetailsResponse.data;
         const question = taskData.questions[0];
@@ -66,15 +71,9 @@ module.exports = async (req, res) => {
         const textoMatch = redacaoGerada.match(/TEXTO: ([\s\S]*)/);
         const titulo = tituloMatch ? tituloMatch[1] : "Redação Gerada Automaticamente";
         const texto = textoMatch ? textoMatch[1].trim() : "O conteúdo da redação não pôde ser gerado.";
-
+        
         // ETAPA 5: Injetar a redação gerada e submeter através do proxy
-        targetRedaction.answer_answers = {
-            [question.id]: {
-                answer: { body: texto, title: titulo },
-                question_id: question.id,
-                question_type: "essay",
-            }
-        };
+        targetRedaction.answer_answers = { [question.id]: { answer: { body: texto, title: titulo }, question_id: question.id, question_type: "essay" } };
         targetRedaction.answer_status = submission_type;
 
         const finalPayload = {
@@ -82,7 +81,7 @@ module.exports = async (req, res) => {
             authToken: token
         };
 
-        const finalResponse = await axios.post(`${PROXY_URL}?action=process_redaction`, finalPayload);
+        const finalResponse = await axios.post(`${PROXY_URL}?action=process_redaction`, finalPayload, { httpsAgent: agent }); // Usamos o agente
 
         res.status(200).json({ success: true, message: "Operação de redação concluída!", data: finalResponse.data });
 
@@ -92,3 +91,4 @@ module.exports = async (req, res) => {
         res.status(500).json({ success: false, error: `Falha no processo de redação. Detalhes: ${errorDetails}` });
     }
 };
+            
