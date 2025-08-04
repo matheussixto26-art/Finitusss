@@ -43,7 +43,7 @@
         .disciplina-card { background-color: var(--bg-dark); border-radius: 6px; padding: 15px; }
         .disciplina-card h3 { font-size: 1em; margin-bottom: 5px; }
         .btn-fazer-tarefa { background-color: var(--accent-color); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
-        .btn-fazer-tarefa:disabled { background-color: var(--text-secondary); }
+        .btn-fazer-tarefa:disabled { background-color: var(--text-secondary); cursor: not-allowed; }
         #menu-toggle { display: none; background: none; border: none; color: var(--text-primary); font-size: 2rem; cursor: pointer; }
         @media (max-width: 768px) {
             #menu-toggle { display: block; }
@@ -116,7 +116,7 @@
                     if (!response.ok) throw new Error(data.error);
                     
                     fullData = data;
-                    tokenB = data.tokenB; // Assumindo que o tokenB é retornado no login
+                    tokenB = data.tokenB;
                     
                     showDashboard();
                 } catch (error) {
@@ -182,14 +182,18 @@
                                 if (fullData.tarefas?.length > 0) {
                                     content = fullData.tarefas.map(item => {
                                         let tagHTML = '';
-                                        let buttonHTML = '<button class="btn-fazer-tarefa" disabled>Indisponível</button>';
-                                        
+                                        let buttonHTML = '';
+                                        const isExpired = item.task_expired;
+
                                         if (item.tags?.includes('redacaopaulista')) {
                                             tagHTML = '<span class="tag redacao">REDAÇÃO</span>';
-                                        } else if (item.task_expired) {
-                                            tagHTML = '<span class="tag expirada">EXPIRADA</span>';
+                                            buttonHTML = '<button class="btn-fazer-tarefa" disabled>Indisponível</button>';
                                         } else {
-                                            buttonHTML = `<button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}">Fazer Tarefa</button>`;
+                                            if (isExpired) {
+                                                tagHTML = '<span class="tag expirada">EXPIRADA</span>';
+                                            }
+                                            // ALTERAÇÃO: Agora o botão aparece para pendentes e expiradas.
+                                            buttonHTML = `<button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}">Fazer Tarefa</button>`;
                                         }
                                         return `<li class="list-item">
                                             <div><h3>${item.title}${tagHTML}</h3><p>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</p></div>
@@ -220,6 +224,7 @@
                 const button = event.target;
                 const taskId = button.dataset.taskId;
                 const room = button.dataset.room;
+                const isExpired = button.dataset.isExpired === 'true'; // Converte a string para booleano
                 const tempo = document.getElementById('task-delay').value;
 
                 button.disabled = true;
@@ -229,13 +234,14 @@
                     const response = await fetch('/api/fazer-tarefa', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ taskId: parseInt(taskId), token: tokenB, room: room, tempo: parseInt(tempo) }),
+                        // NOVO: Enviando o status de expiração para o backend.
+                        body: JSON.stringify({ taskId: parseInt(taskId), token: tokenB, room: room, tempo: parseInt(tempo), is_expired: isExpired }),
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
 
                     button.textContent = 'Feito!';
-                    button.style.backgroundColor = '#28a745'; // Verde sucesso
+                    button.style.backgroundColor = '#28a745';
                 } catch (error) {
                     button.textContent = 'Erro!';
                     button.style.backgroundColor = 'var(--red-color)';
