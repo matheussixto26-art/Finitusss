@@ -36,17 +36,16 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Parâmetros em falta.' });
     }
     
-    // Voltamos a usar o moonscripts como nossa fonte de respostas
     const API_URL = "https://api.moonscripts.cloud/edusp";
 
     try {
-        // ETAPA 1: Pedir as respostas ao moonscripts
+        // ETAPA 1: Pedir as respostas ao serviço externo
         const previewResponse = await axios.post(API_URL, {
             type: "previewTask", taskId, room, token
         });
         let answers = previewResponse.data?.answers;
         if (!answers) {
-            return res.status(500).json({ error: 'O serviço (moonscripts) não retornou as respostas.' });
+            return res.status(500).json({ error: 'O serviço externo não retornou as respostas da tarefa.' });
         }
 
         // ETAPA 2: Introduzir erros, se solicitado
@@ -54,7 +53,7 @@ module.exports = async (req, res) => {
             answers = introduceErrors(answers, errorCount);
         }
         
-        // ETAPA 3: Enviar a tarefa através do moonscripts
+        // ETAPA 3: Enviar a tarefa através do serviço externo
         const tipoTarefa = is_expired ? "Expirada" : "Pendente";
         const submitPayload = {
             type: "submit", taskId, token, tipo: tipoTarefa,
@@ -65,7 +64,7 @@ module.exports = async (req, res) => {
         
         const responseData = submitResponse.data;
         if (responseData && (responseData.error || responseData.success === false)) {
-             const errorMessage = responseData.message || responseData.error || 'Erro desconhecido retornado pelo moonscripts.';
+             const errorMessage = responseData.message || responseData.error || 'Erro desconhecido retornado pelo serviço externo.';
              return res.status(400).json({ error: errorMessage });
         }
         
@@ -74,7 +73,7 @@ module.exports = async (req, res) => {
     } catch (error) {
         // Deteção inteligente de erro de servidor offline
         if (error.response && typeof error.response.data === 'string' && error.response.data.includes('Cloudflare')) {
-            return res.status(502).json({ error: 'O serviço de tarefas (moonscripts) parece estar offline ou com problemas. Por favor, tente novamente mais tarde.' });
+            return res.status(502).json({ error: 'O serviço externo de tarefas parece estar offline ou com problemas. Por favor, tente novamente mais tarde.' });
         }
         const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
         res.status(500).json({ error: `Falha na comunicação com o serviço de tarefas. Detalhes: ${errorDetails}` });
