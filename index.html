@@ -40,18 +40,16 @@
         .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
         .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-        .modal-list { list-style: none; padding: 0; }
-        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .modal-list li:last-child { border-bottom: none; }
-        .task-card { background-color: var(--bg-dark); border-left: 4px solid var(--accent-color); border-radius: 6px; padding: 15px; margin-bottom: 15px; cursor: pointer; }
+        .task-card { background-color: var(--bg-dark); border-left: 4px solid var(--accent-color); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
         .task-card .task-header { display: flex; justify-content: space-between; align-items: center; }
         .task-card .task-details { color: var(--text-secondary); font-size: 0.8em; margin-top: 8px; }
-        .task-actions { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
-        .task-card.open .task-actions { max-height: 200px; } /* Revela as ações ao clicar */
         .action-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
         .button-group { display: flex; gap: 10px; }
         .btn-fazer-tarefa, .btn-enviar-rascunho { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
         .btn-fazer-tarefa.submit, .btn-enviar-rascunho { background-color: var(--accent-color); color: white; border: none; }
+        .modal-list { list-style: none; padding: 0; }
+        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .modal-list li:last-child { border-bottom: none; }
         .conquista-icon { width: 48px; height: 48px; }
         .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
         .tag.expirada { background-color: var(--red-color); color: white; }
@@ -122,7 +120,6 @@
             const loginMessage = document.getElementById('login-message');
             
             const settingsBtn = document.getElementById('settings-btn');
-            const settingsModal = document.getElementById('settings-modal');
             const addAccountForm = document.getElementById('add-account-form');
             const savedAccountsList = document.getElementById('saved-accounts-list');
 
@@ -254,16 +251,15 @@
                 document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', (e) => hideModal(e.currentTarget.closest('.modal-overlay').id)));
             }
 
+            // FUNÇÃO SHOWMODAL TOTALMENTE CORRIGIDA
             function showModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
                 
-                if (modalId === 'settings-modal') {
-                    populateSettingsModal();
-                } else {
-                    let list = modal.querySelector('.modal-list, #tarefas-list');
-                    let content = '<p style="padding: 15px;">Nenhuma informação encontrada.</p>';
-                    
+                const list = modal.querySelector('.modal-list, #tarefas-list');
+                let content = '<p style="padding: 15px;">Nenhuma informação encontrada.</p>';
+                
+                try {
                     switch(modalId) {
                         case 'tarefas-modal':
                             if (fullData.tarefas?.length > 0) {
@@ -275,13 +271,11 @@
                                     
                                     const buttonHTML = item.tags?.includes('redacaopaulista') 
                                         ? `<p style="color: var(--text-secondary); font-style: italic;">Redações em breve</p>`
-                                        : `<div class="task-actions">
-                                              <div class="action-controls">
-                                                  <div><label style="font-size:0.8em">Errar:</label><input type="number" id="error-count-${item.id}" value="0" min="0" style="width: 50px;"></div>
-                                                  <div class="button-group">
-                                                      <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
-                                                      <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
-                                                  </div>
+                                        : `<div class="action-controls">
+                                              <div><label style="font-size:0.8em">Errar:</label><input type="number" id="error-count-${item.id}" value="0" min="0" style="width: 50px;"></div>
+                                              <div class="button-group">
+                                                  <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
+                                                  <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
                                               </div>
                                           </div>`;
 
@@ -296,34 +290,37 @@
                             }
                             list.innerHTML = content;
                             list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => btn.addEventListener('click', handleFazerTarefa));
-                            list.querySelectorAll('.task-card').forEach(card => card.addEventListener('click', (e) => e.currentTarget.classList.toggle('open')));
                             break;
+                        
                         case 'faltas-modal':
                             if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li class="list-item"><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
                             list.innerHTML = content;
                             break;
+
                         case 'conquistas-modal':
-                             if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li class="list-item"><img src="${item.linkIcone}" style="width:48px; height:48px;"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
+                             if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li class="list-item"><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
                             list.innerHTML = content;
                             break;
+                        
                         case 'notificacoes-modal':
                              if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li class="list-item"><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
                             list.innerHTML = content;
                             break;
                     }
-                }
+                } catch(e) { console.error("Erro ao popular modal:", e); }
+                
                 modal.classList.add('is-visible');
             }
 
             async function handleFazerTarefa(event) {
-                event.stopPropagation(); // Impede que o clique no botão abra/feche as ações
+                event.stopPropagation();
                 const button = event.target;
                 const action = button.dataset.action;
                 const taskId = button.dataset.taskId;
-                const parentActions = button.closest('.task-actions');
-                const errorCountInput = document.getElementById(`error-count-${taskId}`);
+                const parentGroup = button.closest('.button-group');
+                const errorCountInput = document.querySelector(`#error-count-${taskId}`);
                 
-                parentActions.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = true);
                 button.textContent = 'Aguarde...';
                 
                 try {
@@ -339,10 +336,10 @@
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
                     
-                    parentActions.innerHTML = `<p style="color: var(--green-color); padding-top:15px; border-top:1px solid var(--border-color);">Sucesso!</p>`;
+                    parentGroup.parentElement.innerHTML = `<p style="color: var(--green-color); padding-top:15px; border-top:1px solid var(--border-color);">Sucesso!</p>`;
                 } catch (error) {
                     alert(`Falha na operação: ${error.message}`);
-                    parentActions.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = false);
                     button.textContent = action === 'draft' ? 'Salvar Rascunho' : 'Enviar';
                 }
             }
