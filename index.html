@@ -51,9 +51,6 @@
         .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
         .modal-list li:last-child { border-bottom: none; }
         .conquista-icon { width: 48px; height: 48px; }
-        .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
-        .tag.expirada { background-color: var(--red-color); color: white; }
-        .tag.rascunho { background-color: var(--orange-color); color: white; }
     </style>
 </head>
 <body>
@@ -85,20 +82,7 @@
         <div class="modal-content">
             <button class="modal-close">&times;</button>
             <h2 style="text-align:center; margin-bottom: 2rem;">Configurações de Conta</h2>
-            <div class="settings-section">
-                <h3>Adicionar Nova Conta</h3>
-                <form id="add-account-form">
-                    <label for="new-ra">Usuário (RA com SP)</label>
-                    <div class="input-group"><input type="text" id="new-ra" required></div>
-                    <label for="new-senha">Senha</label>
-                    <div class="input-group"><input type="password" id="new-senha" required></div>
-                    <button type="submit" class="btn">Salvar Conta</button>
-                </form>
-            </div>
-            <div class="settings-section">
-                <h3>Contas Salvas</h3>
-                <div id="saved-accounts-list"></div>
-            </div>
+            <div id="accounts-container"></div>
         </div>
     </div>
     
@@ -119,77 +103,6 @@
             const logoutButton = document.getElementById('logout-button');
             const loginMessage = document.getElementById('login-message');
             
-            const settingsBtn = document.getElementById('settings-btn');
-            const addAccountForm = document.getElementById('add-account-form');
-            const savedAccountsList = document.getElementById('saved-accounts-list');
-
-            const getAccounts = () => JSON.parse(localStorage.getItem('finitussAccounts')) || [];
-            const saveAccounts = (accounts) => localStorage.setItem('finitussAccounts', JSON.stringify(accounts));
-
-            function addAccount(ra, senha, nome) {
-                let accounts = getAccounts();
-                const existingAccountIndex = accounts.findIndex(acc => acc.ra.toLowerCase() === ra.toLowerCase());
-                const accountData = { ra, senha, nome: nome || `Aluno ${ra}` };
-                if (existingAccountIndex > -1) {
-                    accounts[existingAccountIndex] = accountData;
-                } else {
-                    accounts.push(accountData);
-                }
-                saveAccounts(accounts);
-                populateSettingsModal();
-            }
-
-            function removeAccount(ra) {
-                let accounts = getAccounts().filter(acc => acc.ra.toLowerCase() !== ra.toLowerCase());
-                saveAccounts(accounts);
-                populateSettingsModal();
-            }
-
-            function populateSettingsModal() {
-                const accounts = getAccounts();
-                savedAccountsList.innerHTML = '';
-                if (accounts.length === 0) {
-                    savedAccountsList.innerHTML = '<p style="color:var(--text-secondary); text-align:center;">Nenhuma conta salva.</p>';
-                    return;
-                }
-                accounts.forEach(acc => {
-                    const isActive = acc.ra.toLowerCase() === currentAccountRA.toLowerCase();
-                    const accountEl = document.createElement('div');
-                    accountEl.className = 'saved-account';
-                    accountEl.innerHTML = `
-                        <div class="info">
-                            <strong>${acc.nome} ${isActive ? '<span style="color:var(--green-color); font-size:0.8em;">(Ativo)</span>' : ''}</strong>
-                            <span>${acc.ra}</span>
-                        </div>
-                        <div class="actions">
-                            ${!isActive ? `<button class="btn-logar" data-ra="${acc.ra}">Logar</button>` : ''}
-                            <button class="btn-remover" data-ra="${acc.ra}">Remover</button>
-                        </div>
-                    `;
-                    savedAccountsList.appendChild(accountEl);
-                });
-
-                document.querySelectorAll('.btn-remover').forEach(btn => btn.addEventListener('click', (e) => removeAccount(e.target.dataset.ra)));
-                document.querySelectorAll('.btn-logar').forEach(btn => btn.addEventListener('click', (e) => {
-                    const acc = getAccounts().find(a => a.ra === e.target.dataset.ra);
-                    if(acc) {
-                        document.getElementById('ra').value = acc.ra;
-                        document.getElementById('senha').value = acc.senha;
-                        performLogin(acc.ra, acc.senha);
-                        hideModal('settings-modal');
-                    }
-                }));
-            }
-
-            addAccountForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const ra = document.getElementById('new-ra').value;
-                const senha = document.getElementById('new-senha').value;
-                addAccount(ra, senha);
-                addAccountForm.reset();
-                alert('Conta salva! Para usá-la, clique em "Logar".');
-            });
-            
             async function performLogin(ra, senha) {
                 loginButton.disabled = true;
                 loginMessage.textContent = 'A entrar...';
@@ -206,7 +119,6 @@
                     tokenB = data.tokenB;
                     currentAccountRA = ra;
                     
-                    addAccount(ra, senha, data.userInfo?.NAME);
                     showDashboard();
                 } catch (error) {
                     loginMessage.textContent = `❌ ${error.message}`;
@@ -251,12 +163,11 @@
                 document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', (e) => hideModal(e.currentTarget.closest('.modal-overlay').id)));
             }
 
-            // FUNÇÃO SHOWMODAL TOTALMENTE CORRIGIDA
             function showModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (!modal) return;
                 
-                const list = modal.querySelector('.modal-list, #tarefas-list');
+                let list = modal.querySelector('.modal-list, #tarefas-list');
                 let content = '<p style="padding: 15px;">Nenhuma informação encontrada.</p>';
                 
                 try {
@@ -266,18 +177,15 @@
                                 content = fullData.tarefas.map(item => {
                                     const isExpired = item.task_expired;
                                     let tagHTML = '';
-                                    if (item.answer_status === 'draft') tagHTML += '<span class="tag rascunho">RASCUNHO</span>';
                                     if (isExpired) tagHTML += '<span class="tag expirada">EXPIRADA</span>';
-                                    
-                                    const buttonHTML = item.tags?.includes('redacaopaulista') 
-                                        ? `<p style="color: var(--text-secondary); font-style: italic;">Redações em breve</p>`
-                                        : `<div class="action-controls">
-                                              <div><label style="font-size:0.8em">Errar:</label><input type="number" id="error-count-${item.id}" value="0" min="0" style="width: 50px;"></div>
-                                              <div class="button-group">
-                                                  <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
-                                                  <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
-                                              </div>
-                                          </div>`;
+
+                                    const buttonHTML = `<div class="action-controls">
+                                        <div><label style="font-size:0.8em">Errar:</label><input type="number" class="error-count-input" value="0" min="0" style="width: 50px;"></div>
+                                        <div class="button-group">
+                                            <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
+                                            <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
+                                        </div>
+                                    </div>`;
 
                                     return `<div class="task-card" style="border-left-color: ${item.style?.backgroundColor || 'var(--accent-color)'};">
                                         <div class="task-header"><h3>${item.title}${tagHTML}</h3></div>
@@ -293,17 +201,17 @@
                             break;
                         
                         case 'faltas-modal':
-                            if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li class="list-item"><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
+                            if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
                             list.innerHTML = content;
                             break;
 
                         case 'conquistas-modal':
-                             if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li class="list-item"><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
+                            if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
                             list.innerHTML = content;
                             break;
                         
                         case 'notificacoes-modal':
-                             if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li class="list-item"><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
+                            if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
                             list.innerHTML = content;
                             break;
                     }
@@ -313,14 +221,12 @@
             }
 
             async function handleFazerTarefa(event) {
-                event.stopPropagation();
                 const button = event.target;
                 const action = button.dataset.action;
-                const taskId = button.dataset.taskId;
-                const parentGroup = button.closest('.button-group');
-                const errorCountInput = document.querySelector(`#error-count-${taskId}`);
+                const parentControls = button.closest('.action-controls');
+                const errorCountInput = parentControls.querySelector('.error-count-input');
                 
-                parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                parentControls.querySelectorAll('button').forEach(btn => btn.disabled = true);
                 button.textContent = 'Aguarde...';
                 
                 try {
@@ -328,7 +234,7 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            taskId: parseInt(taskId), token: tokenB, room: button.dataset.room, 
+                            taskId: parseInt(button.dataset.taskId), token: tokenB, room: button.dataset.room, 
                             tempo: 60, is_expired: button.dataset.isExpired === 'true',
                             submission_type: action, errorCount: parseInt(errorCountInput.value, 10)
                         }),
@@ -336,10 +242,10 @@
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
                     
-                    parentGroup.parentElement.innerHTML = `<p style="color: var(--green-color); padding-top:15px; border-top:1px solid var(--border-color);">Sucesso!</p>`;
+                    parentControls.innerHTML = `<p style="color: var(--green-color);">Sucesso!</p>`;
                 } catch (error) {
                     alert(`Falha na operação: ${error.message}`);
-                    parentGroup.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    parentControls.querySelectorAll('button').forEach(btn => btn.disabled = false);
                     button.textContent = action === 'draft' ? 'Salvar Rascunho' : 'Enviar';
                 }
             }
