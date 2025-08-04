@@ -1,38 +1,23 @@
 const axios = require('axios');
 const https = require('https');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Agente para ignorar erros de certificado
 const agent = new https.Agent({
   rejectUnauthorized: false
 });
 
-// NOVO: Cabeçalhos que o servidor de proxy espera
 const proxyHeaders = {
     'Origin': 'https://crimsonstrauss.xyz',
     'Referer': 'https://crimsonstrauss.xyz/redacao'
 };
-
-function extractJSONObject(str) {
-    try {
-        const startIndex = str.indexOf('(');
-        const endIndex = str.lastIndexOf(')');
-        if (startIndex !== -1 && endIndex !== -1) {
-            return JSON.parse(str.substring(startIndex + 1, endIndex));
-        }
-        return JSON.parse(str);
-    } catch { return null; }
-}
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método não permitido.' });
     }
 
-    const { taskId, token, room, submission_type, ra, senha } = req.body;
-    if (!taskId || !token || !room || !submission_type || !ra || !senha) {
+    const { token, ra, senha } = req.body;
+    if (!token || !ra || !senha) {
         return res.status(400).json({ error: 'Parâmetros em falta.' });
     }
     
@@ -44,54 +29,22 @@ module.exports = async (req, res) => {
         const nick = authResponse.data.nick;
         if (!nick) throw new Error("Falha ao obter o nick na autenticação do proxy.");
 
-        // ETAPA 2: Obter a lista de redações
+        // ETAPA 2 (DIAGNÓSTICO): Obter a lista de redações e devolver a resposta bruta
+        console.log(`[DIAGNÓSTICO REDAÇÃO] A obter a lista de redações.`);
         const fetchRedacoesResponse = await axios.post(`${PROXY_URL}?action=login_and_fetch_redacoes`, {
             ra: ra,
             authToken: token,
             nick: nick
         }, { httpsAgent: agent, headers: proxyHeaders });
         
-        const redacoesData = extractJSONObject(fetchRedacoesResponse.data);
-        if (!redacoesData || !redacoesData.redacoes) throw new Error("A resposta da lista de redações é inválida.");
-        const targetRedaction = redacoesData.redacoes.find(r => r.id === taskId);
-        if (!targetRedaction) throw new Error(`Redação com ID ${taskId} não encontrada.`);
-
-        // ETAPA 3: Obter o prompt detalhado da API oficial
-         const taskDetailsResponse = await axios.get(
-            `https://edusp-api.ip.tv/tms/task/${taskId}/apply?preview_mode=false&room_name=${room}`,
-            { headers: { 'x-api-key': token } } // Este não precisa do header de proxy
-        );
-        const taskData = taskDetailsResponse.data;
-        const question = taskData.questions[0];
-
-        // ETAPA 4: Gerar texto com o Gemini
-        const promptParaGemini = `Escreva uma redação concisa com base estritamente nas informações e no enunciado fornecidos. Siga todas as instruções do enunciado à risca. A resposta DEVE ser APENAS no formato "TITULO: [Seu Título]\nTEXTO: [Seu Texto]", sem introduções, despedidas, ou qualquer outra palavra fora deste formato. INFORMAÇÕES: Título da Proposta: ${taskData.title} Descrição: ${taskData.description} Enunciado Completo: ${question.statement}`;
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const result = await model.generateContent(promptParaGemini);
-        const redacaoGerada = result.response.text();
-        
-        const tituloMatch = redacaoGerada.match(/TITULO: (.*)/);
-        const textoMatch = redacaoGerada.match(/TEXTO: ([\s\S]*)/);
-        const titulo = tituloMatch ? tituloMatch[1] : "Redação Gerada Automaticamente";
-        const texto = textoMatch ? textoMatch[1].trim() : "O conteúdo da redação não pôde ser gerado.";
-        
-        // ETAPA 5: Injetar a redação gerada e submeter através do proxy
-        targetRedaction.answer_answers = { [question.id]: { answer: { body: texto, title: titulo }, question_id: question.id, question_type: "essay" } };
-        targetRedaction.answer_status = submission_type;
-
-        const finalPayload = {
-            redaction: targetRedaction,
-            authToken: token
-        };
-
-        const finalResponse = await axios.post(`${PROXY_URL}?action=process_redaction`, finalPayload, { httpsAgent: agent, headers: proxyHeaders });
-
-        res.status(200).json({ success: true, message: "Operação de redação concluída!", data: finalResponse.data });
+        const rawResponse = JSON.stringify(fetchRedacoesResponse.data);
+        return res.status(400).json({
+            error: `DIAGNÓSTICO REDAÇÃO: O servidor respondeu o seguinte à nossa lista de redações. Por favor, copie e cole a resposta completa que está dentro dos parênteses: (${rawResponse})`
+        });
 
     } catch (error) {
-        console.error("Erro ao fazer redação:", error.response ? JSON.stringify(error.response.data) : error.message);
+        console.error("Erro no diagnóstico de redação:", error.response ? JSON.stringify(error.response.data) : error.message);
         const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
-        res.status(500).json({ success: false, error: `Falha no processo de redação. Detalhes: ${errorDetails}` });
+        res.status(500).json({ success: false, error: `Falha no processo de diagnóstico. Detalhes: ${errorDetails}` });
     }
 };
-          
