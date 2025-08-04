@@ -3,441 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finituss</title>
+    <title>MoonFuturo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #1a1c2e;
-            --sidebar-color: #242742;
-            --card-color: #2f335b;
-            --accent-color: #6a71e0;
-            --text-primary: #ffffff;
-            --text-secondary: #a3a7d2;
-            --shadow: rgba(0, 0, 0, 0.2) 0px 8px 24px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            display: flex;
-        }
-
-        /* --- Barra Lateral --- */
-        .sidebar {
-            width: 260px;
-            background-color: var(--sidebar-color);
-            padding: 2rem 1.5rem;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-        }
-
-        .sidebar .logo {
-            margin-bottom: 3rem;
-        }
-
-        .sidebar .logo h1 {
-            color: var(--text-primary);
-            font-size: 1.8rem;
-        }
-
-        .sidebar .logo p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .sidebar nav ul {
-            list-style: none;
-        }
-
-        .sidebar nav li {
-            margin-bottom: 1.5rem;
-        }
-
-        .sidebar nav a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
-
-        .sidebar nav a:hover {
-            color: var(--text-primary);
-        }
-        
-        #logout-button {
-            margin-top: auto;
-            background: var(--accent-color);
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        /* --- Conteúdo Principal --- */
-        .main-content {
-            flex-grow: 1;
-            margin-left: 260px;
-            padding: 2rem;
-        }
-
-        .main-content header {
-            margin-bottom: 2rem;
-        }
-        .main-content header h2 {
-            font-size: 1.8rem;
-        }
-        .main-content header p {
-            color: var(--text-secondary);
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .summary-card {
-            background-color: var(--card-color);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .summary-card:hover {
-            transform: translateY(-5px);
-            box-shadow: rgba(106, 113, 224, 0.4) 0px 8px 24px;
-        }
-
-        .summary-card .icon {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .summary-card h3 {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-
-        .summary-card .count {
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-
-        /* --- Tela de Login --- */
-        #login-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            flex-direction: column;
-        }
-        
-        #login-form-wrapper {
-            background-color: var(--sidebar-color);
-            padding: 2.5rem;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 400px;
-        }
-        
-        #login-form-wrapper h1 { text-align: center; margin-bottom: 1.5rem; }
-        .input-group { margin-bottom: 1rem; }
-        .input-group input { 
-            width: 100%; 
-            padding: 12px; 
-            border-radius: 8px;
-            border: 1px solid var(--card-color);
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-        #login-form button {
-             width: 100%; 
-             padding: 15px; 
-             background-color: var(--accent-color);
-             color: white; border: none; 
-             border-radius: 8px; font-size: 1rem; 
-             font-weight: bold; cursor: pointer;
-        }
-        #login-error { display: none; color: white; background-color: #e74c3c; padding: 10px; border-radius: 8px; text-align: center; margin-top: 1rem; }
-        
-        /* --- Loading Spinner & Dashboard --- */
-        #loading-spinner, #dashboard-wrapper, .modal-container { display: none; }
-
-        /* --- Modal --- */
-        .modal-container {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: var(--sidebar-color);
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .modal-close-button {
-            position: absolute;
-            top: 15px; right: 20px;
-            font-size: 2rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-        .modal-body ul { list-style: none; }
-        .modal-body li {
-            padding: 1rem 0.5rem;
-            border-bottom: 1px solid var(--card-color);
-        }
-        .modal-body li:last-child { border-bottom: none; }
-        .modal-body li strong { display: block; margin-bottom: 5px; font-size: 1.1rem; }
-        .modal-body li span { color: var(--text-secondary); font-size: 0.9rem; }
-        
-        /* --- Responsividade --- */
-         @media (max-width: 768px) {
-            .sidebar {
-                display: none; /* Em telas pequenas, a sidebar some */
-            }
-            .main-content {
-                margin-left: 0;
-            }
-        }
+        :root { --bg-dark:#0d1117; --bg-medium:#161b22; --border-color:#30363d; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#238636; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg-dark); color: var(--text-primary); font-family: 'Poppins', sans-serif; overflow: hidden; }
+        .hidden { display: none !important; }
+        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: center; }
+        h1 { margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); }
+        button { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; }
+        #login-message { margin-top: 20px; min-height: 20px; color: #da3633; }
+        #dashboard-screen { display: flex; height: 100vh; }
+        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; }
+        .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
+        .main-header p { color: var(--text-secondary); }
+        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
+        .dashboard-card { background-color: var(--bg-medium); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; cursor: pointer; }
+        .card-data { font-size: 2.8em; font-weight: 700; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; }
+        .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
+        .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; }
+        .modal-close { float: right; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
+        .modal-list .list-item, .boletim-grid .disciplina-card { list-style: none; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .boletim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 1.5rem; }
+        .disciplina-card h3 { font-size: 1.1em; }
     </style>
 </head>
 <body>
-
-    <div id="login-container">
-        <div id="login-form-wrapper">
-            <h1>Finituss</h1>
+    <div id="login-screen">
+        <div class="login-container">
+            <h1>MoonFuturo</h1>
             <form id="login-form">
-                <div class="input-group">
-                    <input type="text" id="user" name="user" placeholder="Digite seu RA" required>
-                </div>
-                <div class="input-group">
-                    <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
-                </div>
-                <button type="submit">Entrar</button>
+                <div class="input-group"><input type="text" id="ra" placeholder="RA com dígito e UF" required></div>
+                <div class="input-group"><input type="password" id="senha" placeholder="Senha da SED" required></div>
+                <button type="submit" id="login-button">Entrar</button>
             </form>
-            <div id="login-error"></div>
+            <div id="login-message"></div>
         </div>
     </div>
-
-    <div id="loading-spinner"></div>
-
-    <div id="dashboard-wrapper">
-        <aside class="sidebar">
-            <div class="logo">
-                <h1>Finituss</h1>
-                <p>Criado por Ruan</p>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="#">🏠 Sala do Futuro</a></li>
-                    <li><a href="#">📝 Redação</a></li>
-                    <li><a href="#">🚀 Expansão</a></li>
-                    <li><a href="#">📖 Leia</a></li>
-                </ul>
-            </nav>
-            <button id="logout-button">Sair</button>
-        </aside>
-
+    <div id="dashboard-screen" class="hidden">
+        <aside class="sidebar"><h2>MoonFuturo</h2></aside>
         <main class="main-content">
-            <header>
-                <h2 id="student-name"></h2>
-                <p id="school-name"></p>
-            </header>
-
-            <div class="dashboard-grid">
-                <div class="summary-card" id="card-faltas">
-                    <div class="icon">🗓️</div>
-                    <h3>Faltas</h3>
-                    <p class="count" id="count-faltas">0</p>
-                </div>
-                <div class="summary-card" id="card-tarefas">
-                    <div class="icon">📚</div>
-                    <h3>Tarefas Pendentes</h3>
-                    <p class="count" id="count-tarefas">0</p>
-                </div>
-                <div class="summary-card" id="card-conquistas">
-                    <div class="icon">🏆</div>
-                    <h3>Conquistas</h3>
-                    <p class="count" id="count-conquistas">0</p>
-                </div>
-                <div class="summary-card" id="card-notificacoes">
-                    <div class="icon">🔔</div>
-                    <h3>Mensagens</h3>
-                    <p class="count" id="count-notificacoes">0</p>
-                </div>
+            <header class="main-header"><h1 id="welcome-message"></h1><p id="school-name"></p></header>
+            <div class="cards-container">
+                <div class="dashboard-card" data-modal-target="faltas-modal"><div>Faltas no Bimestre</div><div class="card-data" id="faltas-count">0</div></div>
+                <div class="dashboard-card" data-modal-target="tarefas-modal"><div>Tarefas Pendentes</div><div class="card-data" id="tarefas-count">0</div></div>
+                <div class="dashboard-card" data-modal-target="conquistas-modal"><div>Conquistas</div><div class="card-data" id="conquistas-count">0</div></div>
+                <div class="dashboard-card" data-modal-target="notificacoes-modal"><div>Notificações</div><div class="card-data" id="notificacoes-count">0</div></div>
+                <div class="dashboard-card" data-modal-target="boletim-modal"><div>Boletim</div><div class="card-data">Ver</div></div>
             </div>
         </main>
     </div>
-
-    <div class="modal-container" id="modal">
-        <div class="modal-content">
-            <span class="modal-close-button">&times;</span>
-            <h2 id="modal-title"></h2>
-            <div class="modal-body" id="modal-body"></div>
-        </div>
-    </div>
-
+    
+    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas por Disciplina</h2><ul class="modal-list" id="faltas-list"></ul></div></div>
+    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas Pendentes</h2><ul class="modal-list" id="tarefas-list"></ul></div></div>
+    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
+    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul class="modal-list" id="notificacoes-list"></ul></div></div>
+    <div id="boletim-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Boletim (1º Bimestre)</h2><div class="boletim-grid" id="boletim-grid"></div></div></div>
 
     <script>
-        // Armazenar os dados completos quando o login for feito
-        let fullData = {};
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginScreen = document.getElementById('login-screen');
+            const dashboardScreen = document.getElementById('dashboard-screen');
+            const loginForm = document.getElementById('login-form');
+            const loginButton = document.getElementById('login-button');
+            const loginMessage = document.getElementById('login-message');
+            let fullData = {};
 
-        // Elementos do DOM
-        const loginContainer = document.getElementById('login-container');
-        const dashboardWrapper = document.getElementById('dashboard-wrapper');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const logoutButton = document.getElementById('logout-button');
-        const modal = document.getElementById('modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalBody = document.getElementById('modal-body');
-        const modalCloseButton = document.querySelector('.modal-close-button');
+            loginForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                loginButton.disabled = true;
+                loginMessage.textContent = 'Buscando dados...';
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user: document.getElementById('ra').value, senha: document.getElementById('senha').value }),
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error);
+                    fullData = data;
+                    showDashboard();
+                } catch (error) {
+                    loginMessage.textContent = `❌ ${error.message}`;
+                } finally {
+                    loginButton.disabled = false;
+                }
+            });
 
+            function showDashboard() {
+                populateDashboard();
+                setupEventListeners();
+                loginScreen.classList.add('hidden');
+                dashboardScreen.classList.remove('hidden');
+            }
 
-        // Evento de Login
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            loginError.style.display = 'none';
-            loginContainer.style.opacity = '0.5'; // Simula carregamento
-            try {
-                const formData = new FormData(loginForm);
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(Object.fromEntries(formData)),
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Erro desconhecido');
+            function populateDashboard() {
+                const userName = fullData.userInfo?.NOME_COMPLETO || fullData.userInfo?.NAME || fullData.userInfo?.NOME || 'Aluno(a)';
+                const firstName = userName.split(' ')[0];
+                document.getElementById('welcome-message').textContent = `Bem-vindo(a), ${firstName}!`;
+                document.getElementById('school-name').textContent = fullData.userInfo?.NOME_ESCOLA || 'Escola não encontrada';
                 
-                fullData = data; // Salva todos os dados
-                populateDashboard(data);
+                document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
+                document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
+                document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
+                document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
+            }
+
+            function setupEventListeners() {
+                document.querySelectorAll('.dashboard-card').forEach(card => card.addEventListener('click', () => showModal(card.dataset.modalTarget)));
+                document.querySelectorAll('.modal-overlay').forEach(modal => modal.addEventListener('click', (e) => e.target === modal && hideModal(modal.id)));
+                document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', () => hideModal(btn.closest('.modal-overlay').id)));
+            }
+
+            function showModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                let content = '<p>Nenhuma informação encontrada.</p>';
                 
-                loginContainer.style.display = 'none';
-                dashboardWrapper.style.display = 'flex';
-            } catch (error) {
-                loginError.textContent = `Falha no login: ${error.message}`;
-                loginError.style.display = 'block';
-            } finally {
-                loginContainer.style.opacity = '1';
+                try {
+                    if (modalId === 'boletim-modal') {
+                        const grid = document.getElementById('boletim-grid');
+                        if (fullData.boletim?.length > 0) {
+                            content = fullData.boletim.map(d => `<div class="disciplina-card"><h3>${d.descricaoDisciplina}</h3><p>Nota: ${d.notaBimestre1 || '-'}</p></div>`).join('');
+                        }
+                        grid.innerHTML = content;
+                    } else {
+                        const list = modal.querySelector('.modal-list');
+                         switch(modalId) {
+                            case 'faltas-modal':
+                                if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li class="list-item"><h3>${item.disciplina}</h3><p>Faltas: ${item.numeroFaltas}</p></li>`).join('');
+                                break;
+                            case 'tarefas-modal':
+                                if (fullData.tarefas?.length > 0) content = fullData.tarefas.map(item => `<li class="list-item"><h3>${item.title}</h3><p>Status: ${item.answer?.status || 'Pendente'}</p></li>`).join('');
+                                break;
+                            case 'conquistas-modal':
+                                if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li class="list-item"><h3>${item.projeto}</h3><p>Medalha: ${item.medalha}</p></li>`).join('');
+                                break;
+                            case 'notificacoes-modal':
+                                if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li class="list-item"><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></li>`).join('');
+                                break;
+                        }
+                        list.innerHTML = content;
+                    }
+                } catch(e) { console.error("Erro ao popular modal:", e); }
+
+                modal.classList.add('is-visible');
+            }
+
+            function hideModal(modalId) {
+                document.getElementById(modalId)?.classList.remove('is-visible');
             }
         });
-
-        // Evento de Logout
-        logoutButton.addEventListener('click', () => {
-            fullData = {};
-            loginForm.reset();
-            dashboardWrapper.style.display = 'none';
-            loginContainer.style.display = 'flex';
-        });
-
-        // Preencher o Dashboard
-        function populateDashboard(data) {
-            const studentFirstName = data.userInfo.NOME_COMPLETO?.split(' ')[0] ?? 'Aluno(a)';
-            document.getElementById('student-name').textContent = `Bem-vindo, ${studentFirstName}!`;
-            document.getElementById('school-name').textContent = data.userInfo.NOME_ESCOLA || 'Escola não informada';
-
-            // Atualiza os contadores nos cards
-            document.getElementById('count-faltas').textContent = data.faltas?.length || 0;
-            document.getElementById('count-tarefas').textContent = data.tarefas?.length || 0;
-            document.getElementById('count-conquistas').textContent = data.conquistas?.length || 0;
-            document.getElementById('count-notificacoes').textContent = data.notificacoes?.length || 0;
-        }
-
-        // Lógica para abrir o Modal
-        function openModal(title, contentHTML) {
-            modalTitle.textContent = title;
-            modalBody.innerHTML = contentHTML;
-            modal.style.display = 'flex';
-        }
-
-        // Lógica para fechar o Modal
-        function closeModal() {
-            modal.style.display = 'none';
-        }
-        modalCloseButton.addEventListener('click', closeModal);
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) closeModal(); // Fecha se clicar fora do conteúdo
-        });
-
-        // Adicionar eventos de clique aos cards
-        document.getElementById('card-faltas').addEventListener('click', () => {
-            let content = '<ul>';
-            if (fullData.faltas && fullData.faltas.length > 0) {
-                fullData.faltas.forEach(f => {
-                    content += `<li><strong>${f.disciplina}</strong><span>Total de faltas: ${f.totalFaltas}</span></li>`;
-                });
-            } else { content += '<li>Nenhuma falta registrada.</li>'; }
-            content += '</ul>';
-            openModal('Faltas do Bimestre', content);
-        });
-
-        document.getElementById('card-tarefas').addEventListener('click', () => {
-            let content = '<ul>';
-            if (fullData.tarefas && fullData.tarefas.length > 0) {
-                fullData.tarefas.forEach(t => {
-                    const dueDate = new Date(t.due_date).toLocaleDateString('pt-BR');
-                    content += `<li><strong>${t.title}</strong><span>Entregar até: ${dueDate}</span></li>`;
-                });
-            } else { content += '<li>Nenhuma tarefa pendente.</li>'; }
-            content += '</ul>';
-            openModal('Tarefas Pendentes', content);
-        });
-
-        document.getElementById('card-conquistas').addEventListener('click', () => {
-            let content = '<ul>';
-            if (fullData.conquistas && fullData.conquistas.length > 0) {
-                fullData.conquistas.forEach(c => {
-                    content += `<li><strong>${c.Nome}</strong><span>${c.Descricao || ''}</span></li>`;
-                });
-            } else { content += '<li>Nenhuma conquista desbloqueada.</li>'; }
-            content += '</ul>';
-            openModal('Minhas Conquistas', content);
-        });
-
-        document.getElementById('card-notificacoes').addEventListener('click', () => {
-            let content = '<ul>';
-            if (fullData.notificacoes && fullData.notificacoes.length > 0) {
-                fullData.notificacoes.forEach(n => {
-                    content += `<li><strong>${n.Titulo}</strong><span>${n.Mensagem}</span></li>`;
-                });
-            } else { content += '<li>Nenhuma mensagem encontrada.</li>'; }
-            content += '</ul>';
-            openModal('Minhas Mensagens', content);
-        });
-
     </script>
 </body>
 </html>
