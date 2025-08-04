@@ -7,85 +7,64 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0D1017;
-            --bg-medium: #1A1E29;
-            --border-color: #2A2E3D;
-            --text-primary: #EAEBF0;
-            --text-secondary: #8B949E;
-            --accent-blue: #00A9E0;
+            --bg-dark: #0D1017; --bg-medium: #1A1E29; --border-color: #2A2E3D;
+            --text-primary: #EAEBF0; --text-secondary: #8B949E; --accent-blue: #00A9E0;
+            --red-color: #e53965; --green-color: #23d183; --orange-color: #f77829;
             --font-family: 'Poppins', sans-serif;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-primary); }
         .hidden { display: none !important; }
 
-        /* --- Tela de Login --- */
-        #login-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #6DD5FA, #9B5DE5);
-            overflow: hidden;
-        }
+        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #6DD5FA, #9B5DE5); overflow: hidden; }
         .login-container { text-align: center; width: 100%; max-width: 400px; padding: 20px; }
         .login-container h1 { font-size: 3.5em; font-weight: 700; color: white; }
         .login-container p { font-size: 1.1em; color: rgba(255, 255, 255, 0.9); margin-top: -10px; margin-bottom: 40px; }
-        .login-form input {
-            width: 100%; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 15px;
-            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            color: white; font-size: 1em; font-family: var(--font-family);
-        }
+        .login-form input { width: 100%; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 15px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; font-size: 1em; }
         .login-form input::placeholder { color: rgba(255, 255, 255, 0.7); }
-        .login-form button {
-            width: 100%; padding: 20px; border: none; border-radius: 15px; background-color: #007BFF;
-            color: white; font-size: 1.2em; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease;
-        }
-        .login-form button:hover { background-color: #0056b3; }
+        .login-form button { width: 100%; padding: 20px; border: none; border-radius: 15px; background-color: #007BFF; color: white; font-size: 1.2em; font-weight: 600; cursor: pointer; }
         #login-message { margin-top: 20px; min-height: 20px; color: white; background-color: rgba(229, 62, 62, 0.8); padding: 10px; border-radius: 8px; }
 
-        /* --- Loading Overlay --- */
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center; z-index: 2000;
-            transition: opacity 0.3s ease;
-        }
-
-        /* --- Dashboard --- */
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; transition: opacity 0.3s ease; }
         #dashboard-screen { display: flex; height: 100vh; }
-        .sidebar {
-            width: 260px; background-color: var(--bg-medium); padding: 30px; display: flex;
-            flex-direction: column; border-right: 1px solid var(--border-color);
-            transition: margin-left 0.3s ease;
-        }
+        .sidebar { width: 260px; background-color: var(--bg-medium); padding: 30px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); transition: margin-left 0.3s ease; }
         body.sidebar-collapsed .sidebar { margin-left: -260px; }
         .sidebar .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 3rem; }
         .sidebar .logo-icon { width: 32px; height: 32px; fill: var(--text-primary); }
         .sidebar .logo-text { font-size: 1.8em; font-weight: 600; }
-        .sidebar .nav-list { list-style: none; }
+        .sidebar .nav-list { list-style: none; padding: 0; }
         .sidebar .nav-item { margin-bottom: 1rem; }
-        .sidebar .nav-item a {
-            color: var(--text-secondary); text-decoration: none; display: flex; align-items: center;
-            gap: 15px; padding: 12px; border-radius: 8px; transition: background-color 0.2s, color 0.2s;
-        }
+        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 8px; transition: background-color 0.2s, color 0.2s; cursor: pointer; }
         .sidebar .nav-item a:hover, .sidebar .nav-item a.active { background-color: var(--bg-dark); color: var(--text-primary); }
         .sidebar .nav-item svg { width: 24px; height: 24px; stroke: currentColor; }
-        
         .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; transition: margin-left 0.3s ease; }
         .main-content header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
         .main-content header h1 { font-size: 2em; }
         #menu-toggle { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 5px; }
         #menu-toggle:hover { color: var(--text-primary); }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
-        .dashboard-card {
-            background: linear-gradient(145deg, var(--bg-medium), #161a25); border: 1px solid var(--border-color);
-            border-radius: 15px; padding: 25px; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
+        .dashboard-card { background: linear-gradient(145deg, var(--bg-medium), #161a25); border: 1px solid var(--border-color); border-radius: 15px; padding: 25px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
         .dashboard-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0, 169, 224, 0.1); }
         .dashboard-card svg { width: 48px; height: 48px; margin-bottom: 15px; }
         .dashboard-card h3 { font-size: 1.2em; font-weight: 500; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; }
+        .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
+        .modal-content { background: var(--bg-dark); padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; border: 1px solid var(--border-color); }
+        .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
+        .modal-list { list-style: none; padding: 0; }
+        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
+        .modal-list li:last-child { border-bottom: none; }
+        .conquista-icon { width: 48px; height: 48px; }
+        .task-card { background-color: var(--bg-medium); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .task-card .task-header { display: flex; justify-content: space-between; align-items: center; }
+        .task-card .task-details { color: var(--text-secondary); font-size: 0.8em; margin-top: 8px; }
+        .action-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        .button-group { display: flex; gap: 10px; }
+        .btn-fazer-tarefa, .btn-enviar-rascunho { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .btn-fazer-tarefa.submit, .btn-enviar-rascunho { background-color: var(--accent-blue); color: white; border: none; }
+        .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
+        .tag.expirada { background-color: var(--red-color); color: white; }
+        .tag.rascunho { background-color: var(--orange-color); color: white; }
     </style>
 </head>
 <body>
@@ -111,11 +90,11 @@
             </div>
             <nav>
                 <ul class="nav-list">
-                    <li class="nav-item"><a href="#" class="active">
+                    <li class="nav-item"><a class="active" data-modal-target="dashboard">
                         <svg fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
                         <span>Início</span>
                     </a></li>
-                    <li class="nav-item"><a id="alura-btn">
+                    <li class="nav-item"><a data-modal-target="alura-modal">
                          <svg fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-1.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"/></svg>
                         <span>Cursos (Alura)</span>
                     </a></li>
@@ -130,32 +109,19 @@
                 <h1 id="welcome-message"></h1>
             </header>
             <div class="cards-container">
-                <div class="dashboard-card" id="card-faltas">
-                    <svg fill="#f87171" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
-                    <h3>Faltas</h3>
-                </div>
-                <div class="dashboard-card" id="card-tarefas">
-                    <svg fill="#60a5fa" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                    <h3>Tarefas Pendentes</h3>
-                </div>
-                <div class="dashboard-card" id="card-conquistas">
-                    <svg fill="#facc15" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zm-7 6c-1.66 0-3-1.34-3-3V5h6v3c0 1.66-1.34 3-3 3z"/></svg>
-                    <h3>Ver Conquistas</h3>
-                </div>
-                 <div class="dashboard-card" id="card-notificacoes">
-                    <svg fill="#e879f9" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                    <h3>Mensagens</h3>
-                </div>
+                <div class="dashboard-card" data-modal-target="faltas-modal"><svg fill="#f87171" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg><h3>Faltas</h3></div>
+                <div class="dashboard-card" data-modal-target="tarefas-modal"><svg fill="#60a5fa" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg><h3>Tarefas Pendentes</h3></div>
+                <div class="dashboard-card" data-modal-target="conquistas-modal"><svg fill="#facc15" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zm-7 6c-1.66 0-3-1.34-3-3V5h6v3c0 1.66-1.34 3-3 3z"/></svg><h3>Ver Conquistas</h3></div>
+                <div class="dashboard-card" data-modal-target="notificacoes-modal"><svg fill="#e879f9" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><h3>Mensagens</h3></div>
             </div>
         </main>
     </div>
     
-    <div id="alura-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 id="alura-title">ALURA - CURSOS</h2>
-            <div id="alura-content"></div>
-        </div>
-    </div>
+    <div id="alura-modal" class="modal-overlay"><div class="modal-content"><h2>ALURA - CURSOS</h2><div id="alura-content"></div></div></div>
+    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul class="modal-list" id="faltas-list"></ul></div></div>
+    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas</h2><div id="tarefas-list"></div></div></div>
+    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
+    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul class="modal-list" id="notificacoes-list"></ul></div></div>
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -167,13 +133,10 @@
         const loginForm = document.getElementById('login-form');
         const loginButton = document.getElementById('login-button');
         const loginMessage = document.getElementById('login-message');
-        const aluraBtn = document.getElementById('alura-btn');
-        const aluraModal = document.getElementById('alura-modal');
         const menuToggle = document.getElementById('menu-toggle');
         const loadingOverlay = document.getElementById('loading-overlay');
         const loadingText = document.getElementById('loading-text');
 
-        // Lógica da Animação de Login
         async function showLoadingSequence() {
             const messages = ["Conectando...", "Autenticando...", "A carregar dados...", "Quase pronto..."];
             loadingOverlay.classList.remove('hidden');
@@ -216,31 +179,114 @@
                 loginButton.disabled = false;
             }
         });
+        
+        menuToggle.addEventListener('click', () => document.body.classList.toggle('sidebar-collapsed'));
 
         function populateDashboard() {
             const userName = fullData.userInfo?.NAME.split(' ')[0] || 'Aluno';
             document.getElementById('welcome-message').textContent = `Bem-vindo, ${userName}!`;
         }
-
-        // Lógica do Menu Hambúrguer
-        menuToggle.addEventListener('click', () => {
-            document.body.classList.toggle('sidebar-collapsed');
-        });
-
-        // Placeholder para o botão da Alura
-        aluraBtn.addEventListener('click', () => {
-            aluraModal.classList.remove('hidden');
-            // Na Fase 2, chamaremos a função para carregar as trilhas da Alura
-        });
-
-        // Placeholder para fechar modais
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                }
+        
+        function setupEventListeners() {
+            document.querySelectorAll('.dashboard-card, .nav-item a').forEach(card => card.addEventListener('click', (e) => {
+                const modalId = e.currentTarget.dataset.modalTarget;
+                if(modalId) showModal(modalId);
+            }));
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => e.target === modal && modal.classList.remove('is-visible'));
+                modal.querySelector('.modal-close')?.addEventListener('click', () => modal.classList.remove('is-visible'));
             });
-        });
+        }
+
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            let list = modal.querySelector('.modal-list, #tarefas-list');
+            let content = '<p style="padding: 15px; color: var(--text-secondary);">Nenhuma informação encontrada.</p>';
+            
+            try {
+                switch(modalId) {
+                    case 'tarefas-modal':
+                        if (fullData.tarefas?.length > 0) {
+                            content = fullData.tarefas.map(item => {
+                                const isExpired = item.task_expired;
+                                let tagHTML = '';
+                                if (isExpired) tagHTML += '<span class="tag expirada">EXPIRADA</span>';
+                                
+                                const buttonHTML = `<div class="action-controls">
+                                    <div><label style="font-size:0.8em">Errar:</label><input type="number" class="error-count-input" value="0" min="0" style="width: 50px;"></div>
+                                    <div class="button-group">
+                                        <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
+                                        <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
+                                    </div>
+                                </div>`;
+
+                                return `<div class="task-card">
+                                    <div class="task-header"><h3>${item.title}${tagHTML}</h3></div>
+                                    <div class="task-details">
+                                        <span>Autor: ${item.author}</span> | <span>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</span>
+                                    </div>
+                                    ${buttonHTML}
+                                </div>`;
+                            }).join('');
+                        }
+                        list.innerHTML = content;
+                        list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => btn.addEventListener('click', handleFazerTarefa));
+                        break;
+                    
+                    case 'faltas-modal':
+                        if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
+                        list.innerHTML = content;
+                        break;
+
+                    case 'conquistas-modal':
+                         if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
+                        list.innerHTML = content;
+                        break;
+                    
+                    case 'notificacoes-modal':
+                         if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
+                        list.innerHTML = content;
+                        break;
+                }
+            } catch(e) { console.error("Erro ao popular modal:", e); }
+            
+            modal.classList.add('is-visible');
+        }
+
+        async function handleFazerTarefa(event) {
+            const button = event.target;
+            const action = button.dataset.action;
+            const parentControls = button.closest('.action-controls');
+            const errorCountInput = parentControls.querySelector('.error-count-input');
+            
+            parentControls.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            button.textContent = 'Aguarde...';
+            
+            try {
+                const response = await fetch('/api/fazer-tarefa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        taskId: parseInt(button.dataset.taskId), token: tokenB, room: button.dataset.room, 
+                        tempo: 60, is_expired: button.dataset.isExpired === 'true',
+                        submission_type: action, errorCount: parseInt(errorCountInput.value, 10)
+                    }),
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
+                
+                parentControls.innerHTML = `<p style="color: var(--green-color);">Sucesso!</p>`;
+            } catch (error) {
+                alert(`Falha na operação: ${error.message}`);
+                parentControls.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                button.textContent = action === 'draft' ? 'Salvar Rascunho' : 'Enviar';
+            }
+        }
+        
+        // --- Chamar o setup inicial ---
+        setupEventListeners();
     });
 </script>
 </body>
