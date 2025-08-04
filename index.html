@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Aluno - Sala do Futuro</title>
+    <style>
+        /* CSS Reset e Estilos Globais */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f0f2f5;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --text-light: #666;
+            --border-color: #e0e0e0;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Container Principal */
+        .container {
+            padding: 20px 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Estilos do Formulário de Login */
+        #login-container {
+            background-color: var(--card-background);
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-top: 40px;
+        }
+
+        #login-container h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Indicador de Carregamento (Spinner) */
+        #loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            z-index: 1000;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Mensagens de Erro */
+        #login-error {
+            display: none;
+            color: white;
+            background-color: var(--error-color);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Estilos do Dashboard */
+        #dashboard-container {
+            display: none;
+        }
+
+        .dashboard-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            margin: -20px -15px 20px -15px;
+            text-align: center;
+        }
+
+        .dashboard-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        
+        .dashboard-header p {
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .card-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .card-list li {
+            padding: 10px 5px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .card-list li strong {
+            color: var(--text-color);
+        }
+        
+        .card-list .date {
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+
+        .empty-state {
+            color: var(--text-light);
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Tabela do Boletim */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        #logout-button {
+            background-color: var(--secondary-color);
+            margin-top: 20px;
+        }
+        
+        #logout-button:hover {
+            background-color: #5a6268;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="login-container">
+            <h1>Sala do Futuro</h1>
+            <p style="text-align: center; color: var(--text-light); margin-top: -20px; margin-bottom: 25px;">Acesse seu painel</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="user">RA (com dígito e UF, sem traços)</label>
+                    <input type="text" id="user" name="user" placeholder="Ex: 0001234567890sp" required>
+                </div>
+                <div class="input-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Sua senha da SED" required>
+                </div>
+                <button type="submit">Entrar</button>
+            </form>
+            <div id="login-error"></div>
+        </div>
+
+        <div id="loading-spinner"></div>
+
+        <div id="dashboard-container">
+            <div class="dashboard-header">
+                <h2 id="student-name"></h2>
+                <p id="school-name"></p>
+            </div>
+
+            <div class="card">
+                <h3>🔔 Notificações</h3>
+                <ul id="notifications-list" class="card-list"></ul>
+            </div>
+
+            <div class="card">
+                <h3>📝 Tarefas Pendentes</h3>
+                <ul id="tasks-list" class="card-list"></ul>
+            </div>
+
+            <div class="card">
+                <h3>📈 Boletim</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Componente</th>
+                                <th>Nota</th>
+                                <th>Faltas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grades-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>⚠️ Faltas (Bimestre Atual)</h3>
+                 <ul id="absences-list" class="card-list"></ul>
+            </div>
+
+            <div class="card">
+                <h3>🏆 Conquistas</h3>
+                <ul id="achievements-list" class="card-list"></ul>
+            </div>
+            
+            <button id="logout-button">Sair</button>
+        </div>
+    </div>
+
+    <script>
+        // Selecionando os elementos do DOM
+        const loginContainer = document.getElementById('login-container');
+        const dashboardContainer = document.getElementById('dashboard-container');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const logoutButton = document.getElementById('logout-button');
+
+        // Adicionando o listener de evento ao formulário
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Impede o recarregamento da página
+
+            // 1. Prepara a UI para a requisição
+            loginError.style.display = 'none';
+            loadingSpinner.style.display = 'block';
+            loginContainer.style.display = 'none';
+
+            // 2. Coleta os dados do formulário
+            const formData = new FormData(loginForm);
+            const user = formData.get('user');
+            const senha = formData.get('senha');
+
+            try {
+                // 3. Faz a chamada para a API (backend)
+                // O caminho '/api/login' funcionará automaticamente na Vercel
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user, senha }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Se a resposta não for 2xx, trata como erro
+                    throw new Error(data.error || 'Erro desconhecido no servidor.');
+                }
+                
+                // 4. Se a chamada for bem-sucedida, preenche o dashboard
+                populateDashboard(data);
+                
+                // 5. Exibe o dashboard
+                loadingSpinner.style.display = 'none';
+                dashboardContainer.style.display = 'block';
+
+            } catch (error) {
+                // 6. Se ocorrer um erro, exibe a mensagem de erro
+                loginError.textContent = `Falha no login: ${error.message}`;
+                loginError.style.display = 'block';
+                loadingSpinner.style.display = 'none';
+                loginContainer.style.display = 'block'; // Mostra o formulário de novo
+            }
+        });
+        
+        logoutButton.addEventListener('click', () => {
+            // Limpa o formulário e reseta a UI para a tela de login
+            loginForm.reset();
+            dashboardContainer.style.display = 'none';
+            loginContainer.style.display = 'block';
+            loginError.style.display = 'none';
+        });
+
+        // Função para preencher o dashboard com os dados da API
+        function populateDashboard(data) {
+            // Informações do Aluno
+            document.getElementById('student-name').textContent = `Bem-vindo(a), ${data.userInfo.NOME_COMPLETO.split(' ')[0]}!`;
+            document.getElementById('school-name').textContent = data.userInfo.NOME_ESCOLA || 'Escola não informada';
+
+            // Popula lista de Notificações
+            const notificationsList = document.getElementById('notifications-list');
+            notificationsList.innerHTML = ''; // Limpa a lista
+            if (data.notificacoes && data.notificacoes.length > 0) {
+                data.notificacoes.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${item.Titulo}</strong><span>${item.Mensagem}</span>`;
+                    notificationsList.appendChild(li);
+                });
+            } else {
+                notificationsList.innerHTML = '<li class="empty-state">Nenhuma notificação encontrada.</li>';
+            }
+
+            // Popula lista de Tarefas
+            const tasksList = document.getElementById('tasks-list');
+            tasksList.innerHTML = '';
+            if (data.tarefas && data.tarefas.length > 0) {
+                data.tarefas.forEach(task => {
+                    const li = document.createElement('li');
+                    // A API de tarefas retorna a data em formato ISO 8601 (ex: "2024-08-15T23:59:00Z")
+                    const dueDate = new Date(task.due_date).toLocaleDateString('pt-BR');
+                    li.innerHTML = `<strong>${task.title}</strong><span class="date">Entrega: ${dueDate}</span>`;
+                    tasksList.appendChild(li);
+                });
+            } else {
+                tasksList.innerHTML = '<li class="empty-state">Nenhuma tarefa pendente. Parabéns!</li>';
+            }
+            
+            // Popula tabela do Boletim
+            const gradesBody = document.getElementById('grades-body');
+            gradesBody.innerHTML = '';
+            if (data.boletim && data.boletim.length > 0) {
+                data.boletim.forEach(grade => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${grade.ComponenteCurricular}</td>
+                        <td><strong>${grade.Nota || '-'}</strong></td>
+                        <td>${grade.Faltas || '0'}</td>
+                    `;
+                    gradesBody.appendChild(tr);
+                });
+            } else {
+                gradesBody.innerHTML = '<tr><td colspan="3" class="empty-state">Boletim ainda não disponível.</td></tr>';
+            }
+            
+            // Popula Faltas do Bimestre
+            const absencesList = document.getElementById('absences-list');
+            absencesList.innerHTML = '';
+            if (data.faltas && data.faltas.length > 0) {
+                data.faltas.forEach(falta => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${falta.disciplina}</strong><span>Total: ${falta.totalFaltas}</span>`;
+                    absencesList.appendChild(li);
+                });
+            } else {
+                absencesList.innerHTML = '<li class="empty-state">Nenhuma falta registrada no bimestre atual.</li>';
+            }
+            
+            // Popula Conquistas
+            const achievementsList = document.getElementById('achievements-list');
+            achievementsList.innerHTML = '';
+            if (data.conquistas && data.conquistas.length > 0) {
+                data.conquistas.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${item.Nome}</strong>`;
+                    achievementsList.appendChild(li);
+                });
+            } else {
+                achievementsList.innerHTML = '<li class="empty-state">Nenhuma conquista desbloqueada.</li>';
+            }
+        }
+    </script>
+</body>
+</html>
