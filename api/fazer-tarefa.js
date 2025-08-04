@@ -42,19 +42,15 @@ module.exports = async (req, res) => {
 
         const submitResponse = await axios.post(API_URL, submitPayload);
 
-        // MODIFICAÇÃO DE DIAGNÓSTICO:
-        // Vamos verificar a resposta de uma forma mais rigorosa.
-        // Se a resposta não contiver um campo específico que indique sucesso, consideramos um erro.
-        // Vamos assumir que uma resposta de sucesso DEVE ter um campo "answer".
-        if (!submitResponse.data || !submitResponse.data.answer) {
-             console.error("[ERRO TAREFA DIAGNÓSTICO] O servidor externo não retornou uma confirmação de sucesso. Resposta recebida:", submitResponse.data);
-             
-             // Envia a resposta completa do erro para o frontend.
-             const detailedError = JSON.stringify(submitResponse.data);
-             return res.status(400).json({ error: `O servidor externo não confirmou o sucesso. Resposta completa: ${detailedError}` });
+        // LÓGICA FINAL E CORRETA
+        const responseData = submitResponse.data;
+        if (responseData && (responseData.error || responseData.success === false)) {
+             const errorMessage = responseData.message || responseData.error || 'Erro desconhecido retornado pelo servidor de tarefas.';
+             return res.status(400).json({ error: errorMessage });
         }
 
-        res.status(200).json(submitResponse.data);
+        // Se não houver um erro explícito, consideramos sucesso (incluindo o status "waiting").
+        res.status(200).json(responseData);
 
     } catch (error) {
         const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
