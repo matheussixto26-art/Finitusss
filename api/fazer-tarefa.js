@@ -5,7 +5,6 @@ module.exports = async (req, res) => {
         return res.status(405).json({ error: 'Método não permitido.' });
     }
 
-    // NOVO: Recebemos também a informação se a tarefa está expirada.
     const { taskId, token, room, tempo, is_expired } = req.body;
 
     if (!taskId || !token || !room || !tempo) {
@@ -15,7 +14,6 @@ module.exports = async (req, res) => {
     const API_URL = "https://api.moonscripts.cloud/edusp";
 
     try {
-        console.log(`[FASE 1] A pré-visualizar tarefa ${taskId}`);
         const previewResponse = await axios.post(API_URL, {
             type: "previewTask",
             taskId: taskId,
@@ -25,40 +23,33 @@ module.exports = async (req, res) => {
 
         const answers = previewResponse.data?.answers;
         if (!answers) {
-            console.error("[ERRO FASE 1] Resposta da pré-visualização não continha 'answers'.", previewResponse.data);
             return res.status(500).json({ error: 'Não foi possível obter as respostas da tarefa (Fase 1).' });
         }
-        console.log(`[FASE 1] Respostas obtidas com sucesso para a tarefa ${taskId}`);
 
-        // NOVO: Determinar o tipo de tarefa a ser enviada.
         const tipoTarefa = is_expired ? "Expirada" : "Pendente";
 
         const submitPayload = {
             type: "submit",
             taskId: taskId,
             token: token,
-            tipo: tipoTarefa, // ALTERAÇÃO: Usamos a variável para definir o tipo.
+            tipo: tipoTarefa,
             tempo: parseInt(tempo, 10),
-            status: "submitted",
+            status: "draft", // ALTERAÇÃO PRINCIPAL AQUI
             accessed_on: "room",
             executed_on: room,
             answers: answers
         };
 
-        console.log(`[FASE 2] A submeter a tarefa ${taskId} como '${tipoTarefa}'`);
         const submitResponse = await axios.post(API_URL, submitPayload);
 
         if (submitResponse.data && (submitResponse.data.error || submitResponse.data.success === false)) {
-             console.error("[ERRO FASE 2] O servidor de tarefas retornou um erro interno:", submitResponse.data);
              const errorMessage = submitResponse.data.message || submitResponse.data.error || 'Erro desconhecido retornado pelo servidor de tarefas.';
              return res.status(400).json({ error: errorMessage });
         }
 
-        console.log(`[FASE 2] Tarefa ${taskId} submetida com sucesso.`);
         res.status(200).json(submitResponse.data);
 
     } catch (error) {
-        console.error("Erro crítico ao fazer tarefa:", error.response ? error.response.data : error.message);
         const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
         res.status(500).json({ error: `Falha na comunicação com o serviço de tarefas. Detalhes: ${errorDetails}` });
     }
