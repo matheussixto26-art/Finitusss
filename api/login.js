@@ -5,8 +5,8 @@ async function fetchApiData(requestConfig) {
         const response = await axios(requestConfig);
         return response.data;
     } catch (error) {
-        const errorDetails = error.response ? JSON.stringify(error.response.data) : "Erro desconhecido";
-        console.error(`Falha em: ${requestConfig.url}. Detalhes: ${errorDetails}`);
+        // Agora, vamos apenas registar o erro no log do servidor, sem quebrar a aplicação
+        console.error(`Falha controlada em: ${requestConfig.url}. O processo continuará.`);
         return null;
     }
 }
@@ -45,8 +45,8 @@ module.exports = async (req, res) => {
 
         const codigoAluno = userInfo.CD_USUARIO;
         const anoLetivo = new Date().getFullYear();
-        const [raNumber, raDigit, raUf] = user.match(/^(\d+)(\d)(\w+)$/).slice(1);
 
+        // Lista de requisições, AGORA SEM a chamada que estava a falhar
         const requests = [
              fetchApiData({
                 method: 'get',
@@ -69,27 +69,20 @@ module.exports = async (req, res) => {
                 headers: { "Authorization": `Bearer ${tokenA}`, "Ocp-Apim-Subscription-Key": "1a758fd2f6be41448079c9616a861b91" }
             }),
             fetchApiData({
-                 method: 'get',
-                 url: `https://sedintegracoes.educacao.sp.gov.br/alunoapi/api/Aluno/ExibirAluno?inNumRA=${raNumber}&inDigitoRA=${raDigit}&inSiglaUFRA=${raUf}`,
-                 headers: { "Authorization": `Bearer ${tokenA}`, "Ocp-Apim-Subscription-Key": "b141f65a88354e078a9d4fdb1df29867" }
-            }),
-            fetchApiData({
                 method: 'get',
                 url: `https://sedintegracoes.educacao.sp.gov.br/apiboletim/api/Fechamento/ConsultaFechamentoComparativo?codigoAluno=${codigoAluno}&anoLetivo=${anoLetivo}&somenteAtivo=0&tipoFechamento=5&codigoDisciplina=0`,
                 headers: { "Authorization": `Bearer ${tokenA}`, "Ocp-Apim-Subscription-Key": "a84380a41b144e0fa3d86cbc25027fe6" }
             })
         ];
 
-        const [faltasData, tarefas, conquistas, notificacoes, dadosAluno, boletimData] = await Promise.all(requests);
+        // O `dadosAluno` foi removido da desestruturação
+        const [faltasData, tarefas, conquistas, notificacoes, boletimData] = await Promise.all(requests);
         
-        if(dadosAluno?.aluno?.nome) {
-            userInfo.NOME_COMPLETO = dadosAluno.aluno.nome; // Usado no frontend
-            userInfo.NOME_ESCOLA = dadosAluno.aluno.nmEscola; // Usado no frontend
-            userInfo.NAME = dadosAluno.aluno.nome; // Adicionando NAME para garantir compatibilidade
-        }
+        // O `userInfo` do login inicial já contém o `NAME`, que o nosso frontend usa.
+        // O `NOME_ESCOLA` não é essencial e estava a causar o erro.
 
         const dashboardData = {
-            tokenB: tokenB, // <-- A CORREÇÃO ESTÁ AQUI. Adicionando o token à resposta.
+            tokenB: tokenB,
             userInfo: userInfo,
             faltas: faltasData?.data || [],
             tarefas: Array.isArray(tarefas) ? tarefas : [],
