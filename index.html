@@ -18,11 +18,12 @@
         button { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; }
         #login-message { margin-top: 20px; min-height: 20px; color: var(--red-color); }
         #dashboard-screen { display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; }
+        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 2000; }
         .sidebar .brand { margin-bottom: 2rem; }
         .sidebar .brand p { font-size: 0.8rem; color: var(--text-secondary); }
         .sidebar .logout { margin-top: auto; background: none; border: 1px solid var(--border-color); color: var(--text-secondary); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; }
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; }
         .main-header p { color: var(--text-secondary); }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
         .dashboard-card { background-color: var(--bg-medium); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
@@ -32,7 +33,7 @@
         .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
         .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; }
         .modal-close { float: right; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-        .modal-list .list-item { display: flex; align-items: center; gap: 15px; list-style: none; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .modal-list .list-item { display: flex; align-items: center; justify-content: space-between; gap: 15px; list-style: none; padding: 15px; border-bottom: 1px solid var(--border-color); }
         .list-item:last-child { border-bottom: none; }
         .list-item .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
         .tag.redacao { background-color: var(--blue-color); color: white; }
@@ -41,30 +42,28 @@
         .boletim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 1.5rem; }
         .disciplina-card { background-color: var(--bg-dark); border-radius: 6px; padding: 15px; }
         .disciplina-card h3 { font-size: 1em; margin-bottom: 5px; }
+        .btn-fazer-tarefa { background-color: var(--accent-color); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .btn-fazer-tarefa:disabled { background-color: var(--text-secondary); }
+        #menu-toggle { display: none; background: none; border: none; color: var(--text-primary); font-size: 2rem; cursor: pointer; }
+        @media (max-width: 768px) {
+            #menu-toggle { display: block; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); }
+            body.sidebar-open .sidebar { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+        }
     </style>
 </head>
 <body>
     <div id="login-screen">
-        <div class="login-container">
-            <h1>Finituss</h1>
-            <form id="login-form">
-                <div class="input-group"><input type="text" id="ra" placeholder="RA com dígito e UF" required></div>
-                <div class="input-group"><input type="password" id="senha" placeholder="Senha da SED" required></div>
-                <button type="submit" id="login-button">Entrar</button>
-            </form>
-            <div id="login-message"></div>
-        </div>
+        <div class="login-container"><h1>Finituss</h1><form id="login-form"><div class="input-group"><input type="text" id="ra" placeholder="RA com dígito e UF" required></div><div class="input-group"><input type="password" id="senha" placeholder="Senha da SED" required></div><button type="submit" id="login-button">Entrar</button></form><div id="login-message"></div></div>
     </div>
     <div id="dashboard-screen" class="hidden">
-        <aside class="sidebar">
-            <div class="brand">
-                <h2>Finituss</h2>
-                <p>Criado por Ruan</p>
-            </div>
-            <button class="logout" id="logout-button">Sair</button>
-        </aside>
+        <aside class="sidebar" id="sidebar"><div class="brand"><h2>Finituss</h2><p>Criado por Ruan</p></div><button class="logout" id="logout-button">Sair</button></aside>
         <main class="main-content">
-            <header class="main-header"><h1 id="welcome-message"></h1><p id="school-name"></p></header>
+            <header class="main-header">
+                <div><h1 id="welcome-message"></h1><p id="school-name"></p></div>
+                <button id="menu-toggle">&#9776;</button>
+            </header>
             <div class="cards-container">
                 <div class="dashboard-card" data-modal-target="faltas-modal"><div>Faltas no Bimestre</div><div class="card-data" id="faltas-count">0</div></div>
                 <div class="dashboard-card" data-modal-target="tarefas-modal"><div>Tarefas</div><div class="card-data" id="tarefas-count">0</div></div>
@@ -76,20 +75,32 @@
     </div>
     
     <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas por Disciplina</h2><ul class="modal-list" id="faltas-list"></ul></div></div>
-    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas</h2><ul class="modal-list" id="tarefas-list"></ul></div></div>
+    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content">
+        <button class="modal-close">&times;</button>
+        <h2>Tarefas</h2>
+        <div style="margin: 15px 0;">
+            <label for="task-delay">Tempo de simulação (segundos):</label>
+            <input type="number" id="task-delay" value="60" min="1" style="width: 80px;">
+        </div>
+        <ul class="modal-list" id="tarefas-list"></ul>
+    </div></div>
     <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
     <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul class="modal-list" id="notificacoes-list"></ul></div></div>
     <div id="boletim-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Boletim</h2><div class="boletim-grid" id="boletim-grid"></div></div></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            let fullData = {};
+            let tokenB = '';
+
             const loginScreen = document.getElementById('login-screen');
             const dashboardScreen = document.getElementById('dashboard-screen');
             const loginForm = document.getElementById('login-form');
             const loginButton = document.getElementById('login-button');
             const logoutButton = document.getElementById('logout-button');
             const loginMessage = document.getElementById('login-message');
-            let fullData = {};
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
 
             loginForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
@@ -103,7 +114,10 @@
                     });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error);
+                    
                     fullData = data;
+                    tokenB = data.tokenB; // Assumindo que o tokenB é retornado no login
+                    
                     showDashboard();
                 } catch (error) {
                     loginMessage.textContent = `❌ ${error.message}`;
@@ -119,6 +133,10 @@
                 loginMessage.textContent = '';
             });
 
+            menuToggle.addEventListener('click', () => {
+                document.body.classList.toggle('sidebar-open');
+            });
+            
             function showDashboard() {
                 populateDashboard();
                 setupEventListeners();
@@ -128,10 +146,8 @@
 
             function populateDashboard() {
                 const userName = fullData.userInfo?.NAME || 'Aluno(a)';
-                const firstName = userName.split(' ')[0];
-                document.getElementById('welcome-message').textContent = `Bem-vindo(a), ${firstName}!`;
+                document.getElementById('welcome-message').textContent = `Bem-vindo(a), ${userName.split(' ')[0]}!`;
                 document.getElementById('school-name').textContent = fullData.userInfo?.NOME_ESCOLA || 'Escola não encontrada';
-                
                 document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
                 document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
                 document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
@@ -166,37 +182,66 @@
                                 if (fullData.tarefas?.length > 0) {
                                     content = fullData.tarefas.map(item => {
                                         let tagHTML = '';
+                                        let buttonHTML = '<button class="btn-fazer-tarefa" disabled>Indisponível</button>';
+                                        
                                         if (item.tags?.includes('redacaopaulista')) {
                                             tagHTML = '<span class="tag redacao">REDAÇÃO</span>';
                                         } else if (item.task_expired) {
                                             tagHTML = '<span class="tag expirada">EXPIRADA</span>';
+                                        } else {
+                                            buttonHTML = `<button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}">Fazer Tarefa</button>`;
                                         }
-                                        return `<li class="list-item"><div><h3>${item.title}${tagHTML}</h3><p>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</p></div></li>`;
+                                        return `<li class="list-item">
+                                            <div><h3>${item.title}${tagHTML}</h3><p>Prazo: ${new Date(item.expire_at).toLocaleDateString('pt-BR')}</p></div>
+                                            ${buttonHTML}
+                                        </li>`;
                                     }).join('');
                                 }
                                 break;
                             case 'conquistas-modal':
-                                if (fullData.conquistas?.length > 0) {
-                                    content = fullData.conquistas.map(item => 
-                                        `<li class="list-item">
-                                            <img src="${item.linkIcone}" alt="Ícone da conquista" class="conquista-icon">
-                                            <div>
-                                                <h3>${item.projeto}</h3>
-                                                <p>Medalha: ${item.medalha}</p>
-                                            </div>
-                                        </li>`
-                                    ).join('');
-                                }
+                                if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li class="list-item"><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>Medalha: ${item.medalha}</p></div></li>`).join('');
                                 break;
                             case 'notificacoes-modal':
                                 if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li class="list-item"><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
                                 break;
                         }
                         list.innerHTML = content;
+                        if (modalId === 'tarefas-modal') {
+                            list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => {
+                                if (!btn.disabled) btn.addEventListener('click', handleFazerTarefa);
+                            });
+                        }
                     }
                 } catch(e) { console.error("Erro ao popular modal:", e); }
-
                 modal.classList.add('is-visible');
+            }
+
+            async function handleFazerTarefa(event) {
+                const button = event.target;
+                const taskId = button.dataset.taskId;
+                const room = button.dataset.room;
+                const tempo = document.getElementById('task-delay').value;
+
+                button.disabled = true;
+                button.textContent = 'A fazer...';
+
+                try {
+                    const response = await fetch('/api/fazer-tarefa', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ taskId: parseInt(taskId), token: tokenB, room: room, tempo: parseInt(tempo) }),
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Erro desconhecido');
+
+                    button.textContent = 'Feito!';
+                    button.style.backgroundColor = '#28a745'; // Verde sucesso
+                } catch (error) {
+                    button.textContent = 'Erro!';
+                    button.style.backgroundColor = 'var(--red-color)';
+                    console.error('Erro ao fazer tarefa:', error);
+                    alert(`Falha ao fazer a tarefa: ${error.message}`);
+                }
             }
 
             function hideModal(modalId) {
