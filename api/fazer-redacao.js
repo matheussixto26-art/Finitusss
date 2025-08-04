@@ -1,14 +1,19 @@
 const axios = require('axios');
-const https = require('https'); // NOVO: Importamos o módulo https do Node.js
+const https = require('https');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Acessa a chave da API de forma segura a partir das Variáveis de Ambiente
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// NOVO: Criamos um "agente" especial que ignora os erros de certificado
+// Agente para ignorar erros de certificado
 const agent = new https.Agent({
   rejectUnauthorized: false
 });
+
+// NOVO: Cabeçalhos que o servidor de proxy espera
+const proxyHeaders = {
+    'Origin': 'https://crimsonstrauss.xyz',
+    'Referer': 'https://crimsonstrauss.xyz/redacao'
+};
 
 function extractJSONObject(str) {
     try {
@@ -18,9 +23,7 @@ function extractJSONObject(str) {
             return JSON.parse(str.substring(startIndex + 1, endIndex));
         }
         return JSON.parse(str);
-    } catch {
-        return null;
-    }
+    } catch { return null; }
 }
 
 module.exports = async (req, res) => {
@@ -37,7 +40,7 @@ module.exports = async (req, res) => {
 
     try {
         // ETAPA 1: Autenticar no serviço de proxy
-        const authResponse = await axios.post(`${PROXY_URL}?action=login_external_api`, { ra, senha }, { httpsAgent: agent }); // Usamos o agente
+        const authResponse = await axios.post(`${PROXY_URL}?action=login_external_api`, { ra, senha }, { httpsAgent: agent, headers: proxyHeaders });
         const nick = authResponse.data.nick;
         if (!nick) throw new Error("Falha ao obter o nick na autenticação do proxy.");
 
@@ -46,7 +49,7 @@ module.exports = async (req, res) => {
             ra: ra,
             authToken: token,
             nick: nick
-        }, { httpsAgent: agent }); // Usamos o agente
+        }, { httpsAgent: agent, headers: proxyHeaders });
         
         const redacoesData = extractJSONObject(fetchRedacoesResponse.data);
         if (!redacoesData || !redacoesData.redacoes) throw new Error("A resposta da lista de redações é inválida.");
@@ -56,7 +59,7 @@ module.exports = async (req, res) => {
         // ETAPA 3: Obter o prompt detalhado da API oficial
          const taskDetailsResponse = await axios.get(
             `https://edusp-api.ip.tv/tms/task/${taskId}/apply?preview_mode=false&room_name=${room}`,
-            { headers: { 'x-api-key': token }, httpsAgent: agent } // Usamos o agente
+            { headers: { 'x-api-key': token } } // Este não precisa do header de proxy
         );
         const taskData = taskDetailsResponse.data;
         const question = taskData.questions[0];
@@ -81,7 +84,7 @@ module.exports = async (req, res) => {
             authToken: token
         };
 
-        const finalResponse = await axios.post(`${PROXY_URL}?action=process_redaction`, finalPayload, { httpsAgent: agent }); // Usamos o agente
+        const finalResponse = await axios.post(`${PROXY_URL}?action=process_redaction`, finalPayload, { httpsAgent: agent, headers: proxyHeaders });
 
         res.status(200).json({ success: true, message: "Operação de redação concluída!", data: finalResponse.data });
 
@@ -91,4 +94,4 @@ module.exports = async (req, res) => {
         res.status(500).json({ success: false, error: `Falha no processo de redação. Detalhes: ${errorDetails}` });
     }
 };
-            
+          
