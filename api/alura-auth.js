@@ -18,32 +18,32 @@ module.exports = async (req, res) => {
     const aluraSsoUrl = `https://cursos.alura.com.br/seducLogin?token=${tokenA}&clientToken=40f949bf2e01f5750d9ba7a008c37262ce1adb83caf321c8bacdd38c4a204315`;
 
     try {
-        console.log(`[ALURA-AUTH] A tentar fazer SSO para a Alura.`);
+        console.log(`[ALURA-AUTH DIAGNÓSTICO] A tentar fazer SSO para a Alura.`);
         
-        // Fazemos o pedido e esperamos uma resposta (incluindo 3xx)
+        // Fazemos o pedido e aceitamos QUALQUER status como sucesso para podermos inspecionar
         const response = await axios.get(aluraSsoUrl, {
             httpsAgent: agent,
-            maxRedirects: 0, // Não seguir redirecionamentos para podermos ver os headers
-            validateStatus: status => status >= 200 && status < 400 // Aceita 2xx e 3xx como "sucesso"
+            maxRedirects: 0,
+            validateStatus: () => true // Aceita qualquer código de status
         });
 
-        // A LÓGICA AGORA ESTÁ AQUI, NO FLUXO DE SUCESSO
-        const cookies = response.headers['set-cookie'];
-
-        if (!cookies || cookies.length === 0) {
-            // Se o servidor respondeu OK mas não enviou cookies, é um erro de lógica inesperado.
-            throw new Error('A resposta de autenticação da Alura foi bem-sucedida, mas não retornou os cookies necessários.');
-        }
+        // Montamos um objeto de diagnóstico com toda a informação da resposta
+        const diagnosticInfo = {
+            message: "Esta é a resposta completa que o servidor da Alura nos deu.",
+            status: response.status,
+            headers: response.headers,
+            data: response.data
+        };
         
-        const cookieString = cookies.map(c => c.split(';')[0]).join('; ');
-        console.log("[ALURA-AUTH] Cookies de sessão obtidos com sucesso.");
-        
-        return res.status(200).json({ success: true, cookies: cookieString });
+        // Devolvemos toda a informação de diagnóstico para o frontend
+        return res.status(400).json({
+            error: `DIAGNÓSTICO ALURA SSO: (${JSON.stringify(diagnosticInfo, null, 2)})`
+        });
 
     } catch (error) {
-        // O bloco catch agora lida apenas com erros genuínos (falhas de rede, 4xx, 5xx)
+        // Este bloco agora só deve apanhar erros de rede, não de status HTTP
         const errorDetails = error.response ? `Status ${error.response.status}: ${JSON.stringify(error.response.data)}` : error.message;
-        console.error(`[ALURA-AUTH] Erro inesperado:`, errorDetails);
+        console.error(`[ALURA-AUTH] Erro de rede inesperado:`, errorDetails);
         res.status(500).json({ error: `Falha na autenticação SSO da Alura. Detalhes: ${errorDetails}` });
     }
 };
