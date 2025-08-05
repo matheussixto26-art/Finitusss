@@ -17,12 +17,12 @@ module.exports = async (req, res) => {
     try {
         const response = await axios.post("https://api.moonscripts.cloud/alura-auth", { token }, {
             httpsAgent: agent,
-            timeout: 7000 // Timeout de 7 segundos
+            timeout: 8000 // 8 segundos
         });
         res.status(200).json(response.data);
     } catch (error) {
         if (error.code === 'ECONNABORTED') {
-            return res.status(504).json({ error: 'O serviço externo (Alura Auth) demorou muito para responder. Tente novamente mais tarde.' });
+            return res.status(504).json({ error: 'O serviço externo (Alura Auth) demorou muito para responder.' });
         }
         const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
         res.status(500).json({ error: `Falha na autenticação da Alura. Detalhes: ${errorDetails}` });
