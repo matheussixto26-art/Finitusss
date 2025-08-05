@@ -6,294 +6,124 @@
     <title>Finituss</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark:#0D1117; --bg-medium:#161B22; --border-color:#30363D; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#00A9E0; --red-color: #e53965; --green-color: #23d183; --orange-color: #f77829; }
+        :root { --bg-dark:#0A0A0A; --bg-medium:#191919; --border-color:#2e2e2e; --text-primary:#EAEBF0; --text-secondary:#8B949E; --accent-blue:#007BFF; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-dark); color: var(--text-primary); font-family: 'Poppins', sans-serif; overflow: hidden; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-dark); color: var(--text-primary); }
         .hidden { display: none !important; }
-        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: center; }
-        .login-container h1 { margin-bottom: 10px; font-size: 2.5em; }
-        .login-container label { display: block; text-align: left; margin-bottom: 5px; color: var(--text-secondary); }
-        .input-group { margin-bottom: 20px; }
-        input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); }
-        button, .btn { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; text-align: center; }
-        #login-message { margin-top: 20px; min-height: 20px; color: var(--red-color); }
+
+        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #6DD5FA, #9B5DE5); }
+        .login-container { text-align: center; width: 100%; max-width: 400px; padding: 20px; }
+        .login-container h1 { font-size: 3.5em; font-weight: 700; color: white; }
+        .login-container p { font-size: 1.1em; color: rgba(255, 255, 255, 0.9); margin-top: -10px; margin-bottom: 40px; }
+        .login-form input { width: 100%; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 15px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: white; font-size: 1em; }
+        .login-form input::placeholder { color: rgba(255, 255, 255, 0.7); }
+        .login-form button { width: 100%; padding: 20px; border: none; border-radius: 15px; background-color: var(--accent-blue); color: white; font-size: 1.2em; font-weight: 600; cursor: pointer; }
+        #login-message { margin-top: 20px; min-height: 20px; color: white; }
+
         #dashboard-screen { display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; }
-        .sidebar .brand { margin-bottom: 2rem; }
-        .sidebar .brand p { font-size: 0.8rem; color: var(--text-secondary); }
-        .sidebar .nav-list { list-style: none; padding: 0; margin-top: 1rem; }
+        .sidebar { width: 260px; background-color: var(--bg-medium); padding: 30px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
+        .sidebar .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 3rem; }
+        .sidebar .logo-icon { width: 32px; height: 32px; }
+        .sidebar .logo-text { font-size: 1.8em; font-weight: 600; }
+        .sidebar .nav-list { list-style: none; padding: 0; }
         .sidebar .nav-item { margin-bottom: 1rem; }
-        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; font-size: 1rem; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .sidebar .nav-item a:hover { background-color: var(--bg-dark); color: var(--text-primary); }
-        .sidebar .logout { margin-top: auto; background: none; border: 1px solid var(--red-color); color: var(--red-color); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
-        .main-header { margin-bottom: 1rem; }
-        .main-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
-        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
-        .dashboard-card { background-color: var(--bg-medium); border-radius: 8px; padding: 20px; cursor: pointer; }
-        .card-header { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
-        .card-data { font-size: 2.8em; font-weight: 700; margin-top: 10px; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
-        .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
-        .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; }
-        .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-        .modal-list { list-style: none; padding: 0; }
-        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .modal-list li:last-child { border-bottom: none; }
-        /* Estilos Alura */
-        .trilha-select, .bimestre-btn, .curso-btn { display: block; width: 100%; background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-primary); padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 1em; text-align: left; cursor: pointer; }
-        .curso-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-top: 1px solid var(--border-color); }
+        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 8px; }
+        .sidebar .nav-item a.active { background-color: var(--accent-blue); color: var(--text-primary); }
+        .sidebar .nav-item svg { width: 24px; height: 24px; }
+        
+        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .main-content header { margin-bottom: 30px; }
+        .main-content header h1 { font-size: 2em; }
+        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
+        .dashboard-card { background: var(--bg-medium); border: 1px solid var(--border-color); border-radius: 15px; padding: 25px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .dashboard-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0, 123, 255, 0.1); }
+        .dashboard-card img { width: 48px; height: 48px; margin-bottom: 15px; }
+        .dashboard-card h3 { font-size: 1.2em; font-weight: 500; }
     </style>
 </head>
 <body>
     <div id="login-screen">
         <div class="login-container">
-            <h1>Finituss</h1>
-            <form id="login-form">
-                <label for="ra">Usuário (RA)</label>
-                <div class="input-group"><input type="text" id="ra" required></div>
-                <label for="senha">Senha</label>
-                <div class="input-group"><input type="password" id="senha" required></div>
+            <h1>finituss</h1>
+            <p>automator for the classroom of the future</p>
+            <form id="login-form" class="login-form">
+                <input type="text" id="ra" placeholder="RA com dígito e UF" required>
+                <input type="password" id="senha" placeholder="Senha da SED" required>
                 <button type="submit" id="login-button">Entrar</button>
             </form>
-            <div id="login-message"></div>
+            <div id="login-message" class="hidden"></div>
         </div>
     </div>
+
     <div id="dashboard-screen" class="hidden">
         <aside class="sidebar">
-            <div class="brand"><h2>Finituss</h2><p>Criado por ?</p></div>
-            <ul class="nav-list">
-                <li class="nav-item"><a id="settings-btn"><span>⚙️</span> <span>Configurações</span></a></li>
-                <li class="nav-item"><a id="alura-btn"><span>🚀</span> <span>Alura</span></a></li>
-            </ul>
-            <button class="logout" id="logout-button">Sair</button>
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 50 50" fill="white" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="5"/><circle cx="25" cy="10" r="5"/><circle cx="40" cy="10" r="5"/><circle cx="10" cy="25" r="5"/><circle cx="25" cy="25" r="5"/><circle cx="40" cy="25" r="5"/><circle cx="10" cy="40" r="5"/><circle cx="25" cy="40" r="5"/></svg>
+                <span class="logo-text">finitus</span>
+            </div>
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="#" class="active">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span>Início</span>
+                    </a></li>
+                    <li class="nav-item"><a href="#">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        <span>Curso</span>
+                    </a></li>
+                     <li class="nav-item"><a href="#">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span>Perfil</span>
+                    </a></li>
+                </ul>
+            </nav>
         </aside>
         <main class="main-content">
-            <header class="main-header"><h1 id="welcome-message"></h1></header>
-            <div class="info-bar"><span id="school-name"></span></div>
+            <header>
+                <h1 id="welcome-message"></h1>
+            </header>
             <div class="cards-container">
-                <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-header"><span>🗓️</span><div>Faltas</div></div><div class="card-data" id="faltas-count">0</div></div>
-                <div class="dashboard-card" data-modal-target="tarefas-modal"><div class="card-header"><span>📚</span><div>Tarefas Pendentes</div></div><div class="card-data" id="tarefas-count">0</div></div>
-                <div class="dashboard-card" data-modal-target="conquistas-modal"><div class="card-header"><span>🏆</span><div>Ver Conquistas</div></div><div class="card-data" id="conquistas-count">0</div></div>
-                <div class="dashboard-card" data-modal-target="notificacoes-modal"><div class="card-header"><span>🔔</span><div>Mensagens</div></div><div class="card-data" id="notificacoes-count">0</div></div>
+                <div class="dashboard-card" id="card-faltas">
+                    <img src="https://img.icons8.com/plasticine/100/calendar.png" alt="Faltas"/>
+                    <h3>Faltas</h3>
+                </div>
+                <div class="dashboard-card" id="card-tarefas">
+                    <img src="https://img.icons8.com/plasticine/100/task-list.png" alt="Tarefas"/>
+                    <h3>Tarefas Pendentes</h3>
+                </div>
+                <div class="dashboard-card" id="card-conquistas">
+                    <img src="https://img.icons8.com/plasticine/100/trophy.png" alt="Conquistas"/>
+                    <h3>Ver Conquistas</h3>
+                </div>
+                 <div class="dashboard-card" id="card-notificacoes">
+                    <img src="https://img.icons8.com/plasticine/100/new-post.png" alt="Mensagens"/>
+                    <h3>Mensagens</h3>
+                </div>
             </div>
         </main>
     </div>
-    
-    <div id="alura-modal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close">&times;</button>
-            <h2 style="color:var(--accent-color); margin-bottom: 1.5rem;">ALURA - CURSOS</h2>
-            <div id="alura-content"></div>
-        </div>
-    </div>
-    <div id="settings-modal" class="modal-overlay"></div>
-    <div id="tarefas-modal" class="modal-overlay"></div>
-    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul id="faltas-list" class="modal-list"></ul></div></div>
-    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul id="conquistas-list" class="modal-list"></ul></div></div>
-    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul id="notificacoes-list" class="modal-list"></ul></div></div>
-</body>
-<script>
+                    </body>
+                    <script>
     document.addEventListener('DOMContentLoaded', () => {
-        let fullData = {};
-        let tokenB = '';
-        let aluraCookies = '';
-        let aluraData = null;
-
         const loginScreen = document.getElementById('login-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
         const loginForm = document.getElementById('login-form');
         const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button');
         const loginMessage = document.getElementById('login-message');
-        const aluraBtn = document.getElementById('alura-btn');
-        const aluraModal = document.getElementById('alura-modal');
-        const aluraContent = document.getElementById('alura-content');
-
-        async function performLogin(ra, senha) {
-            loginButton.disabled = true;
-            loginMessage.textContent = 'A entrar...';
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: ra, senha: senha }),
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error);
-                
-                fullData = data;
-                tokenB = data.tokenB;
-                showDashboard();
-            } catch (error) {
-                loginMessage.textContent = `❌ ${error.message}`;
-            } finally {
-                loginButton.disabled = false;
-            }
-        }
+        const welcomeMessage = document.getElementById('welcome-message');
         
+        // Simplesmente alterna a visibilidade para o propósito do design
+        // A lógica de login real será reintegrada
         loginForm.addEventListener('submit', (event) => {
             event.preventDefault();
-            performLogin(document.getElementById('ra').value, document.getElementById('senha').value);
-        });
-
-        logoutButton.addEventListener('click', () => {
-            loginScreen.classList.remove('hidden');
-            dashboardScreen.classList.add('hidden');
-            loginForm.reset();
-        });
-
-        function showDashboard() {
-            populateDashboard();
-            setupEventListeners();
+            
+            // Esconde a tela de login e mostra o dashboard
             loginScreen.classList.add('hidden');
             dashboardScreen.classList.remove('hidden');
-        }
-
-        function populateDashboard() {
-            document.getElementById('welcome-message').textContent = `Bem-vindo, ${fullData.userInfo?.NAME}!`;
-            document.getElementById('school-name').textContent = `🏫 ${fullData.userInfo?.NOME_ESCOLA || 'Escola não encontrada'}`;
-            document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
-            document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
-            document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
-            document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
-        }
-
-        function setupEventListeners() {
-            document.querySelectorAll('.dashboard-card, #settings-btn, #alura-btn').forEach(card => card.addEventListener('click', (e) => {
-                let modalId = '';
-                if (e.currentTarget.id === 'settings-btn') modalId = 'settings-modal';
-                else if (e.currentTarget.id === 'alura-btn') modalId = 'alura-modal';
-                else modalId = e.currentTarget.dataset.modalTarget;
-                
-                showModal(modalId);
-            }));
-            document.querySelectorAll('.modal-overlay').forEach(modal => {
-                modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(modal.id); });
-                modal.querySelector('.modal-close')?.addEventListener('click', () => hideModal(modal.id));
-            });
-        }
-        
-        function showModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (!modal) return;
             
-            if (modalId === 'alura-modal') {
-                initAlura();
-            } else {
-                // Lógica para preencher outros modais (tarefas, conquistas, etc.)
-            }
-            modal.classList.add('is-visible');
-        }
-
-        function hideModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) modal.classList.remove('is-visible');
-        }
-        
-        // --- LÓGICA DA ALURA ---
-        
-        async function initAlura() {
-            aluraContent.innerHTML = '<p>A autenticar na Alura...</p>';
-            try {
-                // Etapa 1: Autenticar
-                const authResponse = await fetch('/api/alura-auth', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: tokenB })
-                });
-                const authData = await authResponse.json();
-                if (!authResponse.ok || !authData.cookies) throw new Error(authData.error || 'Falha na autenticação Alura.');
-                aluraCookies = authData.cookies;
-
-                // Etapa 2: Buscar Dados
-                aluraContent.innerHTML = '<p>A procurar trilhas e cursos...</p>';
-                const dataResponse = await fetch('/api/alura-data', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cookies: aluraCookies })
-                });
-                const courseData = await dataResponse.json();
-                if (!dataResponse.ok) throw new Error(courseData.error || 'Falha ao buscar dados dos cursos.');
-                aluraData = courseData;
-
-                renderAluraTrilhas();
-            } catch (error) {
-                aluraContent.innerHTML = `<p style="color:var(--red-color);">${error.message}</p>`;
-            }
-        }
-
-        function renderAluraTrilhas() {
-            let html = '<select id="trilha-select" class="trilha-select"><option value="">Selecione uma trilha</option>';
-            aluraData.trilhas.forEach(trilha => {
-                html += `<option value="${trilha.id}">${trilha.nome}</option>`;
-            });
-            html += '</select>';
-            aluraContent.innerHTML = html;
-            
-            document.getElementById('trilha-select').addEventListener('change', (e) => {
-                if (e.target.value) renderAluraBimestres(e.target.value);
-            });
-        }
-        
-        function renderAluraBimestres(trilhaId) {
-            let html = '<button id="voltar-trilhas" class="trilha-select">← Voltar para Trilhas</button>';
-            ['1º Bimestre', '2º Bimestre', '3º Bimestre', '4º Bimestre'].forEach((bimestre, index) => {
-                html += `<button class="bimestre-btn" data-trilha-id="${trilhaId}" data-bimestre="${index + 1}">${bimestre}</button>`;
-            });
-            aluraContent.innerHTML = html;
-
-            document.getElementById('voltar-trilhas').addEventListener('click', renderAluraTrilhas);
-            document.querySelectorAll('.bimestre-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => renderAluraCursos(e.target.dataset.trilhaId, e.target.dataset.bimestre));
-            });
-        }
-
-        function renderAluraCursos(trilhaId, bimestre) {
-            const trilha = aluraData.trilhas.find(t => t.id == trilhaId);
-            const cursos = trilha.cursos.filter(c => c.bimestre == bimestre);
-
-            let html = `<button id="voltar-bimestres" class="trilha-select" data-trilha-id="${trilhaId}">← Voltar para Bimestres</button>`;
-            if (cursos.length > 0) {
-                cursos.forEach(curso => {
-                    html += `<div class="curso-item">
-                        <div>
-                            <strong>${curso.nome}</strong>
-                            <p style="color:var(--text-secondary); font-size: 0.9em;">${curso.progresso == 100 ? '✅ Completo' : curso.progresso + '%'}</p>
-                        </div>
-                        ${curso.progresso != 100 ? `<button class="curso-btn" data-url="${curso.url}">Fazer Curso</button>` : ''}
-                    </div>`;
-                });
-            } else { html += '<p>Nenhum curso encontrado para este bimestre.</p>'; }
-            aluraContent.innerHTML = html;
-
-            document.getElementById('voltar-bimestres').addEventListener('click', (e) => renderAluraBimestres(e.target.dataset.trilhaId));
-            document.querySelectorAll('.curso-btn').forEach(btn => btn.addEventListener('click', handleFazerCursoAlura));
-        }
-
-        async function handleFazerCursoAlura(event) {
-            const button = event.target;
-            const url = button.dataset.url;
-            button.disabled = true;
-            button.textContent = 'A processar...';
-
-            try {
-                const response = await fetch('/api/alura-answer', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cookies: aluraCookies, url: url })
-                });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.error || 'Falha ao processar o curso.');
-
-                button.textContent = '✅ Completo';
-                button.style.backgroundColor = 'var(--green-color)';
-            } catch (error) {
-                button.textContent = 'Erro!';
-                button.style.backgroundColor = 'var(--red-color)';
-                alert(error.message);
-                button.disabled = false;
-            }
-        }
+            // Mensagem de boas-vindas de exemplo
+            welcomeMessage.textContent = 'Bem-vindo, Aluno!';
+        });
     });
 </script>
-</body>
 </html>
