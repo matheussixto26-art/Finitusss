@@ -1,4 +1,9 @@
 const axios = require('axios');
+const https = require('https');
+
+const agent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
@@ -10,9 +15,15 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const response = await axios.post("https://api.moonscripts.cloud/alura-data", { cookies });
+        const response = await axios.post("https://api.moonscripts.cloud/alura-data", { cookies }, {
+            httpsAgent: agent,
+            timeout: 7000 // Timeout de 7 segundos
+        });
         res.status(200).json(response.data);
     } catch (error) {
+        if (error.code === 'ECONNABORTED') {
+            return res.status(504).json({ error: 'O serviço externo (Alura Data) demorou muito para responder. Tente novamente mais tarde.' });
+        }
         const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
         res.status(500).json({ error: `Falha ao buscar dados da Alura. Detalhes: ${errorDetails}` });
     }
