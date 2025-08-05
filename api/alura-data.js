@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
     try {
         const response = await axios.post("https://api.moonscripts.cloud/alura-data", { cookies }, {
             httpsAgent: agent,
-            timeout: 8000 // 8 segundos
+            timeout: 8000
         });
         res.status(200).json(response.data);
     } catch (error) {
