@@ -6,48 +6,93 @@
     <title>Finituss</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark:#0D1117; --bg-medium:#161B22; --border-color:#30363D; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#00A9E0; --red-color: #e53965; --green-color: #23d183; }
+        :root { --bg-dark:#0D1117; --bg-medium:#161B22; --border-color:#30363D; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#00A9E0; --red-color: #e53965; --green-color: #23d183; --orange-color: #f77829; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-dark); color: var(--text-primary); font-family: 'Poppins', sans-serif; overflow: hidden; }
         .hidden { display: none !important; }
         #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
         .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: center; }
+        .login-container h1 { margin-bottom: 10px; font-size: 2.5em; }
+        .login-container label { display: block; text-align: left; margin-bottom: 5px; color: var(--text-secondary); }
+        .input-group { margin-bottom: 20px; }
+        input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); }
         button, .btn { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; text-align: center; }
+        #login-message { margin-top: 20px; min-height: 20px; color: var(--red-color); }
         #dashboard-screen { display: flex; height: 100vh; }
         .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; }
+        .sidebar .brand { margin-bottom: 2rem; }
+        .sidebar .brand p { font-size: 0.8rem; color: var(--text-secondary); }
+        .sidebar .nav-list { list-style: none; padding: 0; margin-top: 1rem; }
+        .sidebar .nav-item { margin-bottom: 1rem; }
+        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; font-size: 1rem; padding: 10px; border-radius: 6px; cursor: pointer; }
+        .sidebar .nav-item a:hover { background-color: var(--bg-dark); color: var(--text-primary); }
+        .sidebar .logout { margin-top: auto; background: none; border: 1px solid var(--red-color); color: var(--red-color); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; }
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
+        .main-header { margin-bottom: 1rem; }
+        .main-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
         .dashboard-card { background-color: var(--bg-medium); border-radius: 8px; padding: 20px; cursor: pointer; }
+        .card-header { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
+        .card-data { font-size: 2.8em; font-weight: 700; margin-top: 10px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
         .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
         .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
+        .modal-list { list-style: none; padding: 0; }
+        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .modal-list li:last-child { border-bottom: none; }
         /* Estilos Alura */
         .trilha-select, .bimestre-btn, .curso-btn { display: block; width: 100%; background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-primary); padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 1em; text-align: left; cursor: pointer; }
         .curso-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-top: 1px solid var(--border-color); }
-        .curso-btn { width: auto; padding: 8px 15px; }
     </style>
 </head>
 <body>
-    <div id="login-screen"></div>
+    <div id="login-screen">
+        <div class="login-container">
+            <h1>Finituss</h1>
+            <form id="login-form">
+                <label for="ra">Usuário (RA)</label>
+                <div class="input-group"><input type="text" id="ra" required></div>
+                <label for="senha">Senha</label>
+                <div class="input-group"><input type="password" id="senha" required></div>
+                <button type="submit" id="login-button">Entrar</button>
+            </form>
+            <div id="login-message"></div>
+        </div>
+    </div>
     <div id="dashboard-screen" class="hidden">
         <aside class="sidebar">
+            <div class="brand"><h2>Finituss</h2><p>Criado por ?</p></div>
             <ul class="nav-list">
                 <li class="nav-item"><a id="settings-btn"><span>⚙️</span> <span>Configurações</span></a></li>
                 <li class="nav-item"><a id="alura-btn"><span>🚀</span> <span>Alura</span></a></li>
             </ul>
-             </aside>
-        <main class="main-content"></main>
+            <button class="logout" id="logout-button">Sair</button>
+        </aside>
+        <main class="main-content">
+            <header class="main-header"><h1 id="welcome-message"></h1></header>
+            <div class="info-bar"><span id="school-name"></span></div>
+            <div class="cards-container">
+                <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-header"><span>🗓️</span><div>Faltas</div></div><div class="card-data" id="faltas-count">0</div></div>
+                <div class="dashboard-card" data-modal-target="tarefas-modal"><div class="card-header"><span>📚</span><div>Tarefas Pendentes</div></div><div class="card-data" id="tarefas-count">0</div></div>
+                <div class="dashboard-card" data-modal-target="conquistas-modal"><div class="card-header"><span>🏆</span><div>Ver Conquistas</div></div><div class="card-data" id="conquistas-count">0</div></div>
+                <div class="dashboard-card" data-modal-target="notificacoes-modal"><div class="card-header"><span>🔔</span><div>Mensagens</div></div><div class="card-data" id="notificacoes-count">0</div></div>
+            </div>
+        </main>
     </div>
     
     <div id="alura-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close">&times;</button>
             <h2 style="color:var(--accent-color); margin-bottom: 1.5rem;">ALURA - CURSOS</h2>
-            <div id="alura-content">
-                </div>
+            <div id="alura-content"></div>
         </div>
     </div>
+    <div id="settings-modal" class="modal-overlay"></div>
+    <div id="tarefas-modal" class="modal-overlay"></div>
+    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul id="faltas-list" class="modal-list"></ul></div></div>
+    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul id="conquistas-list" class="modal-list"></ul></div></div>
+    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul id="notificacoes-list" class="modal-list"></ul></div></div>
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -58,11 +103,94 @@
 
         const loginScreen = document.getElementById('login-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
+        const loginForm = document.getElementById('login-form');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const loginMessage = document.getElementById('login-message');
         const aluraBtn = document.getElementById('alura-btn');
         const aluraModal = document.getElementById('alura-modal');
         const aluraContent = document.getElementById('alura-content');
 
-        // Lógica do Login e Dashboard (sem alterações significativas)
+        async function performLogin(ra, senha) {
+            loginButton.disabled = true;
+            loginMessage.textContent = 'A entrar...';
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user: ra, senha: senha }),
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error);
+                
+                fullData = data;
+                tokenB = data.tokenB;
+                showDashboard();
+            } catch (error) {
+                loginMessage.textContent = `❌ ${error.message}`;
+            } finally {
+                loginButton.disabled = false;
+            }
+        }
+        
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            performLogin(document.getElementById('ra').value, document.getElementById('senha').value);
+        });
+
+        logoutButton.addEventListener('click', () => {
+            loginScreen.classList.remove('hidden');
+            dashboardScreen.classList.add('hidden');
+            loginForm.reset();
+        });
+
+        function showDashboard() {
+            populateDashboard();
+            setupEventListeners();
+            loginScreen.classList.add('hidden');
+            dashboardScreen.classList.remove('hidden');
+        }
+
+        function populateDashboard() {
+            document.getElementById('welcome-message').textContent = `Bem-vindo, ${fullData.userInfo?.NAME}!`;
+            document.getElementById('school-name').textContent = `🏫 ${fullData.userInfo?.NOME_ESCOLA || 'Escola não encontrada'}`;
+            document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
+            document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
+            document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
+            document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.dashboard-card, #settings-btn, #alura-btn').forEach(card => card.addEventListener('click', (e) => {
+                let modalId = '';
+                if (e.currentTarget.id === 'settings-btn') modalId = 'settings-modal';
+                else if (e.currentTarget.id === 'alura-btn') modalId = 'alura-modal';
+                else modalId = e.currentTarget.dataset.modalTarget;
+                
+                showModal(modalId);
+            }));
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(modal.id); });
+                modal.querySelector('.modal-close')?.addEventListener('click', () => hideModal(modal.id));
+            });
+        }
+        
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            if (modalId === 'alura-modal') {
+                initAlura();
+            } else {
+                // Lógica para preencher outros modais (tarefas, conquistas, etc.)
+            }
+            modal.classList.add('is-visible');
+        }
+
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('is-visible');
+        }
         
         // --- LÓGICA DA ALURA ---
         
@@ -88,7 +216,6 @@
                 if (!dataResponse.ok) throw new Error(courseData.error || 'Falha ao buscar dados dos cursos.');
                 aluraData = courseData;
 
-                // Etapa 3: Mostrar as Trilhas
                 renderAluraTrilhas();
             } catch (error) {
                 aluraContent.innerHTML = `<p style="color:var(--red-color);">${error.message}</p>`;
@@ -104,9 +231,7 @@
             aluraContent.innerHTML = html;
             
             document.getElementById('trilha-select').addEventListener('change', (e) => {
-                if (e.target.value) {
-                    renderAluraBimestres(e.target.value);
-                }
+                if (e.target.value) renderAluraBimestres(e.target.value);
             });
         }
         
@@ -119,9 +244,7 @@
 
             document.getElementById('voltar-trilhas').addEventListener('click', renderAluraTrilhas);
             document.querySelectorAll('.bimestre-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    renderAluraCursos(e.target.dataset.trilhaId, e.target.dataset.bimestre);
-                });
+                btn.addEventListener('click', (e) => renderAluraCursos(e.target.dataset.trilhaId, e.target.dataset.bimestre));
             });
         }
 
@@ -140,15 +263,11 @@
                         ${curso.progresso != 100 ? `<button class="curso-btn" data-url="${curso.url}">Fazer Curso</button>` : ''}
                     </div>`;
                 });
-            } else {
-                html += '<p>Nenhum curso encontrado para este bimestre.</p>';
-            }
+            } else { html += '<p>Nenhum curso encontrado para este bimestre.</p>'; }
             aluraContent.innerHTML = html;
 
             document.getElementById('voltar-bimestres').addEventListener('click', (e) => renderAluraBimestres(e.target.dataset.trilhaId));
-            document.querySelectorAll('.curso-btn').forEach(btn => {
-                btn.addEventListener('click', handleFazerCursoAlura);
-            });
+            document.querySelectorAll('.curso-btn').forEach(btn => btn.addEventListener('click', handleFazerCursoAlura));
         }
 
         async function handleFazerCursoAlura(event) {
@@ -174,13 +293,7 @@
                 button.disabled = false;
             }
         }
-
-        aluraBtn.addEventListener('click', () => {
-            aluraModal.classList.add('is-visible');
-            initAlura();
-        });
-        
-        // Restante do seu código JavaScript (handlers de modais, etc.)
     });
-                </script>
-                
+</script>
+</body>
+</html>
