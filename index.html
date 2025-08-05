@@ -6,309 +6,210 @@
     <title>Finituss</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-dark:#1c1e2e; --bg-medium:#252940; --border-color:#3a3f6a; --text-primary:#ffffff; --text-secondary:#a3a7d2; --accent-color:#e53965; --red-color: #e53965; --green-color: #23d183; }
+        :root {
+            --bg-dark: #0D1017; --bg-medium: #1A1E29; --border-color: #2A2E3D;
+            --text-primary: #EAEBF0; --text-secondary: #8B949E; --accent-blue: #00A9E0;
+            --red-color: #e53965; --green-color: #23d183; --orange-color: #f77829;
+            --font-family: 'Poppins', sans-serif;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-dark); color: var(--text-primary); font-family: 'Poppins', sans-serif; overflow: hidden; }
+        body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-primary); }
         .hidden { display: none !important; }
-        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: center; }
-        .login-container h1 { margin-bottom: 10px; font-size: 2.5em; }
-        .login-container label { display: block; text-align: left; margin-bottom: 5px; color: var(--text-secondary); }
-        .input-group { margin-bottom: 20px; }
-        input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); }
-        button, .btn { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; transition: background-color 0.2s; text-align: center; }
-        button:hover, .btn:hover { background-color: #c22a51; }
-        #login-message { margin-top: 20px; min-height: 20px; color: var(--red-color); }
+
+        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #6DD5FA, #9B5DE5); overflow: hidden; }
+        .login-container { text-align: center; width: 100%; max-width: 400px; padding: 20px; }
+        .login-container h1 { font-size: 3.5em; font-weight: 700; color: white; }
+        .login-container p { font-size: 1.1em; color: rgba(255, 255, 255, 0.9); margin-top: -10px; margin-bottom: 40px; }
+        .login-form input { width: 100%; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 15px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); color: white; font-size: 1em; }
+        .login-form input::placeholder { color: rgba(255, 255, 255, 0.7); }
+        .login-form button { width: 100%; padding: 20px; border: none; border-radius: 15px; background-color: #007BFF; color: white; font-size: 1.2em; font-weight: 600; cursor: pointer; }
+        #login-message { margin-top: 20px; min-height: 20px; color: white; background-color: rgba(229, 62, 62, 0.8); padding: 10px; border-radius: 8px; }
+
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; transition: opacity 0.3s ease; }
         #dashboard-screen { display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; }
-        .sidebar .brand { margin-bottom: 2rem; }
-        .sidebar .brand p { font-size: 0.8rem; color: var(--text-secondary); }
-        .sidebar .nav-list { list-style: none; padding: 0; margin-top: 1rem; }
-        .sidebar .nav-item { margin-bottom: 1rem; }
-        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; font-size: 1rem; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .sidebar .nav-item a:hover { background-color: var(--bg-dark); color: var(--text-primary); }
-        .sidebar .logout { margin-top: auto; background: none; border: 1px solid var(--accent-color); color: var(--accent-color); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
-        .main-header { margin-bottom: 1rem; }
-        .main-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
-        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
-        .dashboard-card { background-color: var(--bg-medium); border-radius: 8px; padding: 20px; cursor: pointer; transition: transform 0.2s; }
-        .dashboard-card:hover { transform: translateY(-5px); }
-        .card-header { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
-        .card-data { font-size: 2.8em; font-weight: 700; margin-top: 10px; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+        .sidebar { width: 260px; background-color: var(--bg-medium); padding: 30px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
+        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .main-content header { margin-bottom: 30px; }
+        .main-content header h1 { font-size: 2em; }
+        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
+        .dashboard-card { background: linear-gradient(145deg, var(--bg-medium), #161a25); border: 1px solid var(--border-color); border-radius: 15px; padding: 25px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .dashboard-card .card-icon { width: 48px; height: 48px; margin-bottom: 15px; }
+        .dashboard-card h3 { font-size: 1.2em; font-weight: 500; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; }
         .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
-        .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-content { background: var(--bg-dark); padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; border: 1px solid var(--border-color); }
         .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
         .modal-list { list-style: none; padding: 0; }
-        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
         .modal-list li:last-child { border-bottom: none; }
-        .task-card { background-color: var(--bg-dark); border-left: 4px solid var(--accent-color); border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+        .task-card { background-color: var(--bg-medium); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
         .action-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
         .button-group { display: flex; gap: 10px; }
         .btn-fazer-tarefa, .btn-enviar-rascunho { background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 5px; cursor: pointer; }
-        .btn-fazer-tarefa.submit, .btn-enviar-rascunho { background-color: var(--accent-color); color: white; border: none; }
-        .settings-section { margin-top: 1.5rem; }
-        .settings-section h3 { color: var(--text-secondary); margin-bottom: 1rem; font-size: 1em; }
-        .saved-account { display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-dark); padding: 15px; border-radius: 6px; margin-bottom: 10px; }
-        .saved-account .actions { display: flex; gap: 10px; }
-        .btn-remover { background-color: var(--red-color); color: white; border: none; padding: 5px 10px; font-size: 0.8em; border-radius: 4px; cursor: pointer; }
-        .btn-logar { background-color: var(--accent-color); color: white; border: none; padding: 5px 10px; font-size: 0.8em; border-radius: 4px; cursor: pointer; }
+        .btn-fazer-tarefa.submit, .btn-enviar-rascunho { background-color: var(--accent-blue); color: white; border: none; }
+        .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
+        .tag.expirada { background-color: var(--red-color); color: white; }
+        .tag.rascunho { background-color: var(--orange-color); color: white; }
     </style>
 </head>
 <body>
+    <div id="loading-overlay" class="hidden"><h2 id="loading-text" style="color:white;"></h2></div>
     <div id="login-screen">
         <div class="login-container">
-            <h1>Finituss</h1>
-            <form id="login-form">
-                <label for="ra">Registro Acadêmico (RA):</label><div class="input-group"><input type="text" id="ra" required></div>
-                <label for="senha">Senha:</label><div class="input-group"><input type="password" id="senha" required></div>
+            <h1>finituss</h1>
+            <p>automator for the classroom of the future</p>
+            <form id="login-form" class="login-form">
+                <input type="text" id="ra" placeholder="RA com dígito e UF" required>
+                <input type="password" id="senha" placeholder="Senha da SED" required>
                 <button type="submit" id="login-button">Entrar</button>
             </form>
-            <div id="login-message"></div>
+            <div id="login-message" class="hidden"></div>
         </div>
     </div>
+
     <div id="dashboard-screen" class="hidden">
-        <aside class="sidebar">
-            <div class="brand"><h2>Finituss</h2><p>Criado por ?</p></div>
-            <ul class="nav-list">
-                <li class="nav-item"><a id="settings-btn" data-modal-target="settings-modal"><span>⚙️</span> <span>Configurações</span></a></li>
-                <li class="nav-item"><a id="alura-btn" data-modal-target="alura-modal"><span>🚀</span> <span>Alura</span></a></li>
-            </ul>
-            <button class="logout" id="logout-button">Sair</button>
-        </aside>
+        <aside class="sidebar"></aside>
         <main class="main-content">
-            <header class="main-header"><h1 id="welcome-message"></h1></header>
-            <div class="info-bar"><span id="school-name"></span><span id="class-name"></span></div>
+            <header>
+                <h1 id="welcome-message"></h1>
+            </header>
             <div class="cards-container">
-                <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-header"><span>🗓️</span><div>Faltas</div></div><div class="card-data" id="faltas-count">0</div></div>
-                <div class="dashboard-card" data-modal-target="tarefas-modal"><div class="card-header"><span>📚</span><div>Tarefas Pendentes</div></div><div class="card-data" id="tarefas-count">0</div></div>
-                <div class="dashboard-card" data-modal-target="conquistas-modal"><div class="card-header"><span>🏆</span><div>Ver Conquistas</div></div><div class="card-data" id="conquistas-count">0</div></div>
-                <div class="dashboard-card" data-modal-target="notificacoes-modal"><div class="card-header"><span>🔔</span><div>Mensagens</div></div><div class="card-data" id="notificacoes-count">0</div></div>
+                <div class="dashboard-card" data-modal-target="faltas-modal"><svg class="card-icon" fill="#f87171" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg><h3>Faltas</h3></div>
+                <div class="dashboard-card" data-modal-target="tarefas-modal"><svg class="card-icon" fill="#60a5fa" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg><h3>Tarefas Pendentes</h3></div>
+                <div class="dashboard-card" data-modal-target="conquistas-modal"><svg class="card-icon" fill="#facc15" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zm-7 6c-1.66 0-3-1.34-3-3V5h6v3c0 1.66-1.34 3-3 3z"/></svg><h3>Ver Conquistas</h3></div>
+                <div class="dashboard-card" data-modal-target="notificacoes-modal"><svg class="card-icon" fill="#e879f9" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><h3>Mensagens</h3></div>
             </div>
         </main>
     </div>
     
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close">&times;</button>
-            <h2 style="text-align:center; margin-bottom: 2rem;">Configurações de Conta</h2>
-            <div class="settings-section">
-                <h3>Adicionar Nova Conta</h3>
-                <form id="add-account-form">
-                    <label for="new-ra">Usuário (RA com SP)</label><div class="input-group"><input type="text" id="new-ra" required></div>
-                    <label for="new-senha">Senha</label><div class="input-group"><input type="password" id="new-senha" required></div>
-                    <button type="submit" class="btn">Salvar Conta</button>
-                </form>
-            </div>
-            <div class="settings-section">
-                <h3>Contas Salvas</h3>
-                <div id="saved-accounts-list"></div>
-            </div>
-        </div>
-    </div>
     <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Tarefas</h2><div id="tarefas-list"></div></div></div>
-    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul id="faltas-list" class="modal-list"></ul></div></div>
-    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul id="conquistas-list" class="modal-list"></ul></div></div>
-    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul id="notificacoes-list" class="modal-list"></ul></div></div>
-    <div id="alura-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Alura</h2><p>Funcionalidade em desenvolvimento.</p></div></div>
+    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul class="modal-list" id="faltas-list"></ul></div></div>
+    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Conquistas</h2><ul class="modal-list" id="conquistas-list"></ul></div></div>
+    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul class="modal-list" id="notificacoes-list"></ul></div></div>
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         let fullData = {};
         let tokenB = '';
-        let currentAccount = {};
 
         const loginScreen = document.getElementById('login-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
         const loginForm = document.getElementById('login-form');
         const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button');
         const loginMessage = document.getElementById('login-message');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+
+        async function showLoadingSequence() {
+            const messages = ["Conectando...", "Autenticando...", "A carregar dados...", "Quase pronto..."];
+            loadingOverlay.classList.remove('hidden');
+            for (const msg of messages) {
+                loadingText.textContent = msg;
+                await new Promise(resolve => setTimeout(resolve, 750));
+            }
+        }
         
-        const settingsBtn = document.getElementById('settings-btn');
-        const addAccountForm = document.getElementById('add-account-form');
-        const savedAccountsList = document.getElementById('saved-accounts-list');
-
-        // --- GESTOR DE CONTAS ---
-        const getAccounts = () => JSON.parse(localStorage.getItem('finitussAccounts')) || [];
-        const saveAccounts = (accounts) => localStorage.setItem('finitussAccounts', JSON.stringify(accounts));
-
-        function addAccount(ra, senha, nome) {
-            let accounts = getAccounts();
-            const existingAccountIndex = accounts.findIndex(acc => acc.ra.toLowerCase() === ra.toLowerCase());
-            const accountData = { ra, senha, nome: nome || `Aluno ${ra}` };
-            if (existingAccountIndex > -1) {
-                accounts[existingAccountIndex] = accountData;
-            } else {
-                accounts.push(accountData);
-            }
-            saveAccounts(accounts);
-            populateSettingsModal();
-        }
-
-        function removeAccount(ra) {
-            let accounts = getAccounts().filter(acc => acc.ra.toLowerCase() !== ra.toLowerCase());
-            saveAccounts(accounts);
-            populateSettingsModal();
-        }
-
-        function populateSettingsModal() {
-            const accounts = getAccounts();
-            savedAccountsList.innerHTML = '';
-            if (accounts.length === 0) {
-                savedAccountsList.innerHTML = '<p style="color:var(--text-secondary); text-align:center;">Nenhuma conta salva.</p>';
-                return;
-            }
-            accounts.forEach(acc => {
-                const isActive = acc.ra.toLowerCase() === (currentAccount.ra || '').toLowerCase();
-                const accountEl = document.createElement('div');
-                accountEl.className = 'saved-account';
-                accountEl.innerHTML = `
-                    <div class="info">
-                        <strong>${acc.nome} ${isActive ? '<span style="color:var(--green-color); font-size:0.8em;">(Ativo)</span>' : ''}</strong>
-                        <span>${acc.ra}</span>
-                    </div>
-                    <div class="actions">
-                        ${!isActive ? `<button class="btn-logar" data-ra="${acc.ra}">Logar</button>` : ''}
-                        <button class="btn-remover" data-ra="${acc.ra}">Remover</button>
-                    </div>
-                `;
-                savedAccountsList.appendChild(accountEl);
-            });
-
-            document.querySelectorAll('.btn-remover').forEach(btn => btn.addEventListener('click', (e) => removeAccount(e.target.dataset.ra)));
-            document.querySelectorAll('.btn-logar').forEach(btn => btn.addEventListener('click', (e) => {
-                const acc = getAccounts().find(a => a.ra === e.target.dataset.ra);
-                if(acc) {
-                    document.getElementById('ra').value = acc.ra;
-                    document.getElementById('senha').value = acc.senha;
-                    performLogin(acc.ra, acc.senha);
-                    hideModal('settings-modal');
-                }
-            }));
-        }
-
-        addAccountForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const ra = document.getElementById('new-ra').value;
-            const senha = document.getElementById('new-senha').value;
-            addAccount(ra, senha);
-            addAccountForm.reset();
-            alert('Conta salva! Para usá-la, clique em "Logar".');
-        });
-
-        // --- LÓGICA PRINCIPAL ---
-        async function performLogin(ra, senha) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
             loginButton.disabled = true;
-            loginMessage.textContent = 'A entrar...';
+            loginMessage.classList.add('hidden');
+            await showLoadingSequence();
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: ra, senha: senha }),
+                    body: JSON.stringify({ user: document.getElementById('ra').value, senha: document.getElementById('senha').value }),
                 });
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error);
                 
                 fullData = data;
                 tokenB = data.tokenB;
-                currentAccount = { ra, senha };
                 
-                addAccount(ra, senha, data.userInfo?.NAME);
-                showDashboard();
+                loadingText.textContent = "Pronto!";
+                setTimeout(() => {
+                    loadingOverlay.classList.add('hidden');
+                    loginScreen.classList.add('hidden');
+                    dashboardScreen.classList.remove('hidden');
+                    populateDashboard();
+                    setupEventListeners();
+                }, 500);
+
             } catch (error) {
+                loadingOverlay.classList.add('hidden');
                 loginMessage.textContent = `❌ ${error.message}`;
+                loginMessage.classList.remove('hidden');
             } finally {
                 loginButton.disabled = false;
             }
-        }
-        
-        loginForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            performLogin(document.getElementById('ra').value, document.getElementById('senha').value);
         });
-
-        logoutButton.addEventListener('click', () => {
-            loginScreen.classList.remove('hidden');
-            dashboardScreen.classList.add('hidden');
-            loginForm.reset();
-        });
-
-        function showDashboard() {
-            populateDashboard();
-            setupEventListeners();
-            loginScreen.classList.add('hidden');
-            dashboardScreen.classList.remove('hidden');
-        }
 
         function populateDashboard() {
-            document.getElementById('welcome-message').textContent = `Bem-vindo, ${fullData.userInfo?.NAME}!`;
-            document.getElementById('school-name').textContent = `🏫 ${fullData.userInfo?.NOME_ESCOLA || 'Escola não encontrada'}`;
-            document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
-            document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
-            document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
-            document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
+            const userName = fullData.userInfo?.NAME.split(' ')[0] || 'Aluno';
+            document.getElementById('welcome-message').textContent = `Bem-vindo, ${userName}!`;
         }
-
+        
         function setupEventListeners() {
-            document.querySelectorAll('.dashboard-card, .nav-item a').forEach(element => {
-                element.addEventListener('click', (e) => {
-                    const modalId = e.currentTarget.dataset.modalTarget || e.currentTarget.id.replace('-btn', '-modal');
-                    if (modalId) showModal(modalId);
-                });
+            document.querySelectorAll('.dashboard-card').forEach(card => {
+                card.addEventListener('click', () => showModal(card.dataset.modalTarget));
             });
             document.querySelectorAll('.modal-overlay').forEach(modal => {
-                modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(modal.id); });
-                modal.querySelector('.modal-close')?.addEventListener('click', () => hideModal(modal.id));
+                modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('is-visible'); });
+                modal.querySelector('.modal-close')?.addEventListener('click', () => modal.classList.remove('is-visible'));
             });
         }
 
         function showModal(modalId) {
             const modal = document.getElementById(modalId);
             if (!modal) return;
-            
-            if (modalId === 'settings-modal') {
-                populateSettingsModal();
-            } else {
-                let list = modal.querySelector('.modal-list, #tarefas-list');
-                let content = '<p style="padding: 15px; color: var(--text-secondary);">Nenhuma informação encontrada.</p>';
-                
-                switch(modalId) {
-                    case 'tarefas-modal':
-                        if (fullData.tarefas?.length > 0) {
-                            content = `<div style="margin-bottom: 15px; display:flex; gap: 20px; align-items:center;">
-                                <label>Tempo (s):</label><input type="number" id="task-delay" value="1" min="0.1" step="0.1" style="width: 80px;">
-                                <label>Erros:</label><input type="number" id="error-count" value="0" min="0" style="width: 80px;">
-                            </div>` + fullData.tarefas.map(item => {
-                                const buttonHTML = `<div class="action-controls">
-                                    <div class="button-group">
-                                        <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${item.task_expired}" data-action="draft">Salvar Rascunho</button>
-                                        <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${item.task_expired}" data-action="submitted">Enviar</button>
-                                    </div>
-                                </div>`;
-                                return `<div class="task-card">${item.title}${buttonHTML}</div>`;
-                            }).join('');
-                        }
-                        list.innerHTML = content;
-                        list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => btn.addEventListener('click', handleFazerTarefa));
-                        break;
-                    
-                    case 'faltas-modal':
-                        if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
-                        list.innerHTML = content;
-                        break;
 
-                    case 'conquistas-modal':
-                         if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
-                        list.innerHTML = content;
-                        break;
-                    
-                    case 'notificacoes-modal':
-                         if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
-                        list.innerHTML = content;
-                        break;
-                }
+            let list = modal.querySelector('.modal-list, #tarefas-list');
+            let content = '<p style="padding: 15px; color: var(--text-secondary);">Nenhuma informação encontrada.</p>';
+
+            switch(modalId) {
+                case 'tarefas-modal':
+                    if (fullData.tarefas?.length > 0) {
+                        content = `<div style="margin-bottom: 15px; display:flex; gap: 20px; align-items:center;">
+                                      <label>Tempo (s):</label><input type="number" id="task-delay" value="1" min="0.1" step="0.1" style="width: 80px;">
+                                      <label>Erros:</label><input type="number" id="error-count" value="0" min="0" style="width: 80px;">
+                                   </div>` 
+                        + fullData.tarefas.map(item => {
+                            const isExpired = item.task_expired;
+                            let tagHTML = '';
+                            if (item.answer_status === 'draft') tagHTML += '<span class="tag rascunho">RASCUNHO</span>';
+                            if (isExpired) tagHTML += '<span class="tag expirada">EXPIRADA</span>';
+                            
+                            const buttonHTML = `<div class="action-controls">
+                                <div class="button-group">
+                                    <button class="btn-fazer-tarefa" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="draft">Salvar Rascunho</button>
+                                    <button class="btn-fazer-tarefa submit" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}" data-action="submitted">Enviar</button>
+                                </div>
+                            </div>`;
+
+                            return `<div class="task-card">${item.title}${tagHTML}${buttonHTML}</div>`;
+                        }).join('');
+                    }
+                    list.innerHTML = content;
+                    list.querySelectorAll('.btn-fazer-tarefa').forEach(btn => btn.addEventListener('click', handleFazerTarefa));
+                    break;
+                case 'conquistas-modal':
+                    if (fullData.conquistas?.length > 0) {
+                        content = fullData.conquistas.map(item => `<li><img src="${item.linkIcone}" class="conquista-icon"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
+                    }
+                    list.innerHTML = content;
+                    break;
+                case 'notificacoes-modal':
+                    if (fullData.notificacoes?.length > 0) {
+                        content = fullData.notificacoes.map(item => `<li><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
+                    }
+                    list.innerHTML = content;
+                    break;
+                case 'faltas-modal':
+                     if (fullData.faltas?.length > 0) {
+                        content = fullData.faltas.map(item => `<li><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
+                    }
+                    list.innerHTML = content;
+                    break;
             }
             modal.classList.add('is-visible');
         }
@@ -342,10 +243,6 @@
                 parentControls.querySelectorAll('button').forEach(btn => btn.disabled = false);
                 button.textContent = action === 'draft' ? 'Salvar Rascunho' : 'Enviar';
             }
-        }
-        
-        function hideModal(modalId) {
-            document.getElementById(modalId)?.classList.remove('is-visible');
         }
     });
 </script>
