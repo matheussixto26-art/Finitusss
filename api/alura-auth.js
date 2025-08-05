@@ -1,7 +1,6 @@
 const axios = require('axios');
 const https = require('https');
 
-// Agente para ignorar erros de certificado
 const agent = new https.Agent({
   rejectUnauthorized: false
 });
@@ -21,47 +20,30 @@ module.exports = async (req, res) => {
     try {
         console.log(`[ALURA-AUTH] A tentar fazer SSO para a Alura.`);
         
-        // Fazemos o pedido GET para o URL de SSO da Alura
-        // O Axios vai seguir os redirecionamentos automaticamente.
+        // Fazemos o pedido e esperamos uma resposta (incluindo 3xx)
         const response = await axios.get(aluraSsoUrl, {
             httpsAgent: agent,
+            maxRedirects: 0, // Não seguir redirecionamentos para podermos ver os headers
+            validateStatus: status => status >= 200 && status < 400 // Aceita 2xx e 3xx como "sucesso"
         });
 
-        // Após os redirecionamentos, os cookies de sessão estarão no histórico do Axios.
-        // O `axios` gere isto internamente com um "cookie jar" quando segue redirecionamentos.
-        // O objeto `response.request` contém a informação final do pedido.
-        // A forma mais fiável de obter os cookies é através do cabeçalho da resposta final ou do redirecionamento.
-        // No entanto, a forma como o axios lida com isto pode ser complexa.
-        // Vamos tentar uma abordagem diferente e mais explícita para capturar os cookies.
-        
-        let cookies;
-        
-        // O Axios lança um erro para respostas 3xx por defeito, então vamos apanhá-lo no catch.
-        // Esta chamada vai falhar de propósito para podermos apanhar os cookies no redirecionamento.
-        await axios.get(aluraSsoUrl, {
-            httpsAgent: agent,
-            maxRedirects: 0, // Não seguir redirecionamentos
-            validateStatus: status => status < 400 // Não tratar 3xx como erro
-        });
-        
-        // Este código nunca será alcançado, o fluxo é intencionalmente direcionado para o catch.
-        throw new Error("Fluxo inesperado na autenticação Alura.");
+        // A LÓGICA AGORA ESTÁ AQUI, NO FLUXO DE SUCESSO
+        const cookies = response.headers['set-cookie'];
 
-    } catch (error) {
-        // O comportamento esperado é que o pedido resulte num erro de redirecionamento (status 302)
-        // e que possamos extrair os cookies do cabeçalho da resposta.
-        if (error.response && error.response.status >= 300 && error.response.status < 400) {
-            const receivedCookies = error.response.headers['set-cookie'];
-            if (!receivedCookies || receivedCookies.length === 0) {
-                return res.status(500).json({ error: 'Redirecionamento da Alura não forneceu os cookies de autenticação.' });
-            }
-            const cookieString = receivedCookies.map(c => c.split(';')[0]).join('; ');
-            console.log("[ALURA-AUTH] Cookies de sessão obtidos com sucesso.");
-            return res.status(200).json({ success: true, cookies: cookieString });
+        if (!cookies || cookies.length === 0) {
+            // Se o servidor respondeu OK mas não enviou cookies, é um erro de lógica inesperado.
+            throw new Error('A resposta de autenticação da Alura foi bem-sucedida, mas não retornou os cookies necessários.');
         }
         
-        // Se o erro for outro, mostramos os detalhes.
-        const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
+        const cookieString = cookies.map(c => c.split(';')[0]).join('; ');
+        console.log("[ALURA-AUTH] Cookies de sessão obtidos com sucesso.");
+        
+        return res.status(200).json({ success: true, cookies: cookieString });
+
+    } catch (error) {
+        // O bloco catch agora lida apenas com erros genuínos (falhas de rede, 4xx, 5xx)
+        const errorDetails = error.response ? `Status ${error.response.status}: ${JSON.stringify(error.response.data)}` : error.message;
+        console.error(`[ALURA-AUTH] Erro inesperado:`, errorDetails);
         res.status(500).json({ error: `Falha na autenticação SSO da Alura. Detalhes: ${errorDetails}` });
     }
 };
