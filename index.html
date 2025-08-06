@@ -15,43 +15,49 @@
         body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-primary); }
         .hidden { display: none !important; }
 
-        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: left; }
+        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: var(--bg-dark); }
+        .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: left; border: 1px solid var(--border-color); }
         .login-container h1 { text-align: center; margin-bottom: 25px; }
         .input-group { margin-bottom: 20px; }
         input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); font-size: 1em; }
         button { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-red); color: white; font-weight: 600; cursor: pointer; }
         #login-message { margin-top: 20px; min-height: 20px; color: var(--accent-red); }
 
+        #loading-screen { flex-direction: column; }
+        #loading-screen .brand { font-size: 2em; margin-bottom: 1rem; }
+        #loading-screen p { color: var(--text-secondary); }
+
         #dashboard-screen { display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
+        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); transition: margin-left 0.3s; }
+        body.sidebar-collapsed .sidebar { margin-left: -250px; }
         .sidebar .brand { margin-bottom: 2rem; font-size: 1.5em; font-weight: 700; }
         .sidebar .nav-list { list-style: none; padding: 0; }
         .sidebar .nav-item { margin-bottom: 1rem; }
-        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 10px; border-radius: 6px; }
-        .sidebar .nav-item a:hover { background-color: var(--bg-dark); color: var(--text-primary); }
+        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 10px; border-radius: 6px; cursor: pointer; }
+        .sidebar .nav-item a:hover, .sidebar .nav-item a.active { background-color: var(--bg-dark); color: var(--text-primary); }
         .sidebar .logout { margin-top: auto; width: 100%; background-color: var(--accent-red); }
         
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .main-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
-        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
-        .dashboard-card { background-color: var(--bg-light); border-radius: 8px; padding: 20px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
-        .card-icon { background-color: var(--bg-medium); padding: 10px; border-radius: 6px; font-size: 1.5em; }
-        .card-info .count { font-size: 1.8em; font-weight: 700; }
-        .card-info .label { color: var(--text-secondary); }
+        .page { display: none; }
+        .page.active { display: block; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .page-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-        .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
-        .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
-        .modal-close { background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-        .task-item-card { background-color: var(--accent-red); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-        .task-item-card .details { font-size: 0.8em; color: var(--text-secondary); margin-top: 5px; }
+        #sala-do-futuro-page .welcome-box { background-color: var(--bg-medium); padding: 20px; border-radius: 8px; margin-bottom: 25px; }
+        .task-controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        .task-controls button { width: auto; flex-grow: 1; }
+        .task-list { display: flex; flex-direction: column; gap: 15px; }
+        .task-item { background-color: var(--bg-light); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-red); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .task-item.selected { border-color: var(--accent-red); }
+        .progress-bar-container { width: 100%; background-color: var(--bg-dark); border-radius: 5px; overflow: hidden; margin-top: 10px; }
+        .progress-bar { width: 0%; height: 10px; background-color: var(--accent-red); transition: width 0.3s; }
+
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
+        .toast { background-color: var(--bg-light); border-left: 4px solid var(--accent-red); color: var(--text-primary); padding: 15px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
-    <div id="login-screen">
+    <div id="login-screen" class="page active">
         <div class="login-container">
             <h1>Finituss</h1>
             <form id="login-form">
@@ -63,73 +69,76 @@
         </div>
     </div>
 
+    <div id="loading-screen" class="page hidden">
+        <div class="login-container">
+            <div class="brand">Finituss</div>
+            <p id="loading-text">A iniciar...</p>
+        </div>
+    </div>
+
     <div id="dashboard-screen" class="hidden">
         <aside class="sidebar">
             <div class="brand">Finituss</div>
             <nav><ul class="nav-list">
-                <li class="nav-item"><a>Khan Academy</a></li>
-                <li class="nav-item"><a>Sala do Futuro</a></li>
-                <li class="nav-item"><a>Redação</a></li>
-                <li class="nav-item"><a>Expansão</a></li>
-                <li class="nav-item"><a>Alura</a></li>
-                <li class="nav-item"><a>Leia</a></li>
+                <li class="nav-item"><a data-target-page="sala-do-futuro-page" class="active">Sala do Futuro</a></li>
+                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade de Redação em desenvolvimento.">Redação</a></li>
+                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade de Alura em desenvolvimento.">Alura</a></li>
             </ul></nav>
             <button id="logout-button" class="logout">Sair</button>
         </aside>
         <main class="main-content">
-            <header class="main-header">
-                <div class="welcome-text">
+            <div id="sala-do-futuro-page" class="page active">
+                <div class="page-header">
                     <h1 id="welcome-message"></h1>
-                    <p>Use o menu lateral para aceder às plataformas educacionais.</p>
+                    <div class="info-bar"><span id="school-name"></span></div>
                 </div>
-                <div class="info-bar">
-                    <span id="school-name"></span>
-                    <span id="class-name"></span>
+                <div class="welcome-box">
+                    <h3>Bem-vindo!</h3>
+                    <p>Esta plataforma é para você fazer as suas tarefas da Sala do Futuro.</p>
                 </div>
-            </header>
-            <div class="cards-container">
-                <div class="dashboard-card" data-modal-target="faltas-modal">
-                    <div class="card-icon" style="color: var(--accent-red);">🗓️</div>
-                    <div class="card-info"><div class="count" id="faltas-count">0</div><div class="label">Faltas</div></div>
+                <div class="task-controls">
+                    <button id="do-selected-btn">Fazer Tarefas Selecionadas</button>
+                    <button id="do-all-btn">Fazer Tudo</button>
+                    <button id="save-draft-btn">Salvar Rascunhos</button>
                 </div>
-                <div class="dashboard-card" data-modal-target="tarefas-modal">
-                    <div class="card-icon" style="color: var(--accent-red);">📚</div>
-                    <div class="card-info"><div class="count" id="tarefas-count">0</div><div class="label">Tarefas Pendentes</div></div>
-                </div>
-                <div class="dashboard-card" data-modal-target="conquistas-modal">
-                    <div class="card-icon" style="color: var(--accent-red);">🏆</div>
-                    <div class="card-info"><div class="count" id="conquistas-count">0</div><div class="label">Ver Conquistas</div></div>
-                </div>
-                <div class="dashboard-card" data-modal-target="notificacoes-modal">
-                    <div class="card-icon" style="color: var(--accent-red);">🔔</div>
-                    <div class="card-info"><div class="count" id="notificacoes-count">0</div><div class="label">Mensagens</div></div>
-                </div>
+                <div class="progress-bar-container hidden"><div class="progress-bar"></div></div>
+                <div class="task-list" id="task-list"></div>
             </div>
         </main>
     </div>
-    
-    <div id="welcome-modal" class="modal-overlay"><div class="modal-content" style="text-align:center;"><h2 id="welcome-modal-message"></h2><p style="color:var(--text-secondary); margin-bottom: 1.5rem;">Esperamos que aproveite as plataformas educacionais!</p><button id="welcome-start-btn">Começar</button></div></div>
-    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Tarefas Pendentes</h2><button class="modal-close">&times;</button></div><div id="tarefas-list"></div></div></div>
-    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Faltas</h2><button class="modal-close">&times;</button></div><ul id="faltas-list" class="modal-list"></ul></div></div>
-    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Conquistas</h2><button class="modal-close">&times;</button></div><ul id="conquistas-list" class="modal-list"></ul></div></div>
-    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Mensagens</h2><button class="modal-close">&times;</button></div><ul id="notificacoes-list" class="modal-list"></ul></div></div>
+    <div id="toast-container"></div>
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         let fullData = {};
+        let tokenB = '';
+
         const loginScreen = document.getElementById('login-screen');
+        const loadingScreen = document.getElementById('loading-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
         const loginForm = document.getElementById('login-form');
         const loginButton = document.getElementById('login-button');
         const loginMessage = document.getElementById('login-message');
         const logoutButton = document.getElementById('logout-button');
-        const welcomeModal = document.getElementById('welcome-modal');
-        const welcomeStartBtn = document.getElementById('welcome-start-btn');
+        const loadingText = document.getElementById('loading-text');
+        const taskListContainer = document.getElementById('task-list');
+        const progressBar = document.querySelector('.progress-bar');
+        const progressBarContainer = document.querySelector('.progress-bar-container');
+
+        async function showLoadingSequence() {
+            loginScreen.classList.add('hidden');
+            loadingScreen.classList.remove('hidden');
+            const messages = ["Buscando dados...", "Carregando tarefas...", "Finalizando..."];
+            for (const msg of messages) {
+                loadingText.textContent = msg;
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+        }
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             loginButton.disabled = true;
-            loginMessage.textContent = 'A entrar na plataforma...';
+            await showLoadingSequence();
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
@@ -140,9 +149,12 @@
                 if (!response.ok) throw new Error(data.error);
                 
                 fullData = data;
+                tokenB = data.tokenB;
                 showDashboard();
 
             } catch (error) {
+                loadingScreen.classList.add('hidden');
+                loginScreen.classList.remove('hidden');
                 loginMessage.textContent = `❌ ${error.message}`;
             } finally {
                 loginButton.disabled = false;
@@ -150,78 +162,125 @@
         });
 
         logoutButton.addEventListener('click', () => {
-            loginScreen.classList.remove('hidden');
             dashboardScreen.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
             loginForm.reset();
         });
 
-        welcomeStartBtn.addEventListener('click', () => {
-            welcomeModal.classList.remove('is-visible');
-        });
-
         function showDashboard() {
-            populateDashboard();
-            setupEventListeners();
-            loginScreen.classList.add('hidden');
-            dashboardScreen.classList.remove('hidden');
-            document.getElementById('welcome-modal-message').textContent = `Bem-vindo, ${fullData.userInfo.NAME.split(' ')[0]}!`;
-            welcomeModal.classList.add('is-visible');
-        }
-
-        function populateDashboard() {
             document.getElementById('welcome-message').textContent = `Bem-vindo, ${fullData.userInfo.NAME}!`;
             document.getElementById('school-name').textContent = `🏫 ${fullData.userInfo.NOME_ESCOLA || 'Escola não encontrada'}`;
-            document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
-            document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
-            document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
-            document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
-        }
-        
-        function setupEventListeners() {
-            document.querySelectorAll('.dashboard-card').forEach(card => {
-                card.addEventListener('click', () => showModal(card.dataset.modalTarget));
-            });
-            document.querySelectorAll('.modal-overlay').forEach(modal => {
-                modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('is-visible'); });
-                modal.querySelector('.modal-close')?.addEventListener('click', () => modal.classList.remove('is-visible'));
-            });
+            renderTasks();
+            loadingScreen.classList.add('hidden');
+            dashboardScreen.classList.remove('hidden');
         }
 
-        function showModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (!modal) return;
-
-            let list = modal.querySelector('.modal-list, #tarefas-list');
-            let content = '<p>Nenhuma informação encontrada.</p>';
-
-            switch(modalId) {
-                case 'tarefas-modal':
-                    if (fullData.tarefas?.length > 0) {
-                        content = fullData.tarefas.map(item => `
-                            <div class="task-item-card">
-                                <h4>${item.title}</h4>
-                                <div class="details">
-                                    <span>ID: ${item.id}</span> | <span>Autor: ${item.author}</span>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                    list.innerHTML = content;
-                    break;
-                case 'conquistas-modal':
-                    if (fullData.conquistas?.length > 0) {
-                        content = fullData.conquistas.map(item => `<li><div>🏆</div><div><h3>${item.projeto}</h3><p>Nota: ${item.nota}</p></div></li>`).join('');
-                    }
-                    list.innerHTML = content;
-                    break;
-                 case 'notificacoes-modal':
-                    if (fullData.notificacoes?.length > 0) {
-                        content = fullData.notificacoes.map(item => `<li><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
-                    }
-                    list.innerHTML = content;
-                    break;
+        function renderTasks() {
+            if (!fullData.tarefas || fullData.tarefas.length === 0) {
+                taskListContainer.innerHTML = '<p>Nenhuma tarefa encontrada.</p>';
+                return;
             }
-            modal.classList.add('is-visible');
+            taskListContainer.innerHTML = fullData.tarefas.map(item => `
+                <div class="task-item" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${item.task_expired}">
+                    <input type="checkbox" class="task-checkbox" style="transform: scale(1.5);">
+                    <div class="task-info">
+                        <strong>${item.title}</strong>
+                        <p style="font-size: 0.8em; color: var(--text-secondary)">Prazo: ${new Date(item.expire_at).toLocaleDateString()}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.task-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        const checkbox = item.querySelector('.task-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    item.classList.toggle('selected', item.querySelector('.task-checkbox').checked);
+                });
+            });
+        }
+
+        async function processTasks(tasksToProcess, submissionType) {
+            progressBarContainer.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            let completed = 0;
+
+            const response = await fetch('/api/fazer-tarefa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tasks: tasksToProcess,
+                    token: tokenB,
+                    tempo: 1,
+                    errorCount: 0,
+                    submission_type: submissionType
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Simula o progresso com base na resposta
+            for(const result of data.results) {
+                 completed++;
+                 progressBar.style.width = `${(completed / data.results.length) * 100}%`;
+                 await new Promise(r => setTimeout(r, 100)); // Pequeno delay para a animação
+            }
+            
+            showToast(`${completed} tarefas processadas!`);
+            setTimeout(() => progressBarContainer.classList.add('hidden'), 2000);
+        }
+
+        document.getElementById('do-selected-btn').addEventListener('click', () => {
+            const selectedTasks = [];
+            document.querySelectorAll('.task-item.selected').forEach(item => {
+                selectedTasks.push({
+                    taskId: parseInt(item.dataset.taskId),
+                    room: item.dataset.room,
+                    is_expired: item.dataset.isExpired === 'true'
+                });
+            });
+            if (selectedTasks.length > 0) processTasks(selectedTasks, 'submitted');
+            else showToast('Nenhuma tarefa selecionada.');
+        });
+
+        document.getElementById('do-all-btn').addEventListener('click', () => {
+            const allTasks = [];
+            document.querySelectorAll('.task-item').forEach(item => {
+                allTasks.push({
+                    taskId: parseInt(item.dataset.taskId),
+                    room: item.dataset.room,
+                    is_expired: item.dataset.isExpired === 'true'
+                });
+            });
+            if (allTasks.length > 0) processTasks(allTasks, 'submitted');
+            else showToast('Nenhuma tarefa para fazer.');
+        });
+
+        document.getElementById('save-draft-btn').addEventListener('click', () => {
+            const selectedTasks = [];
+            document.querySelectorAll('.task-item.selected').forEach(item => {
+                selectedTasks.push({
+                    taskId: parseInt(item.dataset.taskId),
+                    room: item.dataset.room,
+                    is_expired: item.dataset.isExpired === 'true'
+                });
+            });
+            if (selectedTasks.length > 0) processTasks(selectedTasks, 'draft');
+            else showToast('Nenhuma tarefa selecionada para salvar.');
+        });
+        
+        document.querySelectorAll('.show-toast').forEach(el => {
+            el.addEventListener('click', () => showToast(el.dataset.message));
+        });
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
     });
 </script>
