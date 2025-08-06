@@ -6,327 +6,311 @@
     <title>Finituss</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-dark: #121212; --bg-medium: #1E1E1E; --bg-light: #2C2C2C;
-            --border-color: #333333; --text-primary: #E0E0E0; --text-secondary: #A0A0A0;
-            --accent-red: #E53935; --font-family: 'Poppins', sans-serif;
-            --orange-color: #f77829; --purple-color: #bf38e5; --green-color: #23d183;
-        }
+        :root { --bg-dark:#0D1117; --bg-medium:#161B22; --border-color:#30363D; --text-primary:#c9d1d9; --text-secondary:#8b949e; --accent-color:#00A9E0; --red-color: #e53965; --green-color: #23d183; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-primary); }
+        body { background-color: var(--bg-dark); color: var(--text-primary); font-family: 'Poppins', sans-serif; overflow: hidden; }
         .hidden { display: none !important; }
-
-        #login-screen, #loading-screen { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; }
-        .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: left; border: 1px solid var(--border-color); }
-        h1, h2, h3 { font-weight: 600; }
-        button { font-family: var(--font-family); }
-        .login-container h1 { text-align: center; margin-bottom: 25px; }
+        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: center; }
+        .login-container h1 { margin-bottom: 10px; font-size: 2.5em; }
+        .login-container label { display: block; text-align: left; margin-bottom: 5px; color: var(--text-secondary); }
         .input-group { margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); font-size: 1em; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-red); color: white; font-weight: 600; cursor: pointer; }
-        #login-message { margin-top: 20px; min-height: 20px; color: var(--accent-red); }
-        #loading-screen p { color: var(--text-secondary); margin-top: 1rem; }
-
+        input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); }
+        button, .btn { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-color); color: white; font-weight: 600; cursor: pointer; text-align: center; }
+        #login-message { margin-top: 20px; min-height: 20px; color: var(--red-color); }
         #dashboard-screen { display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); transition: margin-left 0.3s; }
-        body.sidebar-collapsed .sidebar { margin-left: -250px; }
-        .sidebar .brand { margin-bottom: 2rem; font-size: 1.5em; font-weight: 700; }
-        .sidebar .nav-list { list-style: none; padding: 0; }
-        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .sidebar .nav-item a.active, .sidebar .nav-item a:hover { background-color: var(--bg-dark); color: var(--text-primary); }
-        .sidebar .logout { margin-top: auto; width: 100%; background-color: var(--accent-red); }
-        
+        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; }
+        .sidebar .brand { margin-bottom: 2rem; }
+        .sidebar .brand p { font-size: 0.8rem; color: var(--text-secondary); }
+        .sidebar .nav-list { list-style: none; padding: 0; margin-top: 1rem; }
+        .sidebar .nav-item { margin-bottom: 1rem; }
+        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; font-size: 1rem; padding: 10px; border-radius: 6px; cursor: pointer; }
+        .sidebar .nav-item a:hover { background-color: var(--bg-dark); color: var(--text-primary); }
+        .sidebar .logout { margin-top: auto; background: none; border: 1px solid var(--red-color); color: var(--red-color); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; }
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        #menu-toggle { background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-
+        .main-header { margin-bottom: 1rem; }
+        .main-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
-        .dashboard-card { background-color: var(--bg-light); border-radius: 8px; padding: 20px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
-        .card-icon { background-color: var(--bg-medium); padding: 10px; border-radius: 6px; font-size: 1.5em; }
-        .card-info .count { font-size: 1.8em; font-weight: 700; }
-        .card-info .label { color: var(--text-secondary); }
-        
-        #sala-do-futuro-page .welcome-box { background-color: var(--bg-medium); padding: 20px; border-radius: 8px; margin-bottom: 25px; }
-        .task-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-        .task-controls button, .task-controls div { width: auto; flex-grow: 1; }
-        .task-list { display: flex; flex-direction: column; gap: 15px; }
-        .task-item { background-color: var(--bg-light); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-red); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: border-color 0.2s; }
-        .task-item.selected { border-color: var(--accent-red); }
-        .progress-bar-container { width: 100%; background-color: var(--bg-dark); border-radius: 5px; overflow: hidden; margin-top: 10px; height: 10px; }
-        .progress-bar { width: 0%; height: 100%; background-color: var(--accent-red); transition: width 0.3s; }
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
-        .toast { background-color: var(--bg-light); border-left: 4px solid var(--accent-red); color: var(--text-primary); padding: 15px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .dashboard-card { background-color: var(--bg-medium); border-radius: 8px; padding: 20px; cursor: pointer; }
+        .card-header { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); }
+        .card-data { font-size: 2.8em; font-weight: 700; margin-top: 10px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
         .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
-        .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
-        .modal-close { background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
+        .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
         .modal-list { list-style: none; padding: 0; }
-        .modal-list li { padding: 10px 0; border-bottom: 1px solid var(--border-color); }
-        .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
-        .tag.expirada { background-color: var(--accent-red); color: white; }
-        .tag.rascunho { background-color: var(--orange-color); color: white; }
+        .modal-list li { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .modal-list li:last-child { border-bottom: none; }
+        /* Estilos Alura */
+        .trilha-select, .bimestre-btn, .curso-btn { display: block; width: 100%; background-color: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-primary); padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 1em; text-align: left; cursor: pointer; }
+        .curso-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-top: 1px solid var(--border-color); }
+        .curso-btn { width: auto; padding: 8px 15px; }
+        .curso-btn:disabled { background-color: var(--border-color); cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <div id="login-screen" class="page active"></div>
-    <div id="loading-screen" class="page hidden"></div>
+    <div id="login-screen">
+        <div class="login-container">
+            <h1>Finituss</h1>
+            <form id="login-form">
+                <label for="ra">Usuário (RA)</label>
+                <div class="input-group"><input type="text" id="ra" required></div>
+                <label for="senha">Senha</label>
+                <div class="input-group"><input type="password" id="senha" required></div>
+                <button type="submit" id="login-button">Entrar</button>
+            </form>
+            <div id="login-message"></div>
+        </div>
+    </div>
     <div id="dashboard-screen" class="hidden">
         <aside class="sidebar">
-            <div class="brand">Finituss</div>
-            <nav><ul class="nav-list">
-                <li class="nav-item"><a data-target-page="inicio-page" class="active">Início</a></li>
-                <li class="nav-item"><a data-target-page="sala-do-futuro-page">Sala do Futuro</a></li>
-                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade em desenvolvimento.">Redação</a></li>
-                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade em desenvolvimento.">Alura</a></li>
-            </ul></nav>
-            <button id="logout-button" class="logout">Sair</button>
+             <div class="brand"><h2>Finituss</h2><p>Criado por ?</p></div>
+             <ul class="nav-list">
+                 <li class="nav-item"><a id="settings-btn" data-modal-target="settings-modal"><span>⚙️</span> <span>Configurações</span></a></li>
+                 <li class="nav-item"><a id="alura-btn" data-modal-target="alura-modal"><span>🚀</span> <span>Alura</span></a></li>
+             </ul>
+             <button class="logout" id="logout-button">Sair</button>
         </aside>
         <main class="main-content">
-            <div class="page-header">
-                <button id="menu-toggle">&#9776;</button>
-                <h1 id="welcome-message"></h1>
-            </div>
-            <div id="inicio-page" class="page active">
-                <div class="cards-container">
-                    <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-icon">🗓️</div><div class="card-info"><div class="count" id="faltas-count">0</div><div class="label">Faltas</div></div></div>
-                    <div class="dashboard-card" data-modal-target="tarefas-modal"><div class="card-icon">📚</div><div class="card-info"><div class="count" id="tarefas-count">0</div><div class="label">Tarefas Pendentes</div></div></div>
-                    <div class="dashboard-card" data-modal-target="conquistas-modal"><div class="card-icon">🏆</div><div class="card-info"><div class="count" id="conquistas-count">0</div><div class="label">Ver Conquistas</div></div></div>
-                    <div class="dashboard-card" data-modal-target="notificacoes-modal"><div class="card-icon">🔔</div><div class="card-info"><div class="count" id="notificacoes-count">0</div><div class="label">Mensagens</div></div></div>
-                </div>
-            </div>
-            <div id="sala-do-futuro-page" class="page">
-                <div class="welcome-box">
-                    <h3>Bem-vindo à Sala do Futuro!</h3>
-                    <p>Esta plataforma é para você fazer as suas tarefas.</p>
-                </div>
-                <div class="task-controls">
-                    <button id="do-selected-btn">Fazer Selecionadas</button>
-                    <button id="do-all-btn">Fazer Tudo</button>
-                    <button id="save-draft-btn">Salvar Rascunhos</button>
-                    <div><label>Erros:</label><input id="error-count" type="number" value="0" min="0" style="width: 60px; padding: 8px;"></div>
-                </div>
-                <div class="progress-bar-container hidden"><div class="progress-bar"></div></div>
-                <div class="task-list" id="task-list"></div>
+            <header class="main-header"><h1 id="welcome-message"></h1></header>
+            <div class="info-bar"><span id="school-name"></span></div>
+            <div class="cards-container">
+                 <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-header"><span>🗓️</span><div>Faltas</div></div><div class="card-data" id="faltas-count">0</div></div>
+                 <div class="dashboard-card" data-modal-target="tarefas-modal"><div class="card-header"><span>📚</span><div>Tarefas Pendentes</div></div><div class="card-data" id="tarefas-count">0</div></div>
+                 <div class="dashboard-card" data-modal-target="conquistas-modal"><div class="card-header"><span>🏆</span><div>Ver Conquistas</div></div><div class="card-data" id="conquistas-count">0</div></div>
+                 <div class="dashboard-card" data-modal-target="notificacoes-modal"><div class="card-header"><span>🔔</span><div>Mensagens</div></div><div class="card-data" id="notificacoes-count">0</div></div>
             </div>
         </main>
     </div>
-    <div id="toast-container"></div>
-    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Faltas</h2><button class="modal-close">&times;</button></div><ul id="faltas-list" class="modal-list"></ul></div></div>
-    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Tarefas Pendentes</h2><button class="modal-close">&times;</button></div><ul id="tarefas-view-list" class="modal-list"></ul></div></div>
-    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Conquistas</h2><button class="modal-close">&times;</button></div><ul id="conquistas-list" class="modal-list"></ul></div></div>
-    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Mensagens</h2><button class="modal-close">&times;</button></div><ul id="notificacoes-list" class="modal-list"></ul></div></div>
+    
+    <div id="alura-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2 style="color:var(--accent-color); margin-bottom: 1.5rem;">ALURA - CURSOS</h2>
+            <div id="alura-content"></div>
+        </div>
+    </div>
+    <div id="settings-modal" class="modal-overlay"> </div>
+    <div id="tarefas-modal" class="modal-overlay"> </div>
+    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Faltas</h2><ul id="faltas-list" class="modal-list"></ul></div></div>
+    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Minhas Conquistas</h2><ul id="conquistas-list" class="modal-list"></ul></div></div>
+    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close">&times;</button><h2>Notificações</h2><ul id="notificacoes-list" class="modal-list"></ul></div></div>
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         let fullData = {};
+        let tokenA = '';
         let tokenB = '';
+        let aluraCookies = '';
+        let aluraData = null;
 
+        // --- Seleção de Elementos do DOM ---
         const loginScreen = document.getElementById('login-screen');
-        const loadingScreen = document.getElementById('loading-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
         const loginForm = document.getElementById('login-form');
         const loginButton = document.getElementById('login-button');
-        const loginMessage = document.getElementById('login-message');
         const logoutButton = document.getElementById('logout-button');
-        const loadingText = document.getElementById('loading-text');
-        const taskListContainer = document.getElementById('task-list');
-        const progressBar = document.querySelector('.progress-bar');
-        const progressBarContainer = document.querySelector('.progress-bar-container');
-        const menuToggle = document.getElementById('menu-toggle');
+        const loginMessage = document.getElementById('login-message');
+        const aluraBtn = document.getElementById('alura-btn');
+        const aluraModal = document.getElementById('alura-modal');
+        const aluraContent = document.getElementById('alura-content');
 
-        async function showLoadingSequence() {
-            loginScreen.classList.remove('active');
-            loginScreen.classList.add('hidden');
-            loadingScreen.classList.remove('hidden');
-            loadingScreen.classList.add('active');
-            const messages = ["Buscando dados...", "Carregando tarefas...", "Finalizando..."];
-            for (const msg of messages) {
-                loadingText.textContent = msg;
-                await new Promise(resolve => setTimeout(resolve, 800));
-            }
-        }
-
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+        // --- Lógica de Login e Dashboard ---
+        async function performLogin(ra, senha) {
             loginButton.disabled = true;
-            await showLoadingSequence();
+            loginMessage.textContent = 'A entrar...';
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: document.getElementById('ra').value, senha: document.getElementById('senha').value }),
+                    body: JSON.stringify({ user: ra, senha: senha }),
                 });
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error);
                 
                 fullData = data;
+                tokenA = data.tokenA;
                 tokenB = data.tokenB;
+                
                 showDashboard();
-
             } catch (error) {
-                loadingScreen.classList.add('hidden');
-                loginScreen.classList.remove('hidden');
                 loginMessage.textContent = `❌ ${error.message}`;
             } finally {
                 loginButton.disabled = false;
             }
+        }
+        
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            performLogin(document.getElementById('ra').value, document.getElementById('senha').value);
         });
 
         logoutButton.addEventListener('click', () => {
-            dashboardScreen.classList.add('hidden');
             loginScreen.classList.remove('hidden');
-            loginScreen.classList.add('active');
+            dashboardScreen.classList.add('hidden');
             loginForm.reset();
         });
-        
-        menuToggle.addEventListener('click', () => document.body.classList.toggle('sidebar-collapsed'));
 
         function showDashboard() {
-            document.getElementById('welcome-message').textContent = `Bem-vindo, ${fullData.userInfo.NAME}!`;
+            populateDashboard();
+            setupEventListeners();
+            loginScreen.classList.add('hidden');
+            dashboardScreen.classList.remove('hidden');
+        }
+
+        function populateDashboard() {
+            document.getElementById('welcome-message').textContent = `Bem-vindo, ${fullData.userInfo?.NAME}!`;
+            document.getElementById('school-name').textContent = `🏫 ${fullData.userInfo?.NOME_ESCOLA || 'Escola não encontrada'}`;
             document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
             document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
             document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
             document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
-            renderTasksForAutomation();
-            setupEventListeners();
-            loadingScreen.classList.add('hidden');
-            loadingScreen.classList.remove('active');
-            dashboardScreen.classList.remove('hidden');
         }
 
-        function renderTasksForAutomation() {
-            const automationTasks = fullData.tarefas?.filter(item => !item.is_essay) || [];
-            if (automationTasks.length === 0) {
-                taskListContainer.innerHTML = '<p>Nenhuma tarefa de automação disponível.</p>';
-                return;
-            }
-            taskListContainer.innerHTML = automationTasks.map(item => `
-                <div class="task-item" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${item.task_expired}">
-                    <input type="checkbox" class="task-checkbox" style="transform: scale(1.5);">
-                    <div class="task-info"><strong>${item.title}</strong></div>
-                </div>
-            `).join('');
-
-            document.querySelectorAll('.task-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    if (e.target.type !== 'checkbox') {
-                        const checkbox = item.querySelector('.task-checkbox');
-                        checkbox.checked = !checkbox.checked;
-                    }
-                    item.classList.toggle('selected', item.querySelector('.task-checkbox').checked);
+        function setupEventListeners() {
+            document.querySelectorAll('.dashboard-card, .nav-item a').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    let modalId = e.currentTarget.dataset.modalTarget || e.currentTarget.id.replace('-btn', '-modal');
+                    if (modalId) showModal(modalId);
                 });
             });
-        }
-        
-        async function processTasks(tasksToProcess, submissionType) {
-            if (tasksToProcess.length === 0) {
-                showToast('Nenhuma tarefa selecionada.');
-                return;
-            }
-            progressBarContainer.classList.remove('hidden');
-            progressBar.style.width = '0%';
-            
-            const response = await fetch('/api/fazer-tarefa', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    tasks: tasksToProcess, token: tokenB, tempo: 1,
-                    errorCount: parseInt(document.getElementById('error-count').value),
-                    submission_type: submissionType
-                })
-            });
-            
-            const data = await response.json();
-            let completed = 0;
-            for(const result of data.results) {
-                 completed++;
-                 progressBar.style.width = `${(completed / data.results.length) * 100}%`;
-                 const taskItem = document.querySelector(`.task-item[data-task-id='${result.taskId}']`);
-                 if(taskItem) taskItem.style.borderColor = result.success ? 'var(--green-color)' : 'var(--red-color)';
-                 await new Promise(r => setTimeout(r, 50));
-            }
-            
-            showToast(`${completed} tarefas processadas!`);
-            setTimeout(() => progressBarContainer.classList.add('hidden'), 2000);
-        }
-
-        document.getElementById('do-selected-btn').addEventListener('click', () => {
-            const selectedTasks = [];
-            document.querySelectorAll('.task-item.selected').forEach(item => {
-                selectedTasks.push({ taskId: parseInt(item.dataset.taskId), room: item.dataset.room, is_expired: item.dataset.isExpired === 'true' });
-            });
-            processTasks(selectedTasks, 'submitted');
-        });
-
-        document.getElementById('do-all-btn').addEventListener('click', () => {
-            const allTasks = [];
-            document.querySelectorAll('.task-item').forEach(item => {
-                allTasks.push({ taskId: parseInt(item.dataset.taskId), room: item.dataset.room, is_expired: item.dataset.isExpired === 'true' });
-            });
-            processTasks(allTasks, 'submitted');
-        });
-
-        document.getElementById('save-draft-btn').addEventListener('click', () => {
-            const selectedTasks = [];
-            document.querySelectorAll('.task-item.selected').forEach(item => {
-                selectedTasks.push({ taskId: parseInt(item.dataset.taskId), room: item.dataset.room, is_expired: item.dataset.isExpired === 'true' });
-            });
-            processTasks(selectedTasks, 'draft');
-        });
-        
-        document.querySelectorAll('.sidebar .nav-item a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                if (link.classList.contains('show-toast')) {
-                    showToast(link.dataset.message);
-                    return;
-                }
-                const targetPageId = e.currentTarget.dataset.targetPage;
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(targetPageId)?.classList.add('active');
-                document.querySelectorAll('.sidebar .nav-item a').forEach(a => a.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-            });
-        });
-        
-        function setupEventListeners() {
-            document.querySelectorAll('.dashboard-card').forEach(card => {
-                card.addEventListener('click', () => showModal(card.dataset.modalTarget));
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(modal.id); });
+                modal.querySelector('.modal-close')?.addEventListener('click', () => hideModal(modal.id));
             });
         }
-
+        
         function showModal(modalId) {
             const modal = document.getElementById(modalId);
             if (!modal) return;
-            
-            let list = modal.querySelector('.modal-list, #tarefas-view-list');
-            let content = '<ul><p>Nenhuma informação encontrada.</p></ul>';
-            
-            switch(modalId){
-                case 'tarefas-modal':
-                     if (fullData.tarefas?.length > 0) {
-                        content = '<ul>' + fullData.tarefas.map(item => `<li>${item.title}</li>`).join('') + '</ul>';
-                    }
-                    list = document.getElementById('tarefas-view-list');
-                    break;
-                // Adicionar cases para faltas, conquistas, etc.
+
+            if (modalId === 'alura-modal') {
+                initAlura();
             }
-            if(list) list.innerHTML = content;
+            // Lógica para preencher outros modais (tarefas, conquistas, etc.)
+            let list = modal.querySelector('.modal-list'); // Assumindo que todos têm modal-list
+            if(list) {
+                let content = '<p>Nenhuma informação encontrada.</p>';
+                 switch(modalId) {
+                    case 'faltas-modal':
+                        if (fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li><h3>${item.disciplina}</h3><p>${item.totalFaltas} Faltas</p></li>`).join('');
+                        break;
+                    case 'conquistas-modal':
+                         if (fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li><img src="${item.linkIcone}" style="width:48px;height:48px;"><div><h3>${item.projeto}</h3><p>${item.medalha}</p></div></li>`).join('');
+                        break;
+                    case 'notificacoes-modal':
+                         if (fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li><div><h3>${item.seesp_titulo}</h3><p>${item.seesp_mensagem}</p></div></li>`).join('');
+                        break;
+                }
+                list.innerHTML = content;
+            }
             modal.classList.add('is-visible');
         }
 
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            if(!container) return;
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.classList.remove('is-visible');
+        }
+        
+        // --- LÓGICA DA ALURA ---
+        async function initAlura() {
+            aluraContent.innerHTML = '<p>A autenticar na Alura...</p>';
+            try {
+                const authResponse = await fetch('/api/alura-auth', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tokenA: tokenA })
+                });
+                const authData = await authResponse.json();
+                if (!authResponse.ok || !authData.cookies) throw new Error(authData.error || 'Falha na autenticação Alura.');
+                aluraCookies = authData.cookies;
+
+                aluraContent.innerHTML = '<p>A procurar trilhas e cursos...</p>';
+                const dataResponse = await fetch('/api/alura-data', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cookies: aluraCookies })
+                });
+                const courseData = await dataResponse.json();
+                if (!dataResponse.ok) throw new Error(courseData.error || 'Falha ao buscar dados dos cursos.');
+                aluraData = courseData;
+
+                renderAluraTrilhas();
+            } catch (error) {
+                aluraContent.innerHTML = `<p style="color:var(--red-color);">${error.message}</p>`;
+            }
+        }
+
+        function renderAluraTrilhas() {
+            let html = '<select id="trilha-select" class="trilha-select"><option value="">Selecione uma trilha</option>';
+            if (aluraData && aluraData.trilhas) {
+                aluraData.trilhas.forEach(trilha => {
+                    html += `<option value="${trilha.id}">${trilha.nome}</option>`;
+                });
+            }
+            html += '</select>';
+            aluraContent.innerHTML = html;
+            
+            document.getElementById('trilha-select').addEventListener('change', (e) => {
+                if (e.target.value) renderAluraBimestres(e.target.value);
+            });
+        }
+        
+        function renderAluraBimestres(trilhaId) {
+            let html = '<button id="voltar-trilhas" class="trilha-select">← Voltar para Trilhas</button>';
+            ['1º Bimestre', '2º Bimestre', '3º Bimestre', '4º Bimestre'].forEach((bimestre, index) => {
+                html += `<button class="bimestre-btn" data-trilha-id="${trilhaId}" data-bimestre="${index + 1}">${bimestre}</button>`;
+            });
+            aluraContent.innerHTML = html;
+
+            document.getElementById('voltar-trilhas').addEventListener('click', renderAluraTrilhas);
+            document.querySelectorAll('.bimestre-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => renderAluraCursos(e.target.dataset.trilhaId, e.target.dataset.bimestre));
+            });
+        }
+
+        function renderAluraCursos(trilhaId, bimestre) {
+            const trilha = aluraData.trilhas.find(t => t.id == trilhaId);
+            const cursos = trilha.cursos.filter(c => c.bimestre == bimestre);
+
+            let html = `<button id="voltar-bimestres" class="trilha-select" data-trilha-id="${trilhaId}">← Voltar para Bimestres</button>`;
+            if (cursos.length > 0) {
+                cursos.forEach(curso => {
+                    html += `<div class="curso-item">
+                        <div>
+                            <strong>${curso.nome}</strong>
+                            <p style="color:var(--text-secondary); font-size: 0.9em;">${curso.progresso == 100 ? '✅ Completo' : curso.progresso + '%'}</p>
+                        </div>
+                        ${curso.progresso != 100 ? `<button class="curso-btn" data-url="${curso.url}">Fazer Curso</button>` : ''}
+                    </div>`;
+                });
+            } else { html += '<p>Nenhum curso encontrado para este bimestre.</p>'; }
+            aluraContent.innerHTML = html;
+
+            document.getElementById('voltar-bimestres').addEventListener('click', (e) => renderAluraBimestres(e.target.dataset.trilhaId));
+            document.querySelectorAll('.curso-btn').forEach(btn => btn.addEventListener('click', handleFazerCursoAlura));
+        }
+
+        async function handleFazerCursoAlura(event) {
+            const button = event.target;
+            const url = button.dataset.url;
+            button.disabled = true;
+            button.textContent = 'A processar...';
+
+            try {
+                const response = await fetch('/api/alura-answer', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cookies: aluraCookies, url: url })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Falha ao processar o curso.');
+
+                button.textContent = '✅ Completo';
+                button.style.backgroundColor = 'var(--green-color)';
+            } catch (error) {
+                button.textContent = 'Erro!';
+                button.style.backgroundColor = 'var(--red-color)';
+                alert(error.message);
+                button.disabled = false;
+            }
         }
     });
 </script>
