@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoonFuturo</title>
+    <title>Finituss</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
@@ -14,6 +14,7 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-color); overflow: hidden; }
+        .hidden { display: none !important; }
         #login-page { display: flex; justify-content: center; align-items: center; height: 100vh; transition: opacity 0.5s ease-out; }
         .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 12px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
         .login-container h1 { font-size: 2.5rem; margin-bottom: 30px; font-weight: 600; }
@@ -24,24 +25,15 @@
         .login-btn { width: 100%; padding: 15px; background-color: var(--primary-accent); border: none; border-radius: 8px; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background-color 0.3s ease; }
         .login-btn:hover { background-color: var(--secondary-accent); }
         .loading-message { display: none; margin-top: 20px; color: var(--success-color); font-weight: bold; }
-        #dashboard-page { display: none; height: 100vh; display: flex; opacity: 0; transition: opacity 0.7s ease-in; }
-        .sidebar { width: 260px; background-color: var(--bg-medium); padding: 20px; display: flex; flex-direction: column; transition: width 0.3s ease; }
-        .sidebar.collapsed { width: 80px; }
-        .sidebar.collapsed .sidebar-link-text, .sidebar.collapsed .logo-text { display: none; }
-        .sidebar-header { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; padding: 0 10px; }
-        .sidebar-header .logo-text { font-size: 1.8rem; font-weight: bold; }
-        .sidebar-menu { list-style: none; flex-grow: 1; }
-        .sidebar-menu a { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; padding: 15px 10px; border-radius: 8px; margin-bottom: 10px; gap: 20px; transition: background-color 0.3s, color 0.3s; }
-        .sidebar-menu a i { font-size: 1.4rem; width: 25px; text-align: center; }
-        .sidebar-menu a:hover, .sidebar-menu a.active { background-color: var(--primary-accent); color: white; }
-        .sidebar-footer a { background-color: var(--bg-light); }
-        .sidebar-footer a:hover { background-color: var(--bg-dark); }
+        #dashboard-page { display: none; height: 100vh; flex-direction: column; opacity: 0; transition: opacity 0.7s ease-in; }
+        .top-bar { background-color: var(--bg-medium); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .top-bar .brand { display: flex; align-items: center; gap: 15px; font-size: 1.5rem; font-weight: bold; }
+        .top-bar .user-info { display: flex; align-items: center; gap: 15px; color: var(--text-muted); }
+        .content-area { display: flex; flex-grow: 1; overflow: hidden; }
+        .sidebar { width: 260px; background-color: var(--bg-medium); padding: 20px; display: flex; flex-direction: column; transition: width 0.3s ease; border-right: 1px solid var(--border-color); }
         .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .header-left .welcome-title { font-size: 2rem; font-weight: 600; }
-        .header-left .welcome-subtitle { color: var(--text-muted); }
-        .header-right { display: flex; align-items: center; gap: 20px; background-color: var(--bg-medium); padding: 10px 20px; border-radius: 8px; }
-        .menu-toggle { font-size: 1.5rem; cursor: pointer; color: var(--text-muted); background: none; border: none; }
+        .page { display: none; }
+        .page.active { display: block; }
         .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; }
         .info-card { background-color: var(--bg-medium); padding: 25px; border-radius: 12px; display: flex; flex-direction: column; gap: 15px; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
         .info-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(228, 42, 109, 0.2); }
@@ -58,7 +50,6 @@
         .list-item { background-color: var(--bg-light); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary-accent); }
         .list-item h4 { font-size: 1.1rem; margin-bottom: 5px; }
         .list-item p { color: var(--text-muted); font-size: 0.9rem; }
-        .no-data { text-align: center; padding: 20px; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -79,46 +70,36 @@
     </section>
 
     <section id="dashboard-page">
-        <nav class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <i class="fas fa-moon fa-2x"></i>
-                <h1 class="logo-text">MoonFuturo</h1>
-            </div>
-            <ul class="sidebar-menu">
-                <li><a href="#" class="open-modal-btn" data-modal-id="modal-sala-futuro"><i class="fa-solid fa-robot"></i> <span class="sidebar-link-text">Sala do Futuro</span></a></li>
-                </ul>
-            <div class="sidebar-footer">
-                <a href="#"><i class="fas fa-sign-out-alt"></i> <span class="sidebar-link-text">Sair</span></a>
-            </div>
-        </nav>
-
-        <main class="main-content">
-            <header class="main-header">
-                <div class="header-left">
-                    <button id="menu-toggle" class="menu-toggle"><i class="fas fa-bars"></i></button>
-                    <h2 class="welcome-title" id="welcome-title"></h2>
-                    <p class="welcome-subtitle">Use o menu lateral para acessar as plataformas educacionais.</p>
+        <div class="content-area">
+            <nav class="sidebar" id="sidebar">
+                </nav>
+            <main class="main-content">
+                <div id="inicio-page" class="page active">
+                    <header class="main-header">
+                        <div class="header-left">
+                            <h2 class="welcome-title" id="welcome-title"></h2>
+                            <p class="welcome-subtitle">Use os cartões para ver os detalhes.</p>
+                        </div>
+                    </header>
+                    <div class="cards-container">
+                        <div class="info-card" data-modal-target="faltas-modal"><div class="card-header"><span class="value" id="faltas-count">0</span><i class="fas fa-calendar-times"></i></div><span class="title">Faltas</span></div>
+                        <div class="info-card" data-modal-target="tarefas-modal"><div class="card-header"><span class="value" id="tarefas-count">0</span><i class="fas fa-tasks"></i></div><span class="title">Tarefas Pendentes</span></div>
+                        <div class="info-card" data-modal-target="conquistas-modal"><div class="card-header"><span class="value" id="conquistas-count">0</span><i class="fas fa-trophy"></i></div><span class="title">Ver Conquistas</span></div>
+                        <div class="info-card" data-modal-target="notificacoes-modal"><div class="card-header"><span class="value" id="notificacoes-count">0</span><i class="fas fa-envelope"></i></div><span class="title">Mensagens</span></div>
+                    </div>
                 </div>
-                <div class="header-right">
-                    <span><i class="fas fa-school"></i> ESCOLA: <span id="school-name"></span></span>
-                    <span><i class="fas fa-chalkboard-teacher"></i> Sala: <span id="class-name"></span></span>
-                </div>
-            </header>
-
-            <div class="cards-container">
-                <div class="info-card" data-modal-target="faltas-modal"><div class="card-header"><span class="value" id="faltas-count">0</span><i class="fas fa-calendar-times"></i></div><span class="title">Faltas</span></div>
-                <div class="info-card" data-modal-target="tarefas-modal"><div class="card-header"><span class="value" id="tarefas-count">0</span><i class="fas fa-tasks"></i></div><span class="title">Tarefas Pendentes</span></div>
-                <div class="info-card" data-modal-target="conquistas-modal"><div class="card-header"><span class="value" id="conquistas-count">0</span><i class="fas fa-trophy"></i></div><span class="title">Ver Conquistas</span></div>
-                <div class="info-card" data-modal-target="notificacoes-modal"><div class="card-header"><span class="value" id="notificacoes-count">0</span><i class="fas fa-envelope"></i></div><span class="title">Mensagens</span></div>
-            </div>
-        </main>
+                <div id="sala-do-futuro-page" class="page">
+                    </div>
+            </main>
+        </div>
     </section>
     
     <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close"><i class="fas fa-times"></i></button><h3 class="modal-header"><i class="fas fa-tasks"></i> Tarefas Pendentes</h3><div id="tarefas-list"></div></div></div>
     <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close"><i class="fas fa-times"></i></button><h3 class="modal-header"><i class="fas fa-trophy"></i> Minhas Conquistas</h3><div id="conquistas-list"></div></div></div>
-    <div id="modal-sala-futuro" class="modal-overlay"> </div>
-                                                                                                                                                                                                                             </body>
-                                                                                                                                                                                                                             <script>
+    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close"><i class="fas fa-times"></i></button><h3 class="modal-header"><i class="fas fa-calendar-times"></i> Faltas</h3><div id="faltas-list"></div></div></div>
+    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close"><i class="fas fa-times"></i></button><h3 class="modal-header"><i class="fas fa-envelope"></i> Mensagens</h3><div id="notificacoes-list"></div></div></div>
+    </body>
+    <script>
     document.addEventListener('DOMContentLoaded', () => {
         let fullData = {};
         let tokenB = '';
@@ -174,7 +155,7 @@
             document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
             document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
         }
-
+        
         const openModalBtns = document.querySelectorAll('.info-card, .open-modal-btn');
         const closeModalBtns = document.querySelectorAll('.modal-close');
 
@@ -209,24 +190,29 @@
 
         function populateModal(modalId) {
             let content = '<div class="no-data"><p>Nenhuma informação encontrada.</p></div>';
+            let container;
             
-            if (modalId === 'modal-tarefas') {
-                const listContainer = document.getElementById('tarefas-list');
-                if (fullData.tarefas && fullData.tarefas.length > 0) {
-                    content = fullData.tarefas.map(item => {
-                        return `<div class="list-item"><h4>${item.title}</h4><p>Autor: ${item.author} | Status: ${item.answer_status || 'Pendente'}</p></div>`;
-                    }).join('');
-                }
-                listContainer.innerHTML = content;
+            switch(modalId) {
+                case 'tarefas-modal':
+                    container = document.getElementById('tarefas-list');
+                    if (fullData.tarefas && fullData.tarefas.length > 0) {
+                        content = fullData.tarefas.map(item => {
+                            return `<div class="list-item"><h4>${item.title}</h4><p>Autor: ${item.author} | Status: ${item.answer_status || 'Pendente'}</p></div>`;
+                        }).join('');
+                    }
+                    break;
+                case 'conquistas-modal':
+                     container = document.getElementById('conquistas-list');
+                    if (fullData.conquistas && fullData.conquistas.length > 0) {
+                        content = fullData.conquistas.map(item => {
+                             return `<div class="list-item"><h4>${item.projeto}</h4><p>Medalha: ${item.medalha}</p></div>`;
+                        }).join('');
+                    }
+                    break;
+                // Adicione aqui os cases para faltas e notificações
             }
-            // Adicionar lógica para outros modais aqui (conquistas, etc.)
+            if (container) container.innerHTML = content;
         }
-
-        const menuToggleBtn = document.getElementById('menu-toggle');
-        const sidebar = document.getElementById('sidebar');
-        menuToggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-        });
     });
     </script>
 </body>
