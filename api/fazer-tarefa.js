@@ -1,6 +1,5 @@
 const axios = require('axios');
 
-// Esta função permanece a mesma
 function introduceErrors(answers, errorCount) {
     if (errorCount <= 0) return answers;
     const newAnswers = JSON.parse(JSON.stringify(answers));
@@ -25,64 +24,70 @@ function introduceErrors(answers, errorCount) {
     return newAnswers;
 }
 
+// NOVO: Função para processar uma única tarefa e retornar o resultado
+async function processSingleTask(task, allParams) {
+    const { token, tempo, errorCount, submission_type } = allParams;
+    const { taskId, room } = task;
+    const API_URL = "https://api.moonscripts.cloud/edusp";
+
+    try {
+        const previewResponse = await axios.post(API_URL, {
+            type: "previewTask", taskId, room, token
+        });
+        
+        let answers = previewResponse.data?.answers;
+        if (!answers) {
+            return { taskId, success: false, error: 'Não foi possível obter respostas.' };
+        }
+
+        if (errorCount > 0) {
+            answers = introduceErrors(answers, errorCount);
+        }
+        
+        const tipoTarefa = task.is_expired ? "Expirada" : "Pendente";
+        const submitPayload = {
+            type: "submit", taskId, token, tipo: tipoTarefa,
+            tempo: parseFloat(tempo) || 1, status: submission_type,
+            accessed_on: "room", executed_on: room, answers
+        };
+        
+        const submitResponse = await axios.post(API_URL, submitPayload);
+        
+        if (submitResponse.data && (submitResponse.data.error || submitResponse.data.success === false)) {
+            return { taskId, success: false, error: submitResponse.data.message || 'Erro retornado pelo serviço.' };
+        }
+        
+        return { taskId, success: true };
+
+    } catch (error) {
+        let errorMessage = 'Falha na comunicação com o serviço externo.';
+        if (error.response && error.response.headers['content-type']?.includes('text/html')) {
+            errorMessage = 'O serviço externo de tarefas parece estar offline.';
+        }
+        return { taskId, success: false, error: errorMessage };
+    }
+}
+
+
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método não permitido.' });
     }
     
-    // Agora o backend pode receber uma ou várias tarefas
-    const { tasks, token, tempo, errorCount, submission_type } = req.body;
+    // Agora o backend recebe um array de tarefas
+    const { tasks } = req.body;
 
-    if (!tasks || !Array.isArray(tasks) || tasks.length === 0 || !token || !submission_type) {
-        return res.status(400).json({ error: 'Parâmetros inválidos. É necessário um array de tarefas.' });
+    if (!tasks || !Array.isArray(tasks) || tasks.length === 0) {
+        return res.status(400).json({ error: 'É necessário um array de tarefas.' });
     }
 
-    const API_URL = "https://api.moonscripts.cloud/edusp";
     const results = [];
-
-    // Processa cada tarefa individualmente
+    // Processa cada tarefa no array uma a uma
     for (const task of tasks) {
-        try {
-            const { taskId, room, is_expired } = task;
-
-            const previewResponse = await axios.post(API_URL, {
-                type: "previewTask", taskId, room, token
-            });
-            
-            let answers = previewResponse.data?.answers;
-            if (!answers) {
-                results.push({ taskId, success: false, error: 'Não foi possível obter respostas.' });
-                continue; // Pula para a próxima tarefa
-            }
-
-            if (errorCount > 0) {
-                answers = introduceErrors(answers, errorCount);
-            }
-            
-            const tipoTarefa = is_expired ? "Expirada" : "Pendente";
-            const submitPayload = {
-                type: "submit", taskId, token, tipo: tipoTarefa,
-                tempo: parseFloat(tempo) || 1, status: submission_type,
-                accessed_on: "room", executed_on: room, answers
-            };
-            
-            const submitResponse = await axios.post(API_URL, submitPayload);
-            
-            if (submitResponse.data && (submitResponse.data.error || submitResponse.data.success === false)) {
-                results.push({ taskId, success: false, error: submitResponse.data.message || 'Erro retornado pelo serviço.' });
-            } else {
-                results.push({ taskId, success: true });
-            }
-
-        } catch (error) {
-            let errorMessage = 'Falha na comunicação com o serviço externo.';
-            if (error.response && error.response.headers['content-type']?.includes('text/html')) {
-                errorMessage = 'O serviço externo de tarefas parece estar offline.';
-            }
-            results.push({ taskId: task.taskId, success: false, error: errorMessage });
-        }
+        const result = await processSingleTask(task, req.body);
+        results.push(result);
     }
 
     res.status(200).json({ results });
 };
-                
+        
