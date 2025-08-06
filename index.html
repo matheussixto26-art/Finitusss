@@ -3,348 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finituss</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>MoonFuturo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --bg-dark: #121212; --bg-medium: #1E1E1E; --bg-light: #2C2C2C;
-            --border-color: #333333; --text-primary: #E0E0E0; --text-secondary: #A0A0A0;
-            --accent-red: #E53935; --font-family: 'Poppins', sans-serif;
-            --green-color: #23d183;
+            --bg-dark: #121828; --bg-medium: #1a2238; --bg-light: #263353;
+            --primary-accent: #e42a6d; --secondary-accent: #ff4d94;
+            --text-color: #f0f0f0; --text-muted: #a0a0a0; --success-color: #28a745;
+            --font-family: 'Segoe UI', 'Roboto', 'Helvetica', sans-serif;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-primary); }
-        .hidden { display: none !important; }
-
-        #login-screen, #loading-screen { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; position: fixed; top: 0; left: 0; width: 100%; z-index: 2000; transition: opacity 0.5s; }
-        .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: left; border: 1px solid var(--border-color); }
-        h1, h2, h3 { font-weight: 600; }
-        button { font-family: var(--font-family); }
-        .login-container h1 { text-align: center; margin-bottom: 25px; }
-        .input-group { margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); font-size: 1em; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-red); color: white; font-weight: 600; cursor: pointer; }
-        #login-message { margin-top: 20px; min-height: 20px; color: var(--accent-red); }
-        #loading-screen p { color: var(--text-secondary); margin-top: 1rem; }
-
-        #dashboard-screen { display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); transition: margin-left 0.3s; }
-        body.sidebar-collapsed .sidebar { margin-left: -250px; }
-        .sidebar .brand { margin-bottom: 2rem; font-size: 1.5em; font-weight: 700; }
-        .sidebar .nav-list { list-style: none; padding: 0; }
-        .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .sidebar .nav-item a.active, .sidebar .nav-item a:hover { background-color: var(--bg-dark); color: var(--text-primary); }
-        .sidebar .logout { margin-top: auto; width: 100%; background-color: var(--accent-red); }
-        
-        .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        #menu-toggle { background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-
-        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; padding-top: 25px; }
-        .dashboard-card { background-color: var(--bg-light); border-radius: 8px; padding: 20px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
-        .card-icon { background-color: var(--bg-medium); padding: 10px; border-radius: 6px; font-size: 1.5em; }
-        .card-info .count { font-size: 1.8em; font-weight: 700; }
-        .card-info .label { color: var(--text-secondary); }
-        
-        #sala-do-futuro-page .welcome-box { background-color: var(--bg-medium); padding: 20px; border-radius: 8px; margin-bottom: 25px; }
-        .task-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-        .task-controls button { width: auto; flex-grow: 1; }
-        .task-list { display: flex; flex-direction: column; gap: 15px; }
-        .task-item { background-color: var(--bg-light); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-red); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: border-color 0.2s; }
-        .task-item.selected { border-color: var(--accent-red); }
-        .progress-bar-container { width: 100%; background-color: var(--bg-dark); border-radius: 5px; overflow: hidden; margin: 20px 0; height: 10px; }
-        .progress-bar { width: 0%; height: 100%; background-color: var(--accent-red); transition: width 0.3s; }
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
-        .toast { background-color: var(--bg-light); border-left: 4px solid var(--accent-red); color: var(--text-primary); padding: 15px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-        .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
-        .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
-        .modal-close { background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
-        .modal-list { list-style: none; padding: 0; }
-        .modal-list li { padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-color); overflow: hidden; }
+        #login-page { display: flex; justify-content: center; align-items: center; height: 100vh; transition: opacity 0.5s ease-out; }
+        .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 12px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        .login-container h1 { font-size: 2.5rem; margin-bottom: 30px; font-weight: 600; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; color: var(--text-muted); }
+        .input-group input { width: 100%; padding: 12px; background-color: var(--bg-light); border: 1px solid var(--bg-light); border-radius: 8px; color: var(--text-color); font-size: 1rem; }
+        .input-group input:focus { outline: none; border-color: var(--primary-accent); }
+        .login-btn { width: 100%; padding: 15px; background-color: var(--primary-accent); border: none; border-radius: 8px; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background-color 0.3s ease; }
+        .login-btn:hover { background-color: var(--secondary-accent); }
+        .loading-message { display: none; margin-top: 20px; color: var(--success-color); font-weight: bold; }
+        #dashboard-page { display: none; height: 100vh; display: flex; opacity: 0; transition: opacity 0.7s ease-in; }
+        .sidebar { width: 260px; background-color: var(--bg-medium); padding: 20px; display: flex; flex-direction: column; transition: width 0.3s ease; }
+        .sidebar.collapsed { width: 80px; }
+        .sidebar.collapsed .sidebar-link-text, .sidebar.collapsed .logo-text { display: none; }
+        .sidebar-header { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; padding: 0 10px; }
+        .sidebar-header .logo-text { font-size: 1.8rem; font-weight: bold; }
+        .sidebar-menu { list-style: none; flex-grow: 1; }
+        .sidebar-menu a { color: var(--text-muted); text-decoration: none; display: flex; align-items: center; padding: 15px 10px; border-radius: 8px; margin-bottom: 10px; gap: 20px; transition: background-color 0.3s, color 0.3s; }
+        .sidebar-menu a i { font-size: 1.4rem; width: 25px; text-align: center; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background-color: var(--primary-accent); color: white; }
+        .sidebar-footer a { background-color: var(--bg-light); }
+        .sidebar-footer a:hover { background-color: var(--bg-dark); }
+        .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header-left .welcome-title { font-size: 2rem; font-weight: 600; }
+        .header-left .welcome-subtitle { color: var(--text-muted); }
+        .header-right { display: flex; align-items: center; gap: 20px; background-color: var(--bg-medium); padding: 10px 20px; border-radius: 8px; }
+        .menu-toggle { font-size: 1.5rem; cursor: pointer; color: var(--text-muted); background: none; border: none; }
+        .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; }
+        .info-card { background-color: var(--bg-medium); padding: 25px; border-radius: 12px; display: flex; flex-direction: column; gap: 15px; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .info-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(228, 42, 109, 0.2); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-header i { font-size: 2rem; color: var(--primary-accent); }
+        .card-header .value { font-size: 2.5rem; font-weight: bold; }
+        .info-card .title { font-size: 1.1rem; color: var(--text-muted); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 12px; width: 90%; max-width: 800px; position: relative; transform: translateY(20px); transition: transform 0.3s; max-height: 80vh; overflow-y: auto; }
+        .modal-overlay.visible .modal-content { transform: translateY(0); }
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; border: none; background: none; }
+        .modal-header { margin-bottom: 25px; font-size: 1.8rem; font-weight: 600; display: flex; align-items: center; gap: 15px; color: var(--primary-accent); }
+        .list-item { background-color: var(--bg-light); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary-accent); }
+        .list-item h4 { font-size: 1.1rem; margin-bottom: 5px; }
+        .list-item p { color: var(--text-muted); font-size: 0.9rem; }
+        .no-data { text-align: center; padding: 20px; color: var(--text-muted); }
     </style>
 </head>
 <body>
-    <div id="login-screen" class="page active">
-        <div class="login-container"><h1>Finituss</h1><form id="login-form"><div class="input-group"><label>Registro Acadêmico (RA):</label><input type="text" id="ra" required></div><div class="input-group"><label>Senha:</label><input type="password" id="senha" required></div><button type="submit" id="login-button">Entrar</button></form><div id="login-message"></div></div>
-    </div>
-    <div id="loading-screen" class="page hidden"><div class="login-container" style="background:none; border:none;"><h1 class="brand">Finituss</h1><p id="loading-text">A iniciar...</p></div></div>
-    <div id="dashboard-screen" class="hidden">
-        <aside class="sidebar">
-            <div class="brand">Finituss</div>
-            <nav><ul class="nav-list">
-                <li class="nav-item"><a data-target-page="inicio-page" class="active">Início</a></li>
-                <li class="nav-item"><a data-target-page="sala-do-futuro-page">Sala do Futuro</a></li>
-                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade em desenvolvimento.">Redação</a></li>
-                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade em desenvolvimento.">Alura</a></li>
-            </ul></nav>
-            <button id="logout-button" class="logout">Sair</button>
-        </aside>
-        <main class="main-content">
-            <div class="page-header"><button id="menu-toggle">&#9776;</button><h1 id="welcome-message"></h1></div>
-            <div id="inicio-page" class="page active">
-                <div class="cards-container">
-                    <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-icon">🗓️</div><div class="card-info"><div class="count" id="faltas-count">0</div><div class="label">Faltas</div></div></div>
-                    <div class="dashboard-card" data-modal-target="tarefas-modal"><div class="card-icon">📚</div><div class="card-info"><div class="count" id="tarefas-count">0</div><div class="label">Tarefas Pendentes</div></div></div>
-                    <div class="dashboard-card" data-modal-target="conquistas-modal"><div class="card-icon">🏆</div><div class="card-info"><div class="count" id="conquistas-count">0</div><div class="label">Ver Conquistas</div></div></div>
-                    <div class="dashboard-card" data-modal-target="notificacoes-modal"><div class="card-icon">🔔</div><div class="card-info"><div class="count" id="notificacoes-count">0</div><div class="label">Mensagens</div></div></div>
-                </div>
+    <section id="login-page">
+        <div class="login-container">
+            <h1>MoonFuturo</h1>
+            <div class="input-group">
+                <label for="ra">Registro Acadêmico (RA):</label>
+                <input type="text" id="ra">
             </div>
-            <div id="sala-do-futuro-page" class="page">
-                <div class="welcome-box"><h3>Bem-vindo à Sala do Futuro!</h3><p>Selecione as tarefas que deseja automatizar.</p></div>
-                <div class="task-controls">
-                    <button id="do-selected-btn">Fazer Selecionadas</button>
-                    <button id="do-all-btn">Fazer Tudo</button>
-                    <button id="save-draft-btn">Salvar Rascunhos</button>
-                    <div><label>Erros:</label><input id="error-count" type="number" value="0" min="0" style="width: 60px; padding: 8px;"></div>
+            <div class="input-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password">
+            </div>
+            <button id="login-btn" class="login-btn">Entrar</button>
+            <p id="loading-message" class="loading-message"><i class="fas fa-spinner fa-spin"></i> Entrando na plataforma...</p>
+        </div>
+    </section>
+
+    <section id="dashboard-page">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-moon fa-2x"></i>
+                <h1 class="logo-text">MoonFuturo</h1>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="open-modal-btn" data-modal-id="modal-sala-futuro"><i class="fa-solid fa-robot"></i> <span class="sidebar-link-text">Sala do Futuro</span></a></li>
+                </ul>
+            <div class="sidebar-footer">
+                <a href="#"><i class="fas fa-sign-out-alt"></i> <span class="sidebar-link-text">Sair</span></a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <button id="menu-toggle" class="menu-toggle"><i class="fas fa-bars"></i></button>
+                    <h2 class="welcome-title" id="welcome-title"></h2>
+                    <p class="welcome-subtitle">Use o menu lateral para acessar as plataformas educacionais.</p>
                 </div>
-                <div class="progress-bar-container hidden"><div class="progress-bar"></div></div>
-                <div class="task-list" id="task-list"></div>
+                <div class="header-right">
+                    <span><i class="fas fa-school"></i> ESCOLA: <span id="school-name"></span></span>
+                    <span><i class="fas fa-chalkboard-teacher"></i> Sala: <span id="class-name"></span></span>
+                </div>
+            </header>
+
+            <div class="cards-container">
+                <div class="info-card" data-modal-target="faltas-modal"><div class="card-header"><span class="value" id="faltas-count">0</span><i class="fas fa-calendar-times"></i></div><span class="title">Faltas</span></div>
+                <div class="info-card" data-modal-target="tarefas-modal"><div class="card-header"><span class="value" id="tarefas-count">0</span><i class="fas fa-tasks"></i></div><span class="title">Tarefas Pendentes</span></div>
+                <div class="info-card" data-modal-target="conquistas-modal"><div class="card-header"><span class="value" id="conquistas-count">0</span><i class="fas fa-trophy"></i></div><span class="title">Ver Conquistas</span></div>
+                <div class="info-card" data-modal-target="notificacoes-modal"><div class="card-header"><span class="value" id="notificacoes-count">0</span><i class="fas fa-envelope"></i></div><span class="title">Mensagens</span></div>
             </div>
         </main>
-    </div>
-    <div id="toast-container"></div>
-    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Faltas</h2><button class="modal-close">&times;</button></div><ul id="faltas-list" class="modal-list"></ul></div></div>
-    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Tarefas Pendentes (Apenas Visualização)</h2><button class="modal-close">&times;</button></div><ul id="tarefas-view-list" class="modal-list"></ul></div></div>
-    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Conquistas</h2><button class="modal-close">&times;</button></div><ul id="conquistas-list" class="modal-list"></ul></div></div>
-    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Mensagens</h2><button class="modal-close">&times;</button></div><ul id="notificacoes-list" class="modal-list"></ul></div></div>
-</body>
-<script>
+    </section>
+    
+    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close"><i class="fas fa-times"></i></button><h3 class="modal-header"><i class="fas fa-tasks"></i> Tarefas Pendentes</h3><div id="tarefas-list"></div></div></div>
+    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close"><i class="fas fa-times"></i></button><h3 class="modal-header"><i class="fas fa-trophy"></i> Minhas Conquistas</h3><div id="conquistas-list"></div></div></div>
+    <div id="modal-sala-futuro" class="modal-overlay"> </div>
+                                                                                                                                                                                                                             </body>
+                                                                                                                                                                                                                             <script>
     document.addEventListener('DOMContentLoaded', () => {
         let fullData = {};
         let tokenB = '';
 
-        const loginScreen = document.getElementById('login-screen');
-        const loadingScreen = document.getElementById('loading-screen');
-        const dashboardScreen = document.getElementById('dashboard-screen');
-        const loginForm = document.getElementById('login-form');
-        const loginButton = document.getElementById('login-button');
-        const loginMessage = document.getElementById('login-message');
-        const logoutButton = document.getElementById('logout-button');
-        const loadingText = document.getElementById('loading-text');
-        const taskListContainer = document.getElementById('task-list');
-        const progressBar = document.querySelector('.progress-bar');
-        const progressBarContainer = document.querySelector('.progress-bar-container');
-        const menuToggle = document.getElementById('menu-toggle');
+        const loginPage = document.getElementById('login-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const loginBtn = document.getElementById('login-btn');
+        const loadingMessage = document.getElementById('loading-message');
 
-        async function showLoadingSequence() {
-            loginScreen.classList.remove('active');
-            loginScreen.classList.add('hidden');
-            loadingScreen.classList.remove('hidden');
-            loadingScreen.classList.add('active');
-            const messages = ["Buscando dados...", "Carregando tarefas...", "Finalizando..."];
-            for (const msg of messages) {
-                loadingText.textContent = msg;
-                await new Promise(resolve => setTimeout(resolve, 800));
-            }
-        }
+        loginBtn.addEventListener('click', async () => {
+            loadingMessage.style.display = 'block';
+            loginBtn.style.display = 'none';
 
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            loginButton.disabled = true;
-            await showLoadingSequence();
             try {
+                const ra = document.getElementById('ra').value;
+                const senha = document.getElementById('password').value;
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: document.getElementById('ra').value, senha: document.getElementById('senha').value }),
+                    body: JSON.stringify({ user: ra, senha: senha })
                 });
+
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error);
-                
+                if (!response.ok) throw new Error(data.error || 'Login falhou.');
+
                 fullData = data;
                 tokenB = data.tokenB;
-                showDashboard();
+
+                populateDashboard();
+
+                loginPage.style.opacity = '0';
+                setTimeout(() => {
+                    loginPage.style.display = 'none';
+                    dashboardPage.style.display = 'flex';
+                    dashboardPage.getBoundingClientRect(); 
+                    dashboardPage.style.opacity = '1';
+                }, 500);
 
             } catch (error) {
-                loadingScreen.classList.add('hidden');
-                loginScreen.classList.add('active');
-                loginScreen.classList.remove('hidden');
-                loginMessage.textContent = `❌ ${error.message}`;
-            } finally {
-                loginButton.disabled = false;
+                alert(`Erro: ${error.message}`);
+                loadingMessage.style.display = 'none';
+                loginBtn.style.display = 'block';
             }
         });
 
-        logoutButton.addEventListener('click', () => {
-            dashboardScreen.classList.add('hidden');
-            loginScreen.classList.remove('hidden');
-            loginScreen.classList.add('active');
-            loginForm.reset();
-        });
-        
-        menuToggle.addEventListener('click', () => document.body.classList.toggle('sidebar-collapsed'));
-
-        function showDashboard() {
-            document.getElementById('welcome-message').textContent = `Bem-vindo, ${fullData.userInfo.NAME}!`;
+        function populateDashboard() {
+            document.getElementById('welcome-title').textContent = `Bem-vindo, ${fullData.userInfo.NAME}!`;
+            document.getElementById('school-name').textContent = fullData.userInfo.NOME_ESCOLA || 'Não informado';
+            document.getElementById('class-name').textContent = fullData.userInfo.SALA || 'Não informado';
+            
             document.getElementById('faltas-count').textContent = fullData.faltas?.length || 0;
             document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
             document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
             document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
-            renderTasksForAutomation();
-            setupEventListeners();
-            loadingScreen.classList.add('hidden');
-            dashboardScreen.classList.remove('hidden');
         }
 
-        function renderTasksForAutomation() {
-            const automationTasks = fullData.tarefas?.filter(item => !item.is_essay) || [];
-            if (automationTasks.length === 0) {
-                taskListContainer.innerHTML = '<p>Nenhuma tarefa de automação disponível.</p>';
-                return;
-            }
-            taskListContainer.innerHTML = automationTasks.map(item => `
-                <div class="task-item" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${item.task_expired}">
-                    <input type="checkbox" class="task-checkbox" style="transform: scale(1.5);">
-                    <div class="task-info">
-                        <strong>${item.title}</strong>
-                    </div>
-                </div>
-            `).join('');
+        const openModalBtns = document.querySelectorAll('.info-card, .open-modal-btn');
+        const closeModalBtns = document.querySelectorAll('.modal-close');
 
-            document.querySelectorAll('.task-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    if (e.target.type !== 'checkbox') {
-                        const checkbox = item.querySelector('.task-checkbox');
-                        checkbox.checked = !checkbox.checked;
-                    }
-                    item.classList.toggle('selected', item.querySelector('.task-checkbox').checked);
-                });
-            });
-        }
-        
-        async function processTasks(tasksToProcess, submissionType) {
-            if (tasksToProcess.length === 0) {
-                showToast('Nenhuma tarefa selecionada.');
-                return;
-            }
-            progressBarContainer.classList.remove('hidden');
-            progressBar.style.width = '0%';
-            
-            const response = await fetch('/api/fazer-tarefa', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    tasks: tasksToProcess, token: tokenB, tempo: 1,
-                    errorCount: parseInt(document.getElementById('error-count').value),
-                    submission_type: submissionType
-                })
-            });
-            
-            const data = await response.json();
-            let completed = 0;
-            for(const result of data.results) {
-                 completed++;
-                 progressBar.style.width = `${(completed / data.results.length) * 100}%`;
-                 const taskItem = document.querySelector(`.task-item[data-task-id='${result.taskId}']`);
-                 if(taskItem) taskItem.style.borderColor = result.success ? 'var(--green-color)' : 'var(--accent-red)';
-                 await new Promise(r => setTimeout(r, 50));
-            }
-            
-            showToast(`${completed} tarefas processadas!`);
-            setTimeout(() => progressBarContainer.classList.add('hidden'), 2000);
-        }
-
-        document.getElementById('do-selected-btn').addEventListener('click', () => {
-            const selectedTasks = [];
-            document.querySelectorAll('.task-item.selected').forEach(item => {
-                selectedTasks.push({ taskId: parseInt(item.dataset.taskId), room: item.dataset.room, is_expired: item.dataset.isExpired === 'true' });
-            });
-            processTasks(selectedTasks, 'submitted');
-        });
-
-        document.getElementById('do-all-btn').addEventListener('click', () => {
-            const allTasks = [];
-            document.querySelectorAll('.task-item').forEach(item => {
-                allTasks.push({ taskId: parseInt(item.dataset.taskId), room: item.dataset.room, is_expired: item.dataset.isExpired === 'true' });
-            });
-            processTasks(allTasks, 'submitted');
-        });
-
-        document.getElementById('save-draft-btn').addEventListener('click', () => {
-            const selectedTasks = [];
-            document.querySelectorAll('.task-item.selected').forEach(item => {
-                selectedTasks.push({ taskId: parseInt(item.dataset.taskId), room: item.dataset.room, is_expired: item.dataset.isExpired === 'true' });
-            });
-            processTasks(selectedTasks, 'draft');
-        });
-        
-        document.querySelectorAll('.sidebar .nav-item a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (link.classList.contains('show-toast')) {
-                    showToast(link.dataset.message);
-                    return;
-                }
-                const targetPageId = e.currentTarget.dataset.targetPage;
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(targetPageId)?.classList.add('active');
-                document.querySelectorAll('.sidebar .nav-item a').forEach(a => a.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-            });
-        });
-        
-        function setupEventListeners() {
-            document.querySelectorAll('.dashboard-card').forEach(card => {
-                card.addEventListener('click', () => showModal(card.dataset.modalTarget));
-            });
-        }
-
-        function showModal(modalId) {
+        const showModal = (modalId) => {
             const modal = document.getElementById(modalId);
-            if (!modal) return;
-            
-            const list = modal.querySelector('.modal-list, #tarefas-view-list');
-            let content = '<ul><p>Nenhuma informação encontrada.</p></ul>';
-            
-            switch(modalId){
-                case 'tarefas-modal':
-                    const viewList = document.getElementById('tarefas-view-list');
-                     if (fullData.tarefas?.length > 0) {
-                        content = '<ul>' + fullData.tarefas.map(item => `<li>${item.title}</li>`).join('') + '</ul>';
-                    }
-                    if(viewList) viewList.innerHTML = content;
-                    break;
-                case 'faltas-modal':
-                    const faltasList = document.getElementById('faltas-list');
-                    if(fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li>${item.disciplina}: ${item.totalFaltas} faltas</li>`).join('');
-                    if(faltasList) faltasList.innerHTML = content;
-                    break;
-                case 'conquistas-modal':
-                    const conquistasList = document.getElementById('conquistas-list');
-                    if(fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li>${item.projeto} - ${item.medalha}</li>`).join('');
-                    if(conquistasList) conquistasList.innerHTML = content;
-                    break;
-                case 'notificacoes-modal':
-                    const notificacoesList = document.getElementById('notificacoes-list');
-                    if(fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li><b>${item.seesp_titulo}</b><p>${item.seesp_mensagem}</p></li>`).join('');
-                    if(notificacoesList) notificacoesList.innerHTML = content;
-                    break;
+            if(modal) {
+                populateModal(modalId);
+                modal.classList.add('visible');
             }
-            modal.classList.add('is-visible');
+        };
+
+        const closeModal = (modal) => {
+             modal.classList.remove('visible');
+        };
+
+        openModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal-target') || btn.getAttribute('data-modal-id');
+                showModal(modalId);
+            });
+        });
+
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => closeModal(btn.closest('.modal-overlay')));
+        });
+        
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+             overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModal(overlay);
+            });
+        });
+
+        function populateModal(modalId) {
+            let content = '<div class="no-data"><p>Nenhuma informação encontrada.</p></div>';
+            
+            if (modalId === 'modal-tarefas') {
+                const listContainer = document.getElementById('tarefas-list');
+                if (fullData.tarefas && fullData.tarefas.length > 0) {
+                    content = fullData.tarefas.map(item => {
+                        return `<div class="list-item"><h4>${item.title}</h4><p>Autor: ${item.author} | Status: ${item.answer_status || 'Pendente'}</p></div>`;
+                    }).join('');
+                }
+                listContainer.innerHTML = content;
+            }
+            // Adicionar lógica para outros modais aqui (conquistas, etc.)
         }
 
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            if(!container) return;
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-        
-        // Inicializa os listeners dos modais que podem ser fechados
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
-             modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('is-visible'); });
-             modal.querySelector('.modal-close')?.addEventListener('click', () => modal.classList.remove('is-visible'));
+        const menuToggleBtn = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
         });
     });
-</script>
+    </script>
 </body>
 </html>
