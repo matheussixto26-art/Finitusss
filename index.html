@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finituss</title>
+    <title>finituss</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
@@ -14,7 +14,6 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-color); overflow: hidden; }
-        .hidden { display: none !important; }
         #login-page { display: flex; justify-content: center; align-items: center; height: 100vh; transition: opacity 0.5s ease-out; }
         .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 12px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
         .login-container h1 { font-size: 2.5rem; margin-bottom: 30px; font-weight: 600; }
@@ -72,13 +71,22 @@
     <section id="dashboard-page">
         <div class="content-area">
             <nav class="sidebar" id="sidebar">
-                </nav>
+                 <div class="sidebar-header">
+                    <i class="fas fa-moon fa-2x"></i>
+                    <h1 class="logo-text">MoonFuturo</h1>
+                </div>
+                <ul class="sidebar-menu">
+                    <li><a href="#" data-page="inicio-page" class="active"><i class="fas fa-home"></i> <span class="sidebar-link-text">Início</span></a></li>
+                    <li><a href="#" data-page="sala-do-futuro-page"><i class="fa-solid fa-robot"></i> <span class="sidebar-link-text">Sala do Futuro</span></a></li>
+                </ul>
+            </nav>
             <main class="main-content">
                 <div id="inicio-page" class="page active">
-                    <header class="main-header">
-                        <div class="header-left">
-                            <h2 class="welcome-title" id="welcome-title"></h2>
-                            <p class="welcome-subtitle">Use os cartões para ver os detalhes.</p>
+                     <header class="main-header">
+                        <div class="header-left"><h2 class="welcome-title" id="welcome-title-main"></h2></div>
+                        <div class="header-right">
+                            <span><i class="fas fa-school"></i> ESCOLA: <span id="school-name"></span></span>
+                            <span><i class="fas fa-chalkboard-teacher"></i> Sala: <span id="class-name"></span></span>
                         </div>
                     </header>
                     <div class="cards-container">
@@ -98,8 +106,8 @@
     <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close"><i class="fas fa-times"></i></button><h3 class="modal-header"><i class="fas fa-trophy"></i> Minhas Conquistas</h3><div id="conquistas-list"></div></div></div>
     <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close"><i class="fas fa-times"></i></button><h3 class="modal-header"><i class="fas fa-calendar-times"></i> Faltas</h3><div id="faltas-list"></div></div></div>
     <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><button class="modal-close"><i class="fas fa-times"></i></button><h3 class="modal-header"><i class="fas fa-envelope"></i> Mensagens</h3><div id="notificacoes-list"></div></div></div>
-    </body>
-    <script>
+</body>
+<script>
     document.addEventListener('DOMContentLoaded', () => {
         let fullData = {};
         let tokenB = '';
@@ -129,6 +137,7 @@
                 tokenB = data.tokenB;
 
                 populateDashboard();
+                setupEventListeners();
 
                 loginPage.style.opacity = '0';
                 setTimeout(() => {
@@ -146,7 +155,7 @@
         });
 
         function populateDashboard() {
-            document.getElementById('welcome-title').textContent = `Bem-vindo, ${fullData.userInfo.NAME}!`;
+            document.getElementById('welcome-title-main').textContent = `Bem-vindo, ${fullData.userInfo.NAME}!`;
             document.getElementById('school-name').textContent = fullData.userInfo.NOME_ESCOLA || 'Não informado';
             document.getElementById('class-name').textContent = fullData.userInfo.SALA || 'Não informado';
             
@@ -155,40 +164,30 @@
             document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
             document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
         }
-        
-        const openModalBtns = document.querySelectorAll('.info-card, .open-modal-btn');
-        const closeModalBtns = document.querySelectorAll('.modal-close');
 
-        const showModal = (modalId) => {
-            const modal = document.getElementById(modalId);
-            if(modal) {
-                populateModal(modalId);
-                modal.classList.add('visible');
-            }
-        };
-
-        const closeModal = (modal) => {
-             modal.classList.remove('visible');
-        };
-
-        openModalBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const modalId = btn.getAttribute('data-modal-target') || btn.getAttribute('data-modal-id');
-                showModal(modalId);
+        function setupEventListeners() {
+            document.querySelectorAll('.info-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const modalId = card.dataset.modalTarget;
+                    showModal(modalId);
+                });
             });
-        });
 
-        closeModalBtns.forEach(btn => {
-            btn.addEventListener('click', () => closeModal(btn.closest('.modal-overlay')));
-        });
-        
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-             overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) closeModal(overlay);
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => btn.closest('.modal-overlay').classList.remove('visible'));
             });
-        });
+            
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.classList.remove('visible');
+                });
+            });
+        }
 
         function populateModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+
             let content = '<div class="no-data"><p>Nenhuma informação encontrada.</p></div>';
             let container;
             
@@ -209,11 +208,34 @@
                         }).join('');
                     }
                     break;
-                // Adicione aqui os cases para faltas e notificações
+                case 'faltas-modal':
+                     container = document.getElementById('faltas-list');
+                    if (fullData.faltas && fullData.faltas.length > 0) {
+                        content = fullData.faltas.map(item => {
+                             return `<div class="list-item"><h4>${item.disciplina}</h4><p>Total de Faltas: ${item.totalFaltas}</p></div>`;
+                        }).join('');
+                    }
+                    break;
+                case 'notificacoes-modal':
+                     container = document.getElementById('notificacoes-list');
+                    if (fullData.notificacoes && fullData.notificacoes.length > 0) {
+                        content = fullData.notificacoes.map(item => {
+                             return `<div class="list-item"><h4>${item.seesp_titulo}</h4><p>${item.seesp_mensagem}</p></div>`;
+                        }).join('');
+                    }
+                    break;
             }
             if (container) container.innerHTML = content;
         }
+
+        const showModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                populateModal(modalId);
+                modal.classList.add('visible');
+            }
+        };
     });
-    </script>
+</script>
 </body>
 </html>
