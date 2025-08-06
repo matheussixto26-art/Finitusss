@@ -15,43 +15,41 @@
         body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-primary); }
         .hidden { display: none !important; }
 
-        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: var(--bg-dark); }
+        #login-screen, #loading-screen { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; }
         .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: left; border: 1px solid var(--border-color); }
+        h1, h2, h3 { font-weight: 600; }
+        button { font-family: var(--font-family); }
         .login-container h1 { text-align: center; margin-bottom: 25px; }
         .input-group { margin-bottom: 20px; }
         input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-dark); color: var(--text-primary); font-size: 1em; }
         button { width: 100%; padding: 15px; border: none; border-radius: 6px; background-color: var(--accent-red); color: white; font-weight: 600; cursor: pointer; }
         #login-message { margin-top: 20px; min-height: 20px; color: var(--accent-red); }
-
-        #loading-screen { flex-direction: column; }
-        #loading-screen .brand { font-size: 2em; margin-bottom: 1rem; }
-        #loading-screen p { color: var(--text-secondary); }
+        #loading-screen p { color: var(--text-secondary); margin-top: 1rem; }
 
         #dashboard-screen { display: flex; height: 100vh; }
         .sidebar { width: 250px; background-color: var(--bg-medium); padding: 25px; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); transition: margin-left 0.3s; }
         body.sidebar-collapsed .sidebar { margin-left: -250px; }
         .sidebar .brand { margin-bottom: 2rem; font-size: 1.5em; font-weight: 700; }
         .sidebar .nav-list { list-style: none; padding: 0; }
-        .sidebar .nav-item { margin-bottom: 1rem; }
         .sidebar .nav-item a { color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 10px; border-radius: 6px; cursor: pointer; }
-        .sidebar .nav-item a:hover, .sidebar .nav-item a.active { background-color: var(--bg-dark); color: var(--text-primary); }
+        .sidebar .nav-item a.active, .sidebar .nav-item a:hover { background-color: var(--bg-dark); color: var(--text-primary); }
         .sidebar .logout { margin-top: auto; width: 100%; background-color: var(--accent-red); }
         
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; }
         .page { display: none; }
-        .page.active { display: block; }
+        .page.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .page-header .info-bar { display: flex; gap: 20px; background-color: var(--bg-medium); padding: 10px 15px; border-radius: 8px; color: var(--text-secondary); font-size: 0.9em; }
-        
-        #sala-do-futuro-page .welcome-box { background-color: var(--bg-medium); padding: 20px; border-radius: 8px; margin-bottom: 25px; }
-        .task-controls { display: flex; gap: 10px; margin-bottom: 20px; }
-        .task-controls button { width: auto; flex-grow: 1; }
-        .task-list { display: flex; flex-direction: column; gap: 15px; }
-        .task-item { background-color: var(--bg-light); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-red); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-        .task-item.selected { border-color: var(--accent-red); }
-        .progress-bar-container { width: 100%; background-color: var(--bg-dark); border-radius: 5px; overflow: hidden; margin-top: 10px; }
-        .progress-bar { width: 0%; height: 10px; background-color: var(--accent-red); transition: width 0.3s; }
+        #menu-toggle { background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
 
+        #sala-do-futuro-page .welcome-box { background-color: var(--bg-medium); padding: 20px; border-radius: 8px; margin-bottom: 25px; }
+        .task-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .task-controls button, .task-controls div { width: auto; flex-grow: 1; }
+        .task-list { display: flex; flex-direction: column; gap: 15px; }
+        .task-item { background-color: var(--bg-light); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-red); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: border-color 0.2s; }
+        .task-item.selected { border-color: var(--accent-red); }
+        .progress-bar-container { width: 100%; background-color: var(--bg-dark); border-radius: 5px; overflow: hidden; margin-top: 10px; height: 10px; }
+        .progress-bar { width: 0%; height: 100%; background-color: var(--accent-red); transition: width 0.3s; }
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
         .toast { background-color: var(--bg-light); border-left: 4px solid var(--accent-red); color: var(--text-primary); padding: 15px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
     </style>
@@ -70,8 +68,8 @@
     </div>
 
     <div id="loading-screen" class="page hidden">
-        <div class="login-container">
-            <div class="brand">Finituss</div>
+        <div class="login-container" style="background:none; border:none;">
+            <h1 class="brand">Finituss</h1>
             <p id="loading-text">A iniciar...</p>
         </div>
     </div>
@@ -81,25 +79,26 @@
             <div class="brand">Finituss</div>
             <nav><ul class="nav-list">
                 <li class="nav-item"><a data-target-page="sala-do-futuro-page" class="active">Sala do Futuro</a></li>
-                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade de Redação em desenvolvimento.">Redação</a></li>
-                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade de Alura em desenvolvimento.">Alura</a></li>
+                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade em desenvolvimento.">Redação</a></li>
+                <li class="nav-item"><a class="show-toast" data-message="Funcionalidade em desenvolvimento.">Alura</a></li>
             </ul></nav>
             <button id="logout-button" class="logout">Sair</button>
         </aside>
         <main class="main-content">
             <div id="sala-do-futuro-page" class="page active">
                 <div class="page-header">
+                    <button id="menu-toggle">&#9776;</button>
                     <h1 id="welcome-message"></h1>
-                    <div class="info-bar"><span id="school-name"></span></div>
                 </div>
                 <div class="welcome-box">
                     <h3>Bem-vindo!</h3>
                     <p>Esta plataforma é para você fazer as suas tarefas da Sala do Futuro.</p>
                 </div>
                 <div class="task-controls">
-                    <button id="do-selected-btn">Fazer Tarefas Selecionadas</button>
+                    <button id="do-selected-btn">Fazer Selecionadas</button>
                     <button id="do-all-btn">Fazer Tudo</button>
                     <button id="save-draft-btn">Salvar Rascunhos</button>
+                    <div style="display:flex; gap: 5px; align-items:center;"><label>Erros:</label><input id="error-count" type="number" value="0" min="0" style="width: 60px; padding: 8px;"></div>
                 </div>
                 <div class="progress-bar-container hidden"><div class="progress-bar"></div></div>
                 <div class="task-list" id="task-list"></div>
@@ -124,10 +123,13 @@
         const taskListContainer = document.getElementById('task-list');
         const progressBar = document.querySelector('.progress-bar');
         const progressBarContainer = document.querySelector('.progress-bar-container');
+        const menuToggle = document.getElementById('menu-toggle');
 
         async function showLoadingSequence() {
+            loginScreen.classList.remove('active');
             loginScreen.classList.add('hidden');
             loadingScreen.classList.remove('hidden');
+            loadingScreen.classList.add('active');
             const messages = ["Buscando dados...", "Carregando tarefas...", "Finalizando..."];
             for (const msg of messages) {
                 loadingText.textContent = msg;
@@ -164,14 +166,17 @@
         logoutButton.addEventListener('click', () => {
             dashboardScreen.classList.add('hidden');
             loginScreen.classList.remove('hidden');
+            loginScreen.classList.add('active');
             loginForm.reset();
         });
+        
+        menuToggle.addEventListener('click', () => document.body.classList.toggle('sidebar-collapsed'));
 
         function showDashboard() {
             document.getElementById('welcome-message').textContent = `Bem-vindo, ${fullData.userInfo.NAME}!`;
-            document.getElementById('school-name').textContent = `🏫 ${fullData.userInfo.NOME_ESCOLA || 'Escola não encontrada'}`;
             renderTasks();
             loadingScreen.classList.add('hidden');
+            loadingScreen.classList.remove('active');
             dashboardScreen.classList.remove('hidden');
         }
 
@@ -180,15 +185,21 @@
                 taskListContainer.innerHTML = '<p>Nenhuma tarefa encontrada.</p>';
                 return;
             }
-            taskListContainer.innerHTML = fullData.tarefas.map(item => `
-                <div class="task-item" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${item.task_expired}">
+            taskListContainer.innerHTML = fullData.tarefas.map(item => {
+                const isExpired = item.task_expired;
+                let statusText = 'Pendente';
+                if(isExpired) statusText = 'Expirada';
+                if(item.answer_status === 'draft') statusText = 'Rascunho';
+
+                return `
+                <div class="task-item" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${isExpired}">
                     <input type="checkbox" class="task-checkbox" style="transform: scale(1.5);">
                     <div class="task-info">
                         <strong>${item.title}</strong>
-                        <p style="font-size: 0.8em; color: var(--text-secondary)">Prazo: ${new Date(item.expire_at).toLocaleDateString()}</p>
+                        <p style="font-size: 0.8em; color: var(--text-secondary)">Status: ${statusText} | Prazo: ${new Date(item.expire_at).toLocaleDateString()}</p>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
 
             document.querySelectorAll('.task-item').forEach(item => {
                 item.addEventListener('click', (e) => {
@@ -202,6 +213,10 @@
         }
 
         async function processTasks(tasksToProcess, submissionType) {
+            if (tasksToProcess.length === 0) {
+                showToast('Nenhuma tarefa selecionada.');
+                return;
+            }
             progressBarContainer.classList.remove('hidden');
             progressBar.style.width = '0%';
             let completed = 0;
@@ -212,19 +227,22 @@
                 body: JSON.stringify({
                     tasks: tasksToProcess,
                     token: tokenB,
-                    tempo: 1,
-                    errorCount: 0,
+                    tempo: 1, // Tempo é baixo, backend decide o delay
+                    errorCount: parseInt(document.getElementById('error-count').value),
                     submission_type: submissionType
                 })
             });
             
             const data = await response.json();
             
-            // Simula o progresso com base na resposta
             for(const result of data.results) {
                  completed++;
                  progressBar.style.width = `${(completed / data.results.length) * 100}%`;
-                 await new Promise(r => setTimeout(r, 100)); // Pequeno delay para a animação
+                 const taskItem = document.querySelector(`.task-item[data-task-id='${result.taskId}']`);
+                 if(taskItem) {
+                     taskItem.style.borderColor = result.success ? 'var(--green-color)' : 'var(--red-color)';
+                 }
+                 await new Promise(r => setTimeout(r, 50));
             }
             
             showToast(`${completed} tarefas processadas!`);
@@ -240,8 +258,7 @@
                     is_expired: item.dataset.isExpired === 'true'
                 });
             });
-            if (selectedTasks.length > 0) processTasks(selectedTasks, 'submitted');
-            else showToast('Nenhuma tarefa selecionada.');
+            processTasks(selectedTasks, 'submitted');
         });
 
         document.getElementById('do-all-btn').addEventListener('click', () => {
@@ -253,8 +270,7 @@
                     is_expired: item.dataset.isExpired === 'true'
                 });
             });
-            if (allTasks.length > 0) processTasks(allTasks, 'submitted');
-            else showToast('Nenhuma tarefa para fazer.');
+            processTasks(allTasks, 'submitted');
         });
 
         document.getElementById('save-draft-btn').addEventListener('click', () => {
@@ -266,8 +282,7 @@
                     is_expired: item.dataset.isExpired === 'true'
                 });
             });
-            if (selectedTasks.length > 0) processTasks(selectedTasks, 'draft');
-            else showToast('Nenhuma tarefa selecionada para salvar.');
+            processTasks(selectedTasks, 'draft');
         });
         
         document.querySelectorAll('.show-toast').forEach(el => {
@@ -276,6 +291,7 @@
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
+            if(!container) return;
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.textContent = message;
