@@ -16,7 +16,7 @@
         body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-primary); }
         .hidden { display: none !important; }
 
-        #login-screen, #loading-screen { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; }
+        #login-screen, #loading-screen { display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; position: fixed; top: 0; left: 0; width: 100%; z-index: 2000; transition: opacity 0.5s; }
         .login-container { background-color: var(--bg-medium); padding: 40px; border-radius: 10px; width: 100%; max-width: 400px; text-align: left; border: 1px solid var(--border-color); }
         h1, h2, h3 { font-weight: 600; }
         button { font-family: var(--font-family); }
@@ -54,11 +54,12 @@
         .task-controls button { width: auto; flex-grow: 1; }
         .task-list { display: flex; flex-direction: column; gap: 15px; }
         .task-item { background-color: var(--bg-light); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-red); padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: border-color 0.2s; }
-        .task-item.selected { border-color: var(--accent-red); background-color: var(--bg-medium); }
+        .task-item.selected { border-color: var(--accent-red); }
         .progress-bar-container { width: 100%; background-color: var(--bg-dark); border-radius: 5px; overflow: hidden; margin: 20px 0; height: 10px; }
         .progress-bar { width: 0%; height: 100%; background-color: var(--accent-red); transition: width 0.3s; }
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
         .toast { background-color: var(--bg-light); border-left: 4px solid var(--accent-red); color: var(--text-primary); padding: 15px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
         .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
@@ -66,12 +67,13 @@
         .modal-close { background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
         .modal-list { list-style: none; padding: 0; }
         .modal-list li { padding: 10px 0; border-bottom: 1px solid var(--border-color); }
-        .modal-list li:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
-    <div id="login-screen" class="page active"> </div>
-    <div id="loading-screen" class="page hidden"> </div>
+    <div id="login-screen" class="page active">
+        <div class="login-container"><h1>Finituss</h1><form id="login-form"><div class="input-group"><label>Registro Acadêmico (RA):</label><input type="text" id="ra" required></div><div class="input-group"><label>Senha:</label><input type="password" id="senha" required></div><button type="submit" id="login-button">Entrar</button></form><div id="login-message"></div></div>
+    </div>
+    <div id="loading-screen" class="page hidden"><div class="login-container" style="background:none; border:none;"><h1 class="brand">Finituss</h1><p id="loading-text">A iniciar...</p></div></div>
     <div id="dashboard-screen" class="hidden">
         <aside class="sidebar">
             <div class="brand">Finituss</div>
@@ -84,11 +86,7 @@
             <button id="logout-button" class="logout">Sair</button>
         </aside>
         <main class="main-content">
-            <div class="page-header">
-                <button id="menu-toggle">&#9776;</button>
-                <h1 id="welcome-message"></h1>
-            </div>
-
+            <div class="page-header"><button id="menu-toggle">&#9776;</button><h1 id="welcome-message"></h1></div>
             <div id="inicio-page" class="page active">
                 <div class="cards-container">
                     <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-icon">🗓️</div><div class="card-info"><div class="count" id="faltas-count">0</div><div class="label">Faltas</div></div></div>
@@ -97,12 +95,8 @@
                     <div class="dashboard-card" data-modal-target="notificacoes-modal"><div class="card-icon">🔔</div><div class="card-info"><div class="count" id="notificacoes-count">0</div><div class="label">Mensagens</div></div></div>
                 </div>
             </div>
-
             <div id="sala-do-futuro-page" class="page">
-                <div class="welcome-box">
-                    <h3>Bem-vindo, Aluno!</h3>
-                    <p>Esta plataforma é para você fazer as suas tarefas da Sala do Futuro.</p>
-                </div>
+                <div class="welcome-box"><h3>Bem-vindo à Sala do Futuro!</h3><p>Selecione as tarefas que deseja automatizar.</p></div>
                 <div class="task-controls">
                     <button id="do-selected-btn">Fazer Selecionadas</button>
                     <button id="do-all-btn">Fazer Tudo</button>
@@ -119,8 +113,8 @@
     <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Tarefas Pendentes (Apenas Visualização)</h2><button class="modal-close">&times;</button></div><ul id="tarefas-view-list" class="modal-list"></ul></div></div>
     <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Conquistas</h2><button class="modal-close">&times;</button></div><ul id="conquistas-list" class="modal-list"></ul></div></div>
     <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Mensagens</h2><button class="modal-close">&times;</button></div><ul id="notificacoes-list" class="modal-list"></ul></div></div>
-                                                                                                                                        </body>
-                                                                                                                                        <script>
+</body>
+<script>
     document.addEventListener('DOMContentLoaded', () => {
         let fullData = {};
         let tokenB = '';
@@ -252,7 +246,7 @@
                  await new Promise(r => setTimeout(r, 50));
             }
             
-            showToast(`${completed} tarefas processadas com sucesso!`);
+            showToast(`${completed} tarefas processadas!`);
             setTimeout(() => progressBarContainer.classList.add('hidden'), 2000);
         }
 
@@ -299,34 +293,39 @@
             document.querySelectorAll('.dashboard-card').forEach(card => {
                 card.addEventListener('click', () => showModal(card.dataset.modalTarget));
             });
-            document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', () => btn.closest('.modal-overlay').classList.remove('is-visible')));
         }
 
         function showModal(modalId) {
             const modal = document.getElementById(modalId);
             if (!modal) return;
             
-            let list = modal.querySelector('.modal-list, #tarefas-view-list');
+            const list = modal.querySelector('.modal-list, #tarefas-view-list');
             let content = '<ul><p>Nenhuma informação encontrada.</p></ul>';
             
             switch(modalId){
                 case 'tarefas-modal':
+                    const viewList = document.getElementById('tarefas-view-list');
                      if (fullData.tarefas?.length > 0) {
-                        content = '<ul>' + fullData.tarefas.map(item => {
-                            let tagHTML = '';
-                            if (item.is_essay) tagHTML = '<span class="tag" style="background:purple">REDAÇÃO</span>';
-                            else if(item.answer_status === 'draft') tagHTML = '<span class="tag" style="background:orange">RASCUNHO</span>';
-                            else if(item.task_expired) tagHTML = '<span class="tag" style="background:red">EXPIRADA</span>';
-                            return `<li>${item.title} ${tagHTML}</li>`;
-                        }).join('') + '</ul>';
+                        content = '<ul>' + fullData.tarefas.map(item => `<li>${item.title}</li>`).join('') + '</ul>';
                     }
-                    if(!list) {
-                        list = document.getElementById('tarefas-view-list');
-                    }
+                    if(viewList) viewList.innerHTML = content;
                     break;
-                 // Adicionar cases para faltas, conquistas, etc.
+                case 'faltas-modal':
+                    const faltasList = document.getElementById('faltas-list');
+                    if(fullData.faltas?.length > 0) content = fullData.faltas.map(item => `<li>${item.disciplina}: ${item.totalFaltas} faltas</li>`).join('');
+                    if(faltasList) faltasList.innerHTML = content;
+                    break;
+                case 'conquistas-modal':
+                    const conquistasList = document.getElementById('conquistas-list');
+                    if(fullData.conquistas?.length > 0) content = fullData.conquistas.map(item => `<li>${item.projeto} - ${item.medalha}</li>`).join('');
+                    if(conquistasList) conquistasList.innerHTML = content;
+                    break;
+                case 'notificacoes-modal':
+                    const notificacoesList = document.getElementById('notificacoes-list');
+                    if(fullData.notificacoes?.length > 0) content = fullData.notificacoes.map(item => `<li><b>${item.seesp_titulo}</b><p>${item.seesp_mensagem}</p></li>`).join('');
+                    if(notificacoesList) notificacoesList.innerHTML = content;
+                    break;
             }
-            if(list) list.innerHTML = content;
             modal.classList.add('is-visible');
         }
 
@@ -339,6 +338,12 @@
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
+        
+        // Inicializa os listeners dos modais que podem ser fechados
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+             modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('is-visible'); });
+             modal.querySelector('.modal-close')?.addEventListener('click', () => modal.classList.remove('is-visible'));
+        });
     });
 </script>
 </body>
