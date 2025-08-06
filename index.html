@@ -10,6 +10,7 @@
             --bg-dark: #121212; --bg-medium: #1E1E1E; --bg-light: #2C2C2C;
             --border-color: #333333; --text-primary: #E0E0E0; --text-secondary: #A0A0A0;
             --accent-red: #E53935; --font-family: 'Poppins', sans-serif;
+            --orange-color: #f77829; --purple-color: #bf38e5; --green-color: #23d183;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: var(--font-family); background-color: var(--bg-dark); color: var(--text-primary); }
@@ -58,28 +59,22 @@
         .progress-bar { width: 0%; height: 100%; background-color: var(--accent-red); transition: width 0.3s; }
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
         .toast { background-color: var(--bg-light); border-left: 4px solid var(--accent-red); color: var(--text-primary); padding: 15px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.is-visible { opacity: 1; pointer-events: all; }
+        .modal-content { background-color: var(--bg-medium); padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
+        .modal-close { background: none; border: none; color: var(--text-primary); font-size: 1.5em; cursor: pointer; }
+        .modal-list { list-style: none; padding: 0; }
+        .modal-list li { padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .tag { font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 10px; }
+        .tag.expirada { background-color: var(--accent-red); color: white; }
+        .tag.rascunho { background-color: var(--orange-color); color: white; }
     </style>
 </head>
 <body>
-    <div id="login-screen" class="page active">
-        <div class="login-container">
-            <h1>Finituss</h1>
-            <form id="login-form">
-                <div class="input-group"><label>Registro Acadêmico (RA):</label><input type="text" id="ra" required></div>
-                <div class="input-group"><label>Senha:</label><input type="password" id="senha" required></div>
-                <button type="submit" id="login-button">Entrar</button>
-            </form>
-            <div id="login-message"></div>
-        </div>
-    </div>
-
-    <div id="loading-screen" class="page hidden">
-        <div class="login-container" style="background:none; border:none;">
-            <h1 class="brand">Finituss</h1>
-            <p id="loading-text">A iniciar...</p>
-        </div>
-    </div>
-
+    <div id="login-screen" class="page active"></div>
+    <div id="loading-screen" class="page hidden"></div>
     <div id="dashboard-screen" class="hidden">
         <aside class="sidebar">
             <div class="brand">Finituss</div>
@@ -96,28 +91,14 @@
                 <button id="menu-toggle">&#9776;</button>
                 <h1 id="welcome-message"></h1>
             </div>
-
             <div id="inicio-page" class="page active">
                 <div class="cards-container">
-                    <div class="dashboard-card" data-modal-target="faltas-modal">
-                        <div class="card-icon" style="color: var(--accent-red);">🗓️</div>
-                        <div class="card-info"><div class="count" id="faltas-count">0</div><div class="label">Faltas</div></div>
-                    </div>
-                    <div class="dashboard-card" data-modal-target="tarefas-modal">
-                        <div class="card-icon" style="color: var(--accent-red);">📚</div>
-                        <div class="card-info"><div class="count" id="tarefas-count">0</div><div class="label">Tarefas Pendentes</div></div>
-                    </div>
-                    <div class="dashboard-card" data-modal-target="conquistas-modal">
-                        <div class="card-icon" style="color: var(--accent-red);">🏆</div>
-                        <div class="card-info"><div class="count" id="conquistas-count">0</div><div class="label">Ver Conquistas</div></div>
-                    </div>
-                    <div class="dashboard-card" data-modal-target="notificacoes-modal">
-                        <div class="card-icon" style="color: var(--accent-red);">🔔</div>
-                        <div class="card-info"><div class="count" id="notificacoes-count">0</div><div class="label">Mensagens</div></div>
-                    </div>
+                    <div class="dashboard-card" data-modal-target="faltas-modal"><div class="card-icon">🗓️</div><div class="card-info"><div class="count" id="faltas-count">0</div><div class="label">Faltas</div></div></div>
+                    <div class="dashboard-card" data-modal-target="tarefas-modal"><div class="card-icon">📚</div><div class="card-info"><div class="count" id="tarefas-count">0</div><div class="label">Tarefas Pendentes</div></div></div>
+                    <div class="dashboard-card" data-modal-target="conquistas-modal"><div class="card-icon">🏆</div><div class="card-info"><div class="count" id="conquistas-count">0</div><div class="label">Ver Conquistas</div></div></div>
+                    <div class="dashboard-card" data-modal-target="notificacoes-modal"><div class="card-icon">🔔</div><div class="card-info"><div class="count" id="notificacoes-count">0</div><div class="label">Mensagens</div></div></div>
                 </div>
             </div>
-
             <div id="sala-do-futuro-page" class="page">
                 <div class="welcome-box">
                     <h3>Bem-vindo à Sala do Futuro!</h3>
@@ -135,6 +116,10 @@
         </main>
     </div>
     <div id="toast-container"></div>
+    <div id="faltas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Faltas</h2><button class="modal-close">&times;</button></div><ul id="faltas-list" class="modal-list"></ul></div></div>
+    <div id="tarefas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Tarefas Pendentes</h2><button class="modal-close">&times;</button></div><ul id="tarefas-view-list" class="modal-list"></ul></div></div>
+    <div id="conquistas-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Conquistas</h2><button class="modal-close">&times;</button></div><ul id="conquistas-list" class="modal-list"></ul></div></div>
+    <div id="notificacoes-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h2>Minhas Mensagens</h2><button class="modal-close">&times;</button></div><ul id="notificacoes-list" class="modal-list"></ul></div></div>
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -207,23 +192,23 @@
             document.getElementById('tarefas-count').textContent = fullData.tarefas?.length || 0;
             document.getElementById('conquistas-count').textContent = fullData.conquistas?.length || 0;
             document.getElementById('notificacoes-count').textContent = fullData.notificacoes?.length || 0;
-            renderTasks();
+            renderTasksForAutomation();
+            setupEventListeners();
             loadingScreen.classList.add('hidden');
             loadingScreen.classList.remove('active');
             dashboardScreen.classList.remove('hidden');
         }
 
-        function renderTasks() {
-            if (!fullData.tarefas || fullData.tarefas.length === 0) {
-                taskListContainer.innerHTML = '<p>Nenhuma tarefa encontrada.</p>';
+        function renderTasksForAutomation() {
+            const automationTasks = fullData.tarefas?.filter(item => !item.is_essay) || [];
+            if (automationTasks.length === 0) {
+                taskListContainer.innerHTML = '<p>Nenhuma tarefa de automação disponível.</p>';
                 return;
             }
-            taskListContainer.innerHTML = fullData.tarefas.map(item => `
+            taskListContainer.innerHTML = automationTasks.map(item => `
                 <div class="task-item" data-task-id="${item.id}" data-room="${item.publication_target}" data-is-expired="${item.task_expired}">
                     <input type="checkbox" class="task-checkbox" style="transform: scale(1.5);">
-                    <div class="task-info">
-                        <strong>${item.title}</strong>
-                    </div>
+                    <div class="task-info"><strong>${item.title}</strong></div>
                 </div>
             `).join('');
 
@@ -237,7 +222,7 @@
                 });
             });
         }
-
+        
         async function processTasks(tasksToProcess, submissionType) {
             if (tasksToProcess.length === 0) {
                 showToast('Nenhuma tarefa selecionada.');
@@ -250,9 +235,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    tasks: tasksToProcess,
-                    token: tokenB,
-                    tempo: 1,
+                    tasks: tasksToProcess, token: tokenB, tempo: 1,
                     errorCount: parseInt(document.getElementById('error-count').value),
                     submission_type: submissionType
                 })
@@ -264,9 +247,7 @@
                  completed++;
                  progressBar.style.width = `${(completed / data.results.length) * 100}%`;
                  const taskItem = document.querySelector(`.task-item[data-task-id='${result.taskId}']`);
-                 if(taskItem) {
-                     taskItem.style.borderColor = result.success ? 'var(--green-color)' : 'var(--red-color)';
-                 }
+                 if(taskItem) taskItem.style.borderColor = result.success ? 'var(--green-color)' : 'var(--red-color)';
                  await new Promise(r => setTimeout(r, 50));
             }
             
@@ -277,11 +258,7 @@
         document.getElementById('do-selected-btn').addEventListener('click', () => {
             const selectedTasks = [];
             document.querySelectorAll('.task-item.selected').forEach(item => {
-                selectedTasks.push({
-                    taskId: parseInt(item.dataset.taskId),
-                    room: item.dataset.room,
-                    is_expired: item.dataset.isExpired === 'true'
-                });
+                selectedTasks.push({ taskId: parseInt(item.dataset.taskId), room: item.dataset.room, is_expired: item.dataset.isExpired === 'true' });
             });
             processTasks(selectedTasks, 'submitted');
         });
@@ -289,11 +266,7 @@
         document.getElementById('do-all-btn').addEventListener('click', () => {
             const allTasks = [];
             document.querySelectorAll('.task-item').forEach(item => {
-                allTasks.push({
-                    taskId: parseInt(item.dataset.taskId),
-                    room: item.dataset.room,
-                    is_expired: item.dataset.isExpired === 'true'
-                });
+                allTasks.push({ taskId: parseInt(item.dataset.taskId), room: item.dataset.room, is_expired: item.dataset.isExpired === 'true' });
             });
             processTasks(allTasks, 'submitted');
         });
@@ -301,11 +274,7 @@
         document.getElementById('save-draft-btn').addEventListener('click', () => {
             const selectedTasks = [];
             document.querySelectorAll('.task-item.selected').forEach(item => {
-                selectedTasks.push({
-                    taskId: parseInt(item.dataset.taskId),
-                    room: item.dataset.room,
-                    is_expired: item.dataset.isExpired === 'true'
-                });
+                selectedTasks.push({ taskId: parseInt(item.dataset.taskId), room: item.dataset.room, is_expired: item.dataset.isExpired === 'true' });
             });
             processTasks(selectedTasks, 'draft');
         });
@@ -323,6 +292,32 @@
                 e.currentTarget.classList.add('active');
             });
         });
+        
+        function setupEventListeners() {
+            document.querySelectorAll('.dashboard-card').forEach(card => {
+                card.addEventListener('click', () => showModal(card.dataset.modalTarget));
+            });
+        }
+
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            let list = modal.querySelector('.modal-list, #tarefas-view-list');
+            let content = '<ul><p>Nenhuma informação encontrada.</p></ul>';
+            
+            switch(modalId){
+                case 'tarefas-modal':
+                     if (fullData.tarefas?.length > 0) {
+                        content = '<ul>' + fullData.tarefas.map(item => `<li>${item.title}</li>`).join('') + '</ul>';
+                    }
+                    list = document.getElementById('tarefas-view-list');
+                    break;
+                // Adicionar cases para faltas, conquistas, etc.
+            }
+            if(list) list.innerHTML = content;
+            modal.classList.add('is-visible');
+        }
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
