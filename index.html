@@ -3,70 +3,541 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finituss - Diagnóstico</title>
+    <title>Finituss - Automatizador</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: monospace; background-color: #121212; color: #E0E0E0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        input, button { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #333; background-color: #2C2C2C; color: #E0E0E0; font-size: 1em; }
-        button { background-color: #E53935; cursor: pointer; }
-        pre { background-color: #1E1E1E; padding: 15px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; }
+        :root {
+            --bg-color: #4a2a4d;
+            --card-bg: rgba(43, 29, 44, 0.8);
+            --primary-text: #e6c8e8;
+            --input-bg: #6c4b6e;
+            --button-bg: #d9abd9;
+            --button-text: #4a2a4d;
+            --border-color: #8c6d8e;
+            --success-color: #a9fca9;
+            --error-color: #ff8e8e;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFRyYW5zZm9ybT0icm90YXRlKDQ1KSI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDUwMCAxMDAiPgo8cGF0aCBpZD0icCIgZD0iTS0xMjUgNTBoNzUwIiBzdHJva2U9IiM1OAQwNTYiIHN0cm9rZS13aWR0aD0iNTAiIC8+Cjx1c2UgeGxpbms6aHJlZj0iI3AiIHRyYW5zZm9ybT0icm90YXRlKDYwIDAgMCkgb2Zmc2V0KDAgMCkiIC8+Cjx1c2UgeGxpbms6aHJlZj0iI3AiIHRyYW5zZm9ybT0icm90YXRlKDEyMCAwIDApIG9mZnNldCgwIDApIiAvPgo8L3N2Zz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCBmaWxsPSIjNGEyYTRkIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiAvPgo8cmVjdCBmaWxsPSJ1cmwoI2dyYWQpIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiAvPgo8L3N2Zz4=');
+            background-size: cover;
+            color: var(--primary-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            margin-top: 0;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--primary-text);
+            font-size: 1rem;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input::placeholder {
+            color: rgba(230, 200, 232, 0.6);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .checkbox-group label {
+            margin-left: 0.5rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #c89bc8;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background-color: #6c4b6e;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .status-message {
+            margin-top: 1rem;
+            height: 20px;
+            color: var(--error-color);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-card {
+            text-align: center;
+        }
+        #user-name {
+            color: var(--button-bg);
+        }
+        #user-info {
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+        .action-buttons button {
+            margin-bottom: 1rem;
+        }
+        .small-note {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: 1rem;
+        }
+
+        /* Modal Styles */
+        #modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #modal-content {
+            position: relative;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--primary-text);
+            cursor: pointer;
+            width: auto;
+            padding: 0;
+        }
+
+        #modal-title {
+            margin-top: 0;
+        }
+
+        .selection-group, .activity-item {
+            display: flex;
+            align-items: center;
+            text-align: left;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background-color: var(--input-bg);
+        }
+
+        .selection-group {
+            background-color: transparent;
+            padding-left: 0;
+        }
+
+        .activities-list {
+            overflow-y: auto;
+            max-height: 250px;
+            margin-bottom: 1.5rem;
+            padding-right: 10px;
+        }
+        .activity-item label {
+            margin-left: 1rem;
+            flex-grow: 1;
+            font-size: 0.9rem;
+        }
+        .activity-item .status-icon {
+            margin-left: auto;
+            font-size: 0.8em;
+        }
+
+        .status-log {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            max-height: 100px;
+            overflow-y: auto;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 5px;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
     </style>
-</head>
+    </head>
 <body>
-    <div class="container">
-        <h1>Diagnóstico Finituss</h1>
-        <form id="login-form">
-            <input type="text" id="ra" placeholder="RA com dígito e UF" required>
-            <input type="password" id="senha" placeholder="Senha da SED" required>
-            <button type="submit" id="login-button">Ver Resposta do Servidor</button>
-        </form>
-        <div id="response-container" style="display:none;">
-            <h2>Resposta Completa da API:</h2>
-            <p>Copie todo o texto abaixo e cole na nossa conversa.</p>
-            <pre id="response-output"></pre>
+
+    <div class="container" id="login-container">
+        <div class="card">
+            <h1>Finituss</h1>
+            <p class="subtitle">para sala do futuro e cmsp!</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="ra">RA</label>
+                    <input type="text" id="ra" placeholder="RA + digito + sp | ex: 123456789sp" required>
+                </div>
+                <div class="input-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" placeholder="Senha" required>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="robot-check">
+                    <label for="robot-check">Eu não sou um robô</label>
+                </div>
+                <button type="submit" id="login-button">Finituss</button>
+                <p id="login-status" class="status-message"></p>
+            </form>
         </div>
-        <div id="error-message" style="color: #E53935;"></div>
     </div>
 
-    <script>
-        document.getElementById('login-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const loginButton = document.getElementById('login-button');
-            const responseContainer = document.getElementById('response-container');
-            const responseOutput = document.getElementById('response-output');
-            const errorMessage = document.getElementById('error-message');
+    <div class="container hidden" id="dashboard-container">
+        <div class="card dashboard-card">
+            <h1>Bem-vindo(a), <span id="user-name"></span>!</h1>
+            <p id="user-info"></p>
+            <div class="action-buttons">
+                <button id="show-atividades-button">Atividades Pendentes</button>
+                <button id="show-provas-button" disabled>Provas Pendentes</button>
+            </div>
+             <p class="small-note">*A automação de provas será habilitada se houver provas pendentes.</p>
+        </div>
+    </div>
+    
+    <div id="modal-backdrop" class="hidden">
+        <div id="modal-content" class="card">
+            <button id="close-modal-button" class="close-button">&times;</button>
+            <h2 id="modal-title">Selecionar Atividades</h2>
+            <div class="selection-group">
+                <input type="checkbox" id="select-all">
+                <label for="select-all" id="select-all-label">Selecionar Todos</label>
+            </div>
+            <div id="activities-list" class="activities-list">
+                </div>
 
+            <div id="config-atividades">
+                <h3>Configurações de Tempo de Estudo</h3>
+                <div class="input-group">
+                    <label for="min-time">Tempo Mínimo (minutos)</label>
+                    <input type="number" id="min-time" value="1" min="1">
+                </div>
+                <div class="input-group">
+                    <label for="max-time">Tempo Máximo (minutos)</label>
+                    <input type="number" id="max-time" value="3" min="1">
+                </div>
+            </div>
+            
+            <div id="config-provas" class="hidden">
+                <h3>Configurações de Provas</h3>
+                <div class="input-group">
+                    <label for="score-level">Nível de Pontuação (simulado)</label>
+                    <select id="score-level">
+                        <option value="100">100% (Gabaritar)</option>
+                        <option value="75" selected>75% (±5%)</option>
+                        <option value="50">50% (Média)</option>
+                    </select>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="as-draft" checked>
+                    <label for="as-draft">Enviar Provas como Rascunho</label>
+                </div>
+            </div>
+
+            <button id="start-automation-button">Fazer Atividades</button>
+            <div id="automation-status" class="status-log hidden"></div>
+        </div>
+    </div>
+    ```
+
+---
+
+### Parte 2 (JavaScript)
+
+```html
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Elementos do DOM ---
+        const loginContainer = document.getElementById('login-container');
+        const dashboardContainer = document.getElementById('dashboard-container');
+        const loginForm = document.getElementById('login-form');
+        const raInput = document.getElementById('ra');
+        const senhaInput = document.getElementById('senha');
+        const loginButton = document.getElementById('login-button');
+        const loginStatus = document.getElementById('login-status');
+
+        const userNameSpan = document.getElementById('user-name');
+        const userInfoSpan = document.getElementById('user-info');
+        const showAtividadesButton = document.getElementById('show-atividades-button');
+        const showProvasButton = document.getElementById('show-provas-button');
+        
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const modalTitle = document.getElementById('modal-title');
+        const activitiesListDiv = document.getElementById('activities-list');
+        const selectAllCheckbox = document.getElementById('select-all');
+        const selectAllLabel = document.getElementById('select-all-label');
+        const startAutomationButton = document.getElementById('start-automation-button');
+        const automationStatusDiv = document.getElementById('automation-status');
+
+        const configAtividades = document.getElementById('config-atividades');
+        const minTimeInput = document.getElementById('min-time');
+        const maxTimeInput = document.getElementById('max-time');
+        
+        const configProvas = document.getElementById('config-provas');
+        const scoreLevelSelect = document.getElementById('score-level');
+        const asDraftCheckbox = document.getElementById('as-draft');
+
+        // --- Variáveis de Estado ---
+        let userToken = null;
+        let allTasks = [];
+        let pendingTasks = [];
+        let pendingProofs = [];
+
+        // --- Lógica de Login ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             loginButton.disabled = true;
-            loginButton.textContent = 'Aguarde...';
-            errorMessage.textContent = '';
-            responseContainer.style.display = 'none';
+            loginButton.textContent = 'Entrando...';
+            loginStatus.textContent = '';
 
             try {
+                // Para rodar na Vercel, o caminho é relativo à raiz do site.
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user: document.getElementById('ra').value,
-                        senha: document.getElementById('senha').value
-                    }),
+                    body: JSON.stringify({ user: raInput.value, senha: senhaInput.value }),
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Erro desconhecido');
+                    throw new Error(data.error || 'RA ou Senha inválidos.');
+                }
+                
+                userToken = data.tokenB;
+                allTasks = data.tarefas || [];
+                
+                // Filtra tarefas e provas. Ajuste a condição 'type' se necessário.
+                pendingTasks = allTasks.filter(t => t.type !== 'proof' && ['pending', 'draft'].includes(t.answer_status));
+                pendingProofs = allTasks.filter(t => t.type === 'proof' && ['pending', 'draft'].includes(t.answer_status));
+                
+                displayDashboard(data.userInfo);
+                loginContainer.classList.add('hidden');
+                dashboardContainer.classList.remove('hidden');
+
+                if (pendingProofs.length > 0) {
+                    showProvasButton.disabled = false;
+                    document.querySelector('.small-note').classList.add('hidden');
                 }
 
-                responseOutput.textContent = JSON.stringify(data, null, 2);
-                responseContainer.style.display = 'block';
-
             } catch (error) {
-                errorMessage.textContent = `ERRO: ${error.message}`;
+                loginStatus.textContent = `Erro: ${error.message}`;
             } finally {
                 loginButton.disabled = false;
-                loginButton.textContent = 'Ver Resposta do Servidor';
+                loginButton.textContent = 'Finituss';
             }
         });
+        
+        function displayDashboard(userInfo) {
+            userNameSpan.textContent = userInfo.NAME.split(' ')[0];
+            userInfoSpan.textContent = `${userInfo.SALA} - ${userInfo.NOME_ESCOLA}`;
+        }
+
+        // --- Lógica do Modal ---
+        function openModal(type) {
+            modalBackdrop.classList.remove('hidden');
+            automationStatusDiv.innerHTML = '';
+            automationStatusDiv.classList.add('hidden');
+            selectAllCheckbox.checked = false;
+            startAutomationButton.disabled = false;
+
+            if (type === 'atividades') {
+                modalTitle.textContent = 'Selecionar Atividades';
+                configAtividades.classList.remove('hidden');
+                configProvas.classList.add('hidden');
+                selectAllLabel.textContent = "Selecionar Todas as Atividades";
+                populateList(pendingTasks, 'task');
+                startAutomationButton.onclick = handleFazerAtividades;
+                startAutomationButton.textContent = 'Fazer Atividades';
+            } else if (type === 'provas') {
+                modalTitle.textContent = 'Selecionar Provas';
+                configAtividades.classList.add('hidden');
+                configProvas.classList.remove('hidden');
+                selectAllLabel.textContent = "Selecionar Todas as Provas";
+                populateList(pendingProofs, 'proof');
+                startAutomationButton.onclick = handleFazerProvas;
+                startAutomationButton.textContent = 'Enviar Provas';
+            }
+        }
+        
+        showAtividadesButton.addEventListener('click', () => openModal('atividades'));
+        showProvasButton.addEventListener('click', () => openModal('provas'));
+        closeModalButton.addEventListener('click', () => modalBackdrop.classList.add('hidden'));
+
+        function populateList(items, typePrefix) {
+            activitiesListDiv.innerHTML = '';
+            if (items.length === 0) {
+                activitiesListDiv.innerHTML = `<p>Nenhum item pendente encontrado!</p>`;
+                startAutomationButton.disabled = true;
+                return;
+            }
+            startAutomationButton.disabled = false;
+            items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'activity-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="${typePrefix}-${index}" data-item-index="${index}" class="item-checkbox">
+                    <label for="${typePrefix}-${index}">${item.title}</label>
+                    <span class="status-icon" id="status-icon-${typePrefix}-${index}"></span>
+                `;
+                activitiesListDiv.appendChild(div);
+            });
+        }
+        
+        selectAllCheckbox.addEventListener('change', () => {
+            document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = selectAllCheckbox.checked);
+        });
+
+        async function runAutomation(endpoint, items, getPayload) {
+            const selectedCheckboxes = document.querySelectorAll('.item-checkbox:checked');
+            if (selectedCheckboxes.length === 0) {
+                alert('Por favor, selecione pelo menos um item.');
+                return;
+            }
+
+            startAutomationButton.disabled = true;
+            startAutomationButton.textContent = 'Processando...';
+            automationStatusDiv.classList.remove('hidden');
+            automationStatusDiv.innerHTML = 'Iniciando automação...<br>';
+            
+            for (const checkbox of selectedCheckboxes) {
+                const itemIndex = checkbox.dataset.itemIndex;
+                const item = items[itemIndex];
+                const statusIcon = checkbox.parentElement.querySelector('.status-icon');
+                
+                automationStatusDiv.innerHTML += `➡️ Processando: ${item.title}...<br>`;
+                statusIcon.textContent = '⏳';
+                
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(getPayload(item)),
+                    });
+                    const result = await response.json();
+                    if (!response.ok || result.success === false) throw new Error(result.error || 'Erro na API');
+                    
+                    automationStatusDiv.innerHTML += `✅ ${result.message}<br>`;
+                    statusIcon.textContent = '✔️';
+                    checkbox.disabled = true;
+                } catch (error) {
+                    automationStatusDiv.innerHTML += `❌ Erro em "${item.title}": ${error.message}<br>`;
+                    statusIcon.textContent = '❌';
+                }
+                automationStatusDiv.scrollTop = automationStatusDiv.scrollHeight;
+            }
+            
+            automationStatusDiv.innerHTML += '<br><strong>✨ Automação finalizada! ✨</strong>';
+            startAutomationButton.disabled = false;
+            startAutomationButton.textContent = 'Iniciar Novamente';
+        }
+
+        function handleFazerAtividades() {
+            runAutomation('/api/fazer-tarefa', pendingTasks, (task) => ({
+                task: task,
+                token: userToken,
+                minTime: minTimeInput.value,
+                maxTime: maxTimeInput.value,
+            }));
+        }
+
+        function handleFazerProvas() {
+            runAutomation('/api/enviar-rascunho', pendingProofs, (proof) => ({
+                proof: proof,
+                token: userToken,
+                scoreLevel: scoreLevelSelect.value,
+                asDraft: asDraftCheckbox.checked,
+            }));
+        }
+    });
     </script>
-</body>
+    </body>
 </html>
