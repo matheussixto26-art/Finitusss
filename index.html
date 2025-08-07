@@ -128,7 +128,8 @@
         }
 
         .btn:disabled {
-            background-color: #555;
+            background-color: #555 !important;
+            border-color: #555 !important;
             cursor: not-allowed;
         }
         
@@ -232,6 +233,7 @@
             margin-right: 15px;
             display: inline-block;
             position: relative;
+            flex-shrink: 0;
         }
 
         .activity-item input[type="checkbox"]:checked + label .custom-checkbox {
@@ -352,12 +354,11 @@
     <div id="loading-overlay" class="hidden">
         <h2 style="color:white; font-size: 1.5em;">Aguarde...</h2>
     </div>
-
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- Estado da Aplicação ---
         const appState = {
-            data: null, // Guardará todos os dados do aluno após o login
+            data: null,
             tokenB: null
         };
 
@@ -378,7 +379,10 @@
             activityListContainer: document.getElementById('activity-list-container'),
             selectAllCheckbox: document.getElementById('select-all'),
             modalCloseBtn: document.querySelector('.modal-close'),
-            btnStartAutomation: document.getElementById('btn-start-automation')
+            btnStartAutomation: document.getElementById('btn-start-automation'),
+
+            minTimeInput: document.getElementById('min-time'),
+            maxTimeInput: document.getElementById('max-time')
         };
         
         // --- Funções Auxiliares ---
@@ -390,17 +394,34 @@
         const showModal = (show) => {
             ui.selectionModal.classList.toggle('is-visible', show);
         };
+
+        /**
+         * Adiciona ou atualiza uma mensagem de status ao lado de uma tarefa na lista.
+         * @param {string} htmlId - O ID do elemento HTML da tarefa (ex: 'task-12345').
+         * @param {string} message - A mensagem a ser exibida.
+         * @param {string} color - A cor do texto (ex: 'var(--green-color)').
+         */
+        const updateTaskStatus = (htmlId, message, color) => {
+            const label = document.querySelector(`label[for="${htmlId}"]`);
+            if (!label) return;
+
+            let statusSpan = label.querySelector('.status-span');
+            if (!statusSpan) {
+                statusSpan = document.createElement('span');
+                statusSpan.className = 'status-span';
+                statusSpan.style.marginLeft = 'auto'; // Alinha à direita
+                statusSpan.style.fontWeight = '500';
+                label.appendChild(statusSpan);
+            }
+            statusSpan.textContent = message;
+            statusSpan.style.color = color;
+        };
         
         // --- Lógica Principal ---
 
-        /**
-         * Tenta fazer o login e, se conseguir, abre o modal de seleção.
-         * @param {string} type - O tipo de conteúdo a carregar ('Atividades' ou 'Provas').
-         */
         const handleLoginAndShowModal = async (type) => {
             ui.loginMessage.textContent = '';
             showLoading(true);
-
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
@@ -408,15 +429,11 @@
                     body: JSON.stringify({ user: ui.raInput.value, senha: ui.senhaInput.value }),
                 });
                 const data = await response.json();
-
                 if (!response.ok) throw new Error(data.error || 'Erro desconhecido');
-
                 appState.data = data;
                 appState.tokenB = data.tokenB;
-
                 populateSelectionModal(type);
                 showModal(true);
-
             } catch (error) {
                 ui.loginMessage.textContent = `❌ ${error.message}`;
             } finally {
@@ -424,29 +441,20 @@
             }
         };
 
-        /**
-         * Preenche o modal com as tarefas ou provas.
-         * @param {string} type - O título a ser exibido no modal.
-         */
         const populateSelectionModal = (type) => {
             ui.modalTitle.textContent = `Selecionar ${type}`;
-            
-            // Limpa a lista antiga, exceto o "Selecionar Todos"
             const items = ui.activityListContainer.querySelectorAll('.activity-item:not(:first-child)');
             items.forEach(item => item.remove());
             
-            // Filtra tarefas pendentes ou rascunhos
             const pendingTasks = appState.data.tarefas?.filter(t => t.answer_status !== 'submitted');
-
             if (pendingTasks && pendingTasks.length > 0) {
                 pendingTasks.forEach(task => {
                     const listItem = document.createElement('li');
                     listItem.className = 'activity-item';
-                    
-                    const taskId = `task-${task.id}`;
+                    const htmlId = `task-${task.id}`;
                     listItem.innerHTML = `
-                        <input type="checkbox" id="${taskId}" class="task-checkbox" data-task-id="${task.id}">
-                        <label for="${taskId}">
+                        <input type="checkbox" id="${htmlId}" class="task-checkbox" data-task-id="${task.id}">
+                        <label for="${htmlId}">
                             <span class="custom-checkbox"></span>
                             ${task.title}
                         </label>
@@ -465,25 +473,79 @@
          * Inicia a automação para as tarefas selecionadas.
          */
         const handleStartAutomation = async () => {
-             alert('A automação para as tarefas selecionadas será implementada aqui!');
-             // Lógica futura:
-             // 1. Obter todos os checkboxes selecionados.
-             // 2. Para cada um, obter os dados da tarefa.
-             // 3. Chamar a API /api/fazer-tarefa em sequência ou em paralelo.
-             // 4. Exibir o progresso e o resultado.
+            const selectedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
+
+            if (selectedCheckboxes.length === 0) {
+                alert('Por favor, selecione pelo menos uma atividade para continuar.');
+                return;
+            }
+
+            // Desativa os controlos durante o processo
+            ui.btnStartAutomation.disabled = true;
+            ui.btnStartAutomation.textContent = 'A processar...';
+
+            // Recolhe as configurações de tempo
+            const minMinutes = parseFloat(ui.minTimeInput.value) || 1;
+            const maxMinutes = parseFloat(ui.maxTimeInput.value) || 3;
+            
+            // Loop sequencial para processar cada tarefa selecionada
+            for (const checkbox of selectedCheckboxes) {
+                const taskId = checkbox.dataset.taskId;
+                const htmlId = checkbox.id;
+
+                // Encontra os dados completos da tarefa no nosso estado
+                const taskData = appState.data.tarefas.find(t => t.id == taskId);
+                
+                if (!taskData) {
+                    updateTaskStatus(htmlId, 'Erro: Dados não encontrados', 'var(--red-color)');
+                    continue; // Pula para a próxima iteração
+                }
+
+                try {
+                    updateTaskStatus(htmlId, 'A processar...', 'var(--placeholder-color)');
+
+                    // Calcula o tempo de espera em segundos
+                    const randomTimeSeconds = Math.floor((Math.random() * (maxMinutes - minMinutes) + minMinutes) * 60);
+
+                    const payload = {
+                        taskId: parseInt(taskId),
+                        token: appState.tokenB,
+                        room: taskData.publication_target,
+                        tempo: randomTimeSeconds,
+                        is_expired: taskData.task_expired,
+                        submission_type: "submitted" // Estamos a enviar em definitivo
+                    };
+
+                    const response = await fetch('/api/fazer-tarefa', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || 'Falha na API');
+
+                    updateTaskStatus(htmlId, 'Concluído! ✔️', 'var(--green-color)');
+
+                } catch (error) {
+                    updateTaskStatus(htmlId, `Erro: ${error.message}`, 'var(--red-color)');
+                }
+                
+                // Pequena pausa entre as requisições para não sobrecarregar
+                await new Promise(resolve => setTimeout(resolve, 700));
+            }
+
+            // Reativa o botão no final
+            ui.btnStartAutomation.disabled = false;
+            ui.btnStartAutomation.textContent = 'Fazer Atividades Selecionadas';
+            alert('Processo finalizado! Verifique o status de cada atividade na lista.');
         };
 
         // --- Event Listeners ---
         
-        // Botões de Login
         ui.btnAtividades.addEventListener('click', () => handleLoginAndShowModal('Atividades'));
-        ui.btnProvas.addEventListener('click', () => {
-            // AVISO: A lógica de 'Provas' está a usar a mesma lista de 'Tarefas'.
-            // Isto precisa de ser ajustado se forem dados de uma API diferente.
-            handleLoginAndShowModal('Provas');
-        });
+        ui.btnProvas.addEventListener('click', () => handleLoginAndShowModal('Provas'));
 
-        // Visibilidade da senha
         ui.togglePassword.addEventListener('click', () => {
             const icon = ui.togglePassword.querySelector('i');
             if (ui.senhaInput.type === 'password') {
@@ -497,21 +559,19 @@
             }
         });
 
-        // Ações do Modal
         ui.modalCloseBtn.addEventListener('click', () => showModal(false));
         ui.selectionModal.addEventListener('click', (e) => {
             if (e.target === ui.selectionModal) showModal(false);
         });
         ui.btnStartAutomation.addEventListener('click', handleStartAutomation);
         
-        // Checkbox "Selecionar Todos"
         ui.selectAllCheckbox.addEventListener('change', (e) => {
             const checkboxes = ui.activityListContainer.querySelectorAll('.task-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = e.target.checked;
-            });
+            checkboxes.forEach(checkbox => checkbox.checked = e.target.checked);
         });
     });
     </script>
 </body>
 </html>
+
+    
