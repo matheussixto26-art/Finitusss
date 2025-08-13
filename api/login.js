@@ -1,23 +1,11 @@
 const axios = require('axios');
 
-// ***** MUDANÇA PRINCIPAL AQUI: Reescrito com 'fetch' nativo *****
 async function fetchApiData(requestConfig) {
     try {
-        const response = await fetch(requestConfig.url, {
-            method: requestConfig.method,
-            headers: requestConfig.headers,
-        });
-
-        if (!response.ok) {
-            // Lança um erro para ser apanhado pelo bloco catch
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return data;
-
+        const response = await axios(requestConfig);
+        return response.data;
     } catch (error) {
-        console.error(`Falha controlada em: ${requestConfig.url}. Detalhes: ${error.message}`);
+        console.error(`Falha controlada em: ${requestConfig.url}. Status: ${error.response?.status}. Detalhes: ${error.message}`);
         return null;
     }
 }
@@ -25,9 +13,13 @@ async function fetchApiData(requestConfig) {
 function classifyTask(task) {
     const title = (task.title || '').toLowerCase();
     const tags = task.tags || [];
-    if (tags.some(tag => tag.toLowerCase().includes('redacaopaulista')) || title.includes('redação')) { return 'essay'; }
+    if (tags.some(tag => tag.toLowerCase().includes('redacaopaulista')) || title.includes('redação')) {
+        return 'essay';
+    }
     const isProvaByTag = tags.some(tag => tag.toLowerCase().includes('prova'));
-    if (task.is_exam === true || title.includes('prova') || title.includes('avaliação') || isProvaByTag) { return 'exam'; }
+    if (task.is_exam === true || title.includes('prova') || title.includes('avaliação') || isProvaByTag) {
+        return 'exam';
+    }
     return 'task';
 }
 
@@ -41,7 +33,9 @@ module.exports = async (req, res) => {
         try {
             loginResponse = await axios.post("https://sedintegracoes.educacao.sp.gov.br/credenciais/api/LoginCompletoToken", { user, senha }, { headers: { "Ocp-Apim-Subscription-Key": "2b03c1db3884488795f79c37c069381a" } });
         } catch (error) {
-            if (error.response?.status === 401) { return res.status(401).json({ error: 'RA ou Senha inválidos. Verifique os seus dados.' }); }
+            if (error.response?.status === 401) {
+                return res.status(401).json({ error: 'RA ou Senha inválidos. Verifique os seus dados.' });
+            }
             throw error;
         }
 
@@ -73,13 +67,20 @@ module.exports = async (req, res) => {
         const allTasksRaw = (Array.isArray(pendingTasks) ? pendingTasks : []).concat(Array.isArray(expiredTasks) ? expiredTasks : []);
         const allTasksUnique = [...new Map(allTasksRaw.map(task => [task.id, task])).values()];
         
-        const classifiedTasks = allTasksUnique.map(task => ({ ...task, type: classifyTask(task) }));
+        const classifiedTasks = allTasksUnique.map(task => ({
+            ...task,
+            type: classifyTask(task)
+        }));
 
-        const dashboardData = { tokenB, tarefas: classifiedTasks, rooms: roomUserData ? roomUserData.rooms : [] };
+        const dashboardData = { 
+            tokenB, 
+            tarefas: classifiedTasks,
+            rooms: roomUserData ? roomUserData.rooms : []
+        };
         res.status(200).json(dashboardData);
     } catch (error) {
         console.error("--- ERRO FATAL NA FUNÇÃO /api/login ---", error);
         res.status(500).json({ error: 'Ocorreu um erro fatal no servidor ao processar o login.', details: error.message });
     }
 };
-                                                                
+            
