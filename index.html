@@ -4,272 +4,200 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eclipse - App de Tarefas</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #010409; }
         .background-eclipse { background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop'); background-size: cover; background-position: center; }
         .glass-effect { background: rgba(23, 27, 38, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         @keyframes pulsate { 0%, 100% { transform: scale(1); box-shadow: 0 0 50px 15px rgba(100, 180, 255, 0.25), 0 0 80px 40px rgba(100, 180, 255, 0.15); } 50% { transform: scale(1.05); box-shadow: 0 0 60px 20px rgba(100, 180, 255, 0.35), 0 0 90px 50px rgba(100, 180, 255, 0.25); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes balloon-in { from { opacity: 0; transform: translateX(100%) scale(0.8); } to { opacity: 1; transform: translateX(0) scale(1); } }
-        @keyframes balloon-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.8); } }
         .pulsate-glow { animation: pulsate 7s ease-in-out infinite; }
         .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
-        .balloon { animation: balloon-in 0.5s ease-out forwards; pointer-events: auto; }
-        .balloon.out { animation: balloon-out 0.5s ease-out forwards; }
         .custom-checkbox:checked { background-color: #25b0e8; border-color: #25b0e8; }
         .task-list-container { max-height: 40vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(100, 180, 255, 0.5) transparent; }
-        .tag { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: auto; font-weight: 500; }
+        .tag { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: auto; font-weight: 500; flex-shrink: 0; }
         .tag.expirada { background-color: #f77829; color: white; }
         .tag.rascunho { background-color: #388bfd; color: white; }
+        .progress-bar { transition: width 0.5s ease; }
     </style>
 </head>
 <body class="background-eclipse text-white">
-
     <div id="app" class="relative min-h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden">
-        <header id="app-header" class="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-20">
-            <h1 class="text-2xl font-bold tracking-wider">eclipse</h1>
-            <svg id="logout-button" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-cyan-300 transition-colors hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-        </header>
-
+        <header id="app-header" class="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-20"><h1 class="text-2xl font-bold tracking-wider">eclipse</h1><svg id="logout-button" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-cyan-300 transition-colors hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></header>
         <div id="login-container" class="w-full h-full flex flex-col items-center justify-center absolute transition-opacity duration-700">
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[28rem] sm:w-[35rem] sm:h-[35rem] md:w-[40rem] md:h-[40rem]"><div class="w-full h-full rounded-full pulsate-glow"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] bg-black rounded-full shadow-2xl" style="background-image: radial-gradient(circle at top, rgba(50, 50, 60, 1) 0%, #010409 100%);"></div></div>
             <div id="login-screen" class="w-full max-w-sm flex flex-col items-center z-10">
                 <h2 class="text-5xl font-bold tracking-wider mb-8 fade-in-up" style="animation-delay: 0.2s;">eclipse</h2>
                 <div class="glass-effect w-full p-8 rounded-2xl shadow-lg fade-in-up" style="animation-delay: 0.4s;">
-                    <form id="login-form" class="space-y-6">
-                        <input type="text" id="ra-input" placeholder="RA" class="w-full px-4 py-3 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" required>
-                        <input type="password" id="senha-input" placeholder="Senha" class="w-full px-4 py-3 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" required>
-                        <button id="login-button" type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg shadow-md hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:scale-100">
-                            Entrar
-                        </button>
-                    </form>
+                    <form id="login-form" class="space-y-6"><input type="text" id="ra-input" placeholder="RA" class="w-full px-4 py-3 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" required><input type="password" id="senha-input" placeholder="Senha" class="w-full px-4 py-3 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" required><button id="login-button" type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg shadow-md hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:scale-100">Entrar</button></form>
                     <p id="login-message" class="text-red-400 text-sm mt-4 min-h-[20px]"></p>
                 </div>
             </div>
         </div>
-
         <div id="tasks-container" class="w-full max-w-2xl hidden opacity-0 transition-opacity duration-700 z-10">
             <div class="glass-effect w-full p-6 md:p-8 rounded-2xl shadow-2xl fade-in-up">
-                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-                    <h2 class="text-2xl font-bold">Painel de Tarefas</h2>
-                    <div class="flex items-center space-x-3"><label for="select-all" class="text-sm">Selecionar Todas</label><input id="select-all" type="checkbox" class="h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 custom-checkbox"></div>
-                </div>
-                <div id="task-list" class="space-y-4 mb-6 task-list-container">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4"><h2 id="modal-title" class="text-2xl font-bold">Painel</h2><div class="flex items-center space-x-3"><label for="select-all" class="text-sm">Selecionar Todas</label><input id="select-all" type="checkbox" class="h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 custom-checkbox"></div></div>
+                <div id="task-list" class="space-y-4 mb-6 task-list-container"></div>
+                <div id="automation-controls">
+                    <div class="config-section"><h3 class="text-xl font-bold mb-4">Configurações</h3>
+                        <div class="config-group grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <select id="target-score" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"><option value="1">100% (Gabarito)</option><option value="0.75">75%</option><option value="0.5">50%</option><option value="0.25">25%</option><option value="0">0% (Errar Tudo)</option></select>
+                            <input id="time-input" type="number" placeholder="Duração (s)" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" value="120">
+                        </div>
                     </div>
-                <div class="config-group grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <input id="min-time" type="number" placeholder="Tempo Mínimo (s)" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" value="90">
-                    <input id="max-time" type="number" placeholder="Tempo Máximo (s)" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" value="300">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><button id="draft-btn" class="w-full py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors">Salvar como Rascunho</button><button id="submit-btn" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-colors">Enviar Tarefas</button></div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button id="draft-btn" class="w-full py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors">Salvar como Rascunho</button>
-                    <button id="submit-btn" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-colors">Enviar Tarefas</button>
+                <div id="automation-status-container" class="hidden"><h3 class="text-xl font-bold mb-4">Progresso</h3>
+                    <div class="progress-bar-container"><div id="progress-bar" class="progress-bar text-black">0%</div></div>
+                    <div id="status-text" class="text-center mt-3 text-gray-300">Aguardando início...</div>
                 </div>
             </div>
         </div>
+                                                            </div>
+                                                                <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const appState = { data: null, tokenB: null, currentActivityType: 'task' };
+        const ui = { 
+            raInput: document.getElementById('ra-input'), senhaInput: document.getElementById('senha-input'), 
+            loginForm: document.getElementById('login-form'), loginButton: document.getElementById('login-button'), loginMessage: document.getElementById('login-message'),
+            loginContainer: document.getElementById('login-container'), tasksContainer: document.getElementById('tasks-container'), 
+            logoutButton: document.getElementById('logout-button'), modalTitle: document.getElementById('modal-title'), 
+            selectAllCheckbox: document.getElementById('select-all'), taskList: document.getElementById('task-list'), 
+            timeInput: document.getElementById('time-input'), targetScoreSelect: document.getElementById('target-score'),
+            draftBtn: document.getElementById('draft-btn'), submitBtn: document.getElementById('submit-btn'),
+            automationControls: document.getElementById('automation-controls'),
+            automationStatusContainer: document.getElementById('automation-status-container'),
+            progressBar: document.getElementById('progress-bar'), statusText: document.getElementById('status-text')
+        };
         
-        <div id="balloon-container" class="absolute top-20 right-4 w-64 h-full space-y-3 z-30 pointer-events-none"></div>
-        <div id="error-toast" class="hidden absolute bottom-10 px-6 py-3 bg-red-500 text-white rounded-lg shadow-lg z-40"></div>
-    </div>
-        <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const appState = { data: null, tokenB: null };
-            const ui = {
-                loginContainer: document.getElementById('login-container'),
-                tasksContainer: document.getElementById('tasks-container'),
-                loginForm: document.getElementById('login-form'),
-                raInput: document.getElementById('ra-input'),
-                senhaInput: document.getElementById('senha-input'),
-                loginButton: document.getElementById('login-button'),
-                loginMessage: document.getElementById('login-message'),
-                logoutButton: document.getElementById('logout-button'),
-                selectAllCheckbox: document.getElementById('select-all'),
-                taskList: document.getElementById('task-list'),
-                minTimeInput: document.getElementById('min-time'),
-                maxTimeInput: document.getElementById('max-time'),
-                draftBtn: document.getElementById('draft-btn'),
-                submitBtn: document.getElementById('submit-btn'),
-                balloonContainer: document.getElementById('balloon-container'),
-                errorToast: document.getElementById('error-toast'),
-            };
-
-            // --- LÓGICA DE LOGIN E TRANSIÇÃO DE TELA ---
-            ui.loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                ui.loginButton.disabled = true;
-                ui.loginButton.textContent = 'A Conectar...';
-                ui.loginMessage.textContent = '';
-                try {
-                    const response = await fetch('/api/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ user: ui.raInput.value, senha: ui.senhaInput.value })
-                    });
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.error || 'Falha no login');
-                    
-                    appState.data = data;
-                    appState.tokenB = data.tokenB;
-                    
-                    populateTaskList();
-                    
-                    ui.loginContainer.classList.add('opacity-0');
-                    setTimeout(() => {
-                        ui.loginContainer.classList.add('hidden');
-                        ui.tasksContainer.classList.remove('hidden');
-                        setTimeout(() => ui.tasksContainer.classList.remove('opacity-0'), 50);
-                        ui.logoutButton.classList.remove('hidden');
-                    }, 700);
-                } catch (error) {
-                    ui.loginMessage.textContent = `❌ ${error.message}`;
-                } finally {
-                    ui.loginButton.disabled = false;
-                    ui.loginButton.textContent = 'Entrar';
-                }
-            });
-
-            ui.logoutButton.addEventListener('click', () => {
-                ui.tasksContainer.classList.add('opacity-0');
+        const handleLogin = async (e) => {
+            e.preventDefault();
+            ui.loginButton.disabled = true; ui.loginButton.textContent = 'A Conectar...'; ui.loginMessage.textContent = '';
+            try {
+                const response = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: ui.raInput.value, senha: ui.senhaInput.value }) });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Falha no login');
+                appState.data = data; appState.tokenB = data.tokenB;
+                populateTaskList();
+                ui.loginContainer.classList.add('opacity-0');
                 setTimeout(() => {
-                    ui.tasksContainer.classList.add('hidden');
-                    ui.loginContainer.classList.remove('hidden');
-                    setTimeout(() => ui.loginContainer.classList.remove('opacity-0'), 50);
-                    ui.logoutButton.classList.add('hidden');
-                    ui.raInput.value = '';
-                    ui.senhaInput.value = '';
+                    ui.loginContainer.classList.add('hidden');
+                    ui.tasksContainer.classList.remove('hidden');
+                    setTimeout(() => ui.tasksContainer.classList.remove('opacity-0'), 50);
+                    ui.logoutButton.classList.remove('hidden');
                 }, 700);
-            });
-            
-            // --- LÓGICA DE POPULAR A LISTA DE TAREFAS ---
-            function populateTaskList() {
-                ui.taskList.innerHTML = '';
-                const tasksToDisplay = appState.data.tarefas?.filter(t => t.answer_status !== 'submitted');
+            } catch (error) { ui.loginMessage.textContent = `❌ ${error.message}`;
+            } finally { ui.loginButton.disabled = false; ui.loginButton.textContent = 'Entrar'; }
+        };
 
-                if (!tasksToDisplay || tasksToDisplay.length === 0) {
-                    ui.taskList.innerHTML = '<p class="text-center text-gray-400">Nenhuma tarefa encontrada.</p>';
-                    return;
-                }
+        const handleLogout = () => {
+            ui.tasksContainer.classList.add('opacity-0');
+            setTimeout(() => {
+                ui.tasksContainer.classList.add('hidden');
+                ui.loginContainer.classList.remove('hidden');
+                setTimeout(() => ui.loginContainer.classList.remove('opacity-0'), 50);
+                ui.logoutButton.classList.add('hidden'); ui.raInput.value = ''; ui.senhaInput.value = '';
+            }, 700);
+        };
 
-                tasksToDisplay.forEach(task => {
-                    const taskElement = document.createElement('div');
-                    taskElement.className = 'flex items-center bg-gray-900/50 p-4 rounded-lg';
-                    let tags = '';
-                    if (task.task_expired) tags += '<span class="tag expirada">EXPIRADA</span>';
-                    if (task.answer_status === 'draft') tags += '<span class="tag rascunho">RASCUNHO</span>';
-                    taskElement.innerHTML = `
-                        <input type="checkbox" class="task-checkbox h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 custom-checkbox" data-task-id="${task.id}">
-                        <span class="ml-4 text-md">${task.title}</span>
-                        ${tags}
-                    `;
-                    ui.taskList.appendChild(taskElement);
-                });
-                
-                // Atualiza o event listener do 'select-all'
-                ui.selectAllCheckbox.addEventListener('change', () => {
-                    document.querySelectorAll('.task-checkbox').forEach(checkbox => {
-                        checkbox.checked = ui.selectAllCheckbox.checked;
-                    });
-                });
+        function populateTaskList() {
+            ui.taskList.innerHTML = '';
+            ui.automationControls.classList.remove('hidden'); ui.automationStatusContainer.classList.add('hidden');
+            const tasksToDisplay = appState.data.tarefas?.filter(t => t.answer_status !== 'submitted');
+            if (!tasksToDisplay || tasksToDisplay.length === 0) {
+                ui.taskList.innerHTML = '<p class="text-center text-gray-400">Nenhuma tarefa encontrada.</p>'; return;
             }
+            tasksToDisplay.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'flex items-center bg-gray-900/50 p-4 rounded-lg';
+                let tags = '';
+                if (task.task_expired) tags += '<span class="tag expirada">EXPIRADA</span>';
+                if (task.answer_status === 'draft') tags += '<span class="tag rascunho">RASCUNHO</span>';
+                taskElement.innerHTML = `<input type="checkbox" class="task-checkbox h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 custom-checkbox" data-task-id="${task.id}"><span class="ml-4 text-md">${task.title}</span>${tags}`;
+                ui.taskList.appendChild(taskElement);
+            });
+            ui.selectAllCheckbox.addEventListener('change', () => { document.querySelectorAll('.task-checkbox').forEach(checkbox => { checkbox.checked = ui.selectAllCheckbox.checked; }); });
+        }
 
-            // --- LÓGICA DE AUTOMAÇÃO E BALÕES ---
-            const handleAutomation = async (submissionStatus) => {
-                const selectedCheckboxes = Array.from(document.querySelectorAll('.task-checkbox')).filter(cb => cb.checked);
-                if (selectedCheckboxes.length === 0) { showErrorToast('Selecione ao menos uma tarefa!'); return; }
+        function modifyAnswersForTargetScore(answers, targetScoreRatio) {
+            if (targetScoreRatio >= 1) return answers;
+            const questions = Object.values(answers); const totalQuestions = questions.length;
+            if (totalQuestions === 0) return answers;
+            const questionsToGetRight = Math.round(totalQuestions * targetScoreRatio);
+            questions.sort(() => 0.5 - Math.random());
+            for (let i = 0; i < (totalQuestions - questionsToGetRight); i++) {
+                const q = questions[i];
+                if (q.question_type === 'single' || q.question_type === 'true-false') {
+                     const keys = Object.keys(q.answer);
+                     if (keys.length > 1) {
+                        let firstTrueKey = keys.find(k => q.answer[k] === true); let firstFalseKey = keys.find(k => q.answer[k] === false);
+                        if(firstTrueKey && firstFalseKey) { q.answer[firstTrueKey] = false; q.answer[firstFalseKey] = true; } 
+                        else if (firstTrueKey) { q.answer[firstTrueKey] = false; }
+                     } else if (keys.length === 1){ q.answer[keys[0]] = !q.answer[keys[0]]; }
+                } else { q.answer = ["resposta", "errada"]; }
+            }
+            return answers;
+        }
+
+        const handleAutomation = async (submissionStatus = 'submitted') => {
+            const selectedCheckboxes = Array.from(document.querySelectorAll('.task-checkbox')).filter(cb => cb.checked);
+            if (selectedCheckboxes.length === 0) { alert('Selecione ao menos uma tarefa!'); return; }
+            ui.automationControls.classList.add('hidden');
+            ui.automationStatusContainer.classList.remove('hidden');
+            ui.progressBar.style.width = `0%`; ui.progressBar.textContent = `0%`;
+            const duration = parseInt(ui.timeInput.value) || 120;
+            const targetScoreRatio = parseFloat(ui.targetScoreSelect.value);
+            let tasksCompleted = 0; const totalTasks = selectedCheckboxes.length;
+
+            for (const checkbox of selectedCheckboxes) {
+                const taskId = checkbox.dataset.taskId;
+                const taskData = appState.data.tarefas.find(t => t.id == taskId);
                 
-                ui.submitBtn.disabled = true; ui.draftBtn.disabled = true;
-                const minTime = parseInt(ui.minTimeInput.value) || 90;
-                const maxTime = parseInt(ui.maxTimeInput.value) || 300;
-
-                selectedCheckboxes.forEach((checkbox, index) => {
-                    const taskId = checkbox.dataset.taskId;
-                    const taskData = appState.data.tarefas.find(t => t.id == taskId);
-                    const taskName = taskData ? taskData.title : 'Tarefa desconhecida';
-                    const duration = Math.floor(Math.random() * (maxTime - minTime + 1)) + minTime;
-                    
-                    const balloon = createProcessingBalloon(taskName, duration, index * 300);
-                    if (taskData) {
-                        performTask(taskData, submissionStatus, duration, balloon);
-                    } else {
-                        balloon.markAsFailed('Dados da tarefa não encontrados.');
-                    }
-                });
-                
-                setTimeout(() => { ui.submitBtn.disabled = false; ui.draftBtn.disabled = false; }, selectedCheckboxes.length * 500);
-            };
-
-            async function performTask(taskData, submissionStatus, duration, balloon) {
-                const { updateStatus, markAsCompleted, markAsFailed } = balloon;
+                if (!taskData) { tasksCompleted++; continue; }
                 try {
-                    updateStatus('Obtendo gabarito...');
+                    ui.statusText.textContent = `(${tasksCompleted + 1}/${totalTasks}) Obtendo gabarito para: ${taskData.title.substring(0, 35)}...`;
                     const getAnswersPayload = { taskId: taskData.id, tokenB: appState.tokenB, room: findCorrectRoomId(taskData) };
                     const answersResponse = await fetch('/api/get-answers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getAnswersPayload) });
                     const answersData = await answersResponse.json();
                     if (!answersResponse.ok) throw new Error(`Gabarito: ${answersData.error}`);
                     
-                    updateStatus(`Aguardando ${duration}s...`);
+                    const modifiedAnswers = modifyAnswersForTargetScore(JSON.parse(JSON.stringify(answersData.answers)), targetScoreRatio);
+                    
+                    ui.statusText.textContent = `(${tasksCompleted + 1}/${totalTasks}) Aguardando ${duration}s para enviar...`;
                     await new Promise(resolve => setTimeout(resolve, duration * 1000));
 
-                    updateStatus('Enviando respostas...');
-                    const officialPayload = { status: submissionStatus, answers: answersData.answers, accessed_on: "room", executed_on: findCorrectRoomId(taskData), duration: duration.toFixed(2) };
+                    ui.statusText.textContent = `(${tasksCompleted + 1}/${totalTasks}) Enviando: ${taskData.title.substring(0, 35)}...`;
+                    const officialPayload = { status: submissionStatus, answers: modifiedAnswers, accessed_on: "room", executed_on: findCorrectRoomId(taskData), duration: duration };
                     const submitResponse = await fetch('/api/submit-task', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ taskId: taskData.id, tokenB: appState.tokenB, payload: officialPayload }) });
                     const submitData = await submitResponse.json();
-                    if (!submitResponse.ok) throw new Error(`Submissão: ${submitData.error || 'Erro desconhecido'}`);
-                    
-                    const finalMessage = submissionStatus === 'draft' ? 'Rascunho Salvo!' : `Finalizado! Nota: ${submitData.result_score ?? 'N/A'}`;
-                    markAsCompleted(finalMessage);
+                    if (!submitResponse.ok) throw new Error(`Submissão: ${submitData.error || 'Erro'}`);
+                } catch (error) { ui.statusText.textContent = `Erro em ${taskData.title}: ${error.message}`; }
+                tasksCompleted++;
+                const progress = Math.round((tasksCompleted / totalTasks) * 100);
+                ui.progressBar.style.width = `${progress}%`; ui.progressBar.textContent = `${progress}%`;
+            }
+            ui.statusText.textContent = 'Processo finalizado!';
+        };
+        
+        function findCorrectRoomId(taskData) {
+            const taskTarget = String(taskData.publication_target);
+            if (taskTarget.startsWith('r')) return taskTarget;
+            if (!appState.data.rooms) return taskTarget;
+            for (const room of appState.data.rooms) {
+                const groupIds = room.group_categories?.map(g => String(g.id)) || [];
+                if (groupIds.includes(taskTarget)) { return room.publication_target; }
+            }
+            return taskTarget;
+        }
 
-                } catch (error) {
-                    markAsFailed(error.message);
-                }
-            }
-            
-            function findCorrectRoomId(taskData) {
-                const taskTarget = String(taskData.publication_target);
-                if (taskTarget.startsWith('r')) return taskTarget;
-                for (const room of appState.data.rooms) {
-                    const groupIds = room.group_categories?.map(g => String(g.id)) || [];
-                    if (groupIds.includes(taskTarget)) { return room.publication_target; }
-                }
-                return taskTarget;
-            }
-
-            function createProcessingBalloon(taskName, duration, delay) {
-                let balloonElement, statusElement, timerElement, intervalId;
-                setTimeout(() => {
-                    balloonElement = document.createElement('div');
-                    balloonElement.className = 'balloon glass-effect p-4 rounded-lg shadow-lg border-l-4 border-cyan-400 w-full';
-                    balloonElement.innerHTML = `<h4 class="font-bold text-sm truncate" title="${taskName}">${taskName}</h4><p class="text-xs text-gray-300">Iniciando...</p><p class="text-lg font-mono font-bold text-cyan-400">${duration}s</p>`;
-                    ui.balloonContainer.appendChild(balloonElement);
-                    statusElement = balloonElement.querySelector('p:nth-of-type(1)');
-                    timerElement = balloonElement.querySelector('p:nth-of-type(2)');
-                    let timeLeft = duration;
-                    intervalId = setInterval(() => { if (timeLeft <= 0) timeLeft = 0; timerElement.textContent = `${timeLeft}s`; timeLeft--; }, 1000);
-                }, delay);
-                const clearTimerAndRemove = (delay = 3000) => { clearInterval(intervalId); setTimeout(() => { balloonElement.classList.add('out'); setTimeout(() => balloonElement.remove(), 500); }, delay); };
-                return {
-                    updateStatus: (newStatus) => { if (statusElement) statusElement.textContent = newStatus; },
-                    markAsCompleted: (finalMessage) => { if (balloonElement) { statusElement.textContent = finalMessage; timerElement.textContent = '✓'; balloonElement.classList.remove('border-cyan-400'); balloonElement.classList.add('border-green-500'); clearTimerAndRemove(); } },
-                    markAsFailed: (errorMessage) => { if (balloonElement) { statusElement.textContent = `Erro: ${errorMessage.substring(0, 30)}...`; timerElement.textContent = '✗'; balloonElement.classList.remove('border-cyan-400'); balloonElement.classList.add('border-red-500'); clearTimerAndRemove(5000); } }
-                };
-            }
-            
-            function showErrorToast(message) {
-                ui.errorToast.textContent = message;
-                ui.errorToast.classList.remove('hidden');
-                setTimeout(() => ui.errorToast.classList.add('hidden'), 3000);
-            }
-
-            ui.submitBtn.addEventListener('click', () => handleAutomation('submitted'));
-            ui.draftBtn.addEventListener('click', () => handleAutomation('draft'));
-        });
+        ui.loginForm.addEventListener('submit', handleLogin);
+        ui.logoutButton.addEventListener('click', handleLogout);
+        ui.submitBtn.addEventListener('click', () => handleAutomation('submitted'));
+        ui.draftBtn.addEventListener('click', () => handleAutomation('draft'));
+    });
     </script>
 </body>
 </html>
