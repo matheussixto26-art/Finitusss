@@ -4,27 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eclipse - App de Tarefas</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #010409; }
         .background-eclipse { background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop'); background-size: cover; background-position: center; }
         .glass-effect { background: rgba(23, 27, 38, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         @keyframes pulsate { 0%, 100% { transform: scale(1); box-shadow: 0 0 50px 15px rgba(100, 180, 255, 0.25), 0 0 80px 40px rgba(100, 180, 255, 0.15); } 50% { transform: scale(1.05); box-shadow: 0 0 60px 20px rgba(100, 180, 255, 0.35), 0 0 90px 50px rgba(100, 180, 255, 0.25); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes balloon-in { from { opacity: 0; transform: translateX(100%) scale(0.8); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes balloon-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.8); } }
         .pulsate-glow { animation: pulsate 7s ease-in-out infinite; }
         .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+        .balloon { animation: balloon-in 0.5s ease-out forwards; pointer-events: auto; }
+        .balloon.out { animation: balloon-out 0.5s ease-out forwards; }
         .custom-checkbox:checked { background-color: #25b0e8; border-color: #25b0e8; }
         .task-list-container { max-height: 40vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(100, 180, 255, 0.5) transparent; }
-        .tag { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: auto; font-weight: 500; flex-shrink: 0; }
+        .tag { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-left: auto; font-weight: 500; }
         .tag.expirada { background-color: #f77829; color: white; }
         .tag.rascunho { background-color: #388bfd; color: white; }
-        .progress-bar { transition: width 0.5s ease; }
     </style>
 </head>
 <body class="background-eclipse text-white">
+
     <div id="app" class="relative min-h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden">
         <header id="app-header" class="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-20"><h1 class="text-2xl font-bold tracking-wider">eclipse</h1><svg id="logout-button" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hover:text-cyan-300 transition-colors hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></header>
         <div id="login-container" class="w-full h-full flex flex-col items-center justify-center absolute transition-opacity duration-700">
@@ -39,25 +46,17 @@
         </div>
         <div id="tasks-container" class="w-full max-w-2xl hidden opacity-0 transition-opacity duration-700 z-10">
             <div class="glass-effect w-full p-6 md:p-8 rounded-2xl shadow-2xl fade-in-up">
-                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4"><h2 id="modal-title" class="text-2xl font-bold">Painel</h2><div class="flex items-center space-x-3"><label for="select-all" class="text-sm">Selecionar Todas</label><input id="select-all" type="checkbox" class="h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 custom-checkbox"></div></div>
+                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4"><h2 class="text-2xl font-bold">Painel de Tarefas</h2><div class="flex items-center space-x-3"><label for="select-all" class="text-sm">Selecionar Todas</label><input id="select-all" type="checkbox" class="h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 custom-checkbox"></div></div>
                 <div id="task-list" class="space-y-4 mb-6 task-list-container"></div>
-                <div id="automation-controls">
-                    <div class="config-section"><h3 class="text-xl font-bold mb-4">Configurações</h3>
-                        <div class="config-group grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <select id="target-score" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"><option value="1">100% (Gabarito)</option><option value="0.75">75%</option><option value="0.5">50%</option><option value="0.25">25%</option><option value="0">0% (Errar Tudo)</option></select>
-                            <input id="time-input" type="number" placeholder="Duração (s)" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" value="120">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><button id="draft-btn" class="w-full py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors">Salvar como Rascunho</button><button id="submit-btn" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-colors">Enviar Tarefas</button></div>
-                </div>
-                <div id="automation-status-container" class="hidden"><h3 class="text-xl font-bold mb-4">Progresso</h3>
-                    <div class="progress-bar-container"><div id="progress-bar" class="progress-bar text-black">0%</div></div>
-                    <div id="status-text" class="text-center mt-3 text-gray-300">Aguardando início...</div>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><input id="min-time" type="number" placeholder="Tempo Mínimo (s)" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" value="90"><input id="max-time" type="number" placeholder="Tempo Máximo (s)" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-400" value="300"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><button id="draft-btn" class="w-full py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors">Salvar como Rascunho</button><button id="submit-btn" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-colors">Enviar Tarefas</button></div>
             </div>
         </div>
-                        </div>
-                            <script>
+        <div id="balloon-container" class="absolute top-20 right-4 w-64 h-full space-y-3 z-30 pointer-events-none"></div>
+        <div id="error-toast" class="hidden absolute bottom-10 px-6 py-3 bg-red-500 text-white rounded-lg shadow-lg z-40"></div>
+    </div>
+
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             const appState = { data: null, tokenB: null };
             const ui = {
@@ -129,7 +128,6 @@
                     const taskId = checkbox.dataset.taskId;
                     const taskData = appState.data.tarefas.find(t => t.id == taskId);
                     const taskName = taskData ? taskData.title : 'Tarefa desconhecida';
-                    // Gera um número com casas decimais, mais realista
                     const duration = Math.random() * (maxTime - minTime) + minTime;
                     const balloon = createProcessingBalloon(taskName, Math.round(duration), index * 300);
                     if (taskData) {
@@ -146,25 +144,18 @@
                 try {
                     updateStatus('Obtendo gabarito...');
                     const getAnswersPayload = { taskId: taskData.id, tokenB: appState.tokenB, room: findCorrectRoomId(taskData) };
-                    // Usa os teus nomes de ficheiro corretos
                     const answersResponse = await fetch('/api/obter-respostas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getAnswersPayload) });
                     const answersData = await answersResponse.json();
                     if (!answersResponse.ok) throw new Error(`Gabarito: ${answersData.error}`);
                     
-                    // A lógica de espera foi removida para simplificar, conforme a última versão estável
                     updateStatus('Enviando respostas...');
-                    
-                    // ***** CORREÇÃO PRINCIPAL AQUI *****
-                    // Garantimos que 'duration' é um NÚMERO com 2 casas decimais, não um texto.
                     const officialPayload = { 
                         status: submissionStatus, 
                         answers: answersData.answers, 
                         accessed_on: "room", 
                         executed_on: findCorrectRoomId(taskData), 
-                        duration: parseFloat(duration.toFixed(2)) 
+                        duration: parseFloat(duration.toFixed(2))
                     };
-
-                    // Usa os teus nomes de ficheiro corretos
                     const submitResponse = await fetch('/api/enviar-tarefa', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ taskId: taskData.id, tokenB: appState.tokenB, payload: officialPayload }) });
                     const submitData = await submitResponse.json();
                     if (!submitResponse.ok) throw new Error(`Submissão: ${submitData.error || 'Erro desconhecido'}`);
