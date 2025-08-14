@@ -56,148 +56,168 @@
                 </div>
             </div>
         </div>
-                                                            </div>
-                                                                <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const appState = { data: null, tokenB: null, currentActivityType: 'task' };
-        const ui = { 
-            raInput: document.getElementById('ra-input'), senhaInput: document.getElementById('senha-input'), 
-            loginForm: document.getElementById('login-form'), loginButton: document.getElementById('login-button'), loginMessage: document.getElementById('login-message'),
-            loginContainer: document.getElementById('login-container'), tasksContainer: document.getElementById('tasks-container'), 
-            logoutButton: document.getElementById('logout-button'), modalTitle: document.getElementById('modal-title'), 
-            selectAllCheckbox: document.getElementById('select-all'), taskList: document.getElementById('task-list'), 
-            timeInput: document.getElementById('time-input'), targetScoreSelect: document.getElementById('target-score'),
-            draftBtn: document.getElementById('draft-btn'), submitBtn: document.getElementById('submit-btn'),
-            automationControls: document.getElementById('automation-controls'),
-            automationStatusContainer: document.getElementById('automation-status-container'),
-            progressBar: document.getElementById('progress-bar'), statusText: document.getElementById('status-text')
-        };
-        
-        const handleLogin = async (e) => {
-            e.preventDefault();
-            ui.loginButton.disabled = true; ui.loginButton.textContent = 'A Conectar...'; ui.loginMessage.textContent = '';
-            try {
-                const response = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: ui.raInput.value, senha: ui.senhaInput.value }) });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Falha no login');
-                appState.data = data; appState.tokenB = data.tokenB;
-                populateTaskList();
-                ui.loginContainer.classList.add('opacity-0');
-                setTimeout(() => {
-                    ui.loginContainer.classList.add('hidden');
-                    ui.tasksContainer.classList.remove('hidden');
-                    setTimeout(() => ui.tasksContainer.classList.remove('opacity-0'), 50);
-                    ui.logoutButton.classList.remove('hidden');
-                }, 700);
-            } catch (error) { ui.loginMessage.textContent = `❌ ${error.message}`;
-            } finally { ui.loginButton.disabled = false; ui.loginButton.textContent = 'Entrar'; }
-        };
+                        </div>
+                            <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const appState = { data: null, tokenB: null };
+            const ui = {
+                loginContainer: document.getElementById('login-container'), tasksContainer: document.getElementById('tasks-container'),
+                loginForm: document.getElementById('login-form'), raInput: document.getElementById('ra-input'),
+                senhaInput: document.getElementById('senha-input'), loginButton: document.getElementById('login-button'),
+                loginMessage: document.getElementById('login-message'), logoutButton: document.getElementById('logout-button'),
+                selectAllCheckbox: document.getElementById('select-all'), taskList: document.getElementById('task-list'),
+                minTimeInput: document.getElementById('min-time'), maxTimeInput: document.getElementById('max-time'),
+                draftBtn: document.getElementById('draft-btn'), submitBtn: document.getElementById('submit-btn'),
+                balloonContainer: document.getElementById('balloon-container'), errorToast: document.getElementById('error-toast'),
+            };
 
-        const handleLogout = () => {
-            ui.tasksContainer.classList.add('opacity-0');
-            setTimeout(() => {
-                ui.tasksContainer.classList.add('hidden');
-                ui.loginContainer.classList.remove('hidden');
-                setTimeout(() => ui.loginContainer.classList.remove('opacity-0'), 50);
-                ui.logoutButton.classList.add('hidden'); ui.raInput.value = ''; ui.senhaInput.value = '';
-            }, 700);
-        };
-
-        function populateTaskList() {
-            ui.taskList.innerHTML = '';
-            ui.automationControls.classList.remove('hidden'); ui.automationStatusContainer.classList.add('hidden');
-            const tasksToDisplay = appState.data.tarefas?.filter(t => t.answer_status !== 'submitted');
-            if (!tasksToDisplay || tasksToDisplay.length === 0) {
-                ui.taskList.innerHTML = '<p class="text-center text-gray-400">Nenhuma tarefa encontrada.</p>'; return;
-            }
-            tasksToDisplay.forEach(task => {
-                const taskElement = document.createElement('div');
-                taskElement.className = 'flex items-center bg-gray-900/50 p-4 rounded-lg';
-                let tags = '';
-                if (task.task_expired) tags += '<span class="tag expirada">EXPIRADA</span>';
-                if (task.answer_status === 'draft') tags += '<span class="tag rascunho">RASCUNHO</span>';
-                taskElement.innerHTML = `<input type="checkbox" class="task-checkbox h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 custom-checkbox" data-task-id="${task.id}"><span class="ml-4 text-md">${task.title}</span>${tags}`;
-                ui.taskList.appendChild(taskElement);
-            });
-            ui.selectAllCheckbox.addEventListener('change', () => { document.querySelectorAll('.task-checkbox').forEach(checkbox => { checkbox.checked = ui.selectAllCheckbox.checked; }); });
-        }
-
-        function modifyAnswersForTargetScore(answers, targetScoreRatio) {
-            if (targetScoreRatio >= 1) return answers;
-            const questions = Object.values(answers); const totalQuestions = questions.length;
-            if (totalQuestions === 0) return answers;
-            const questionsToGetRight = Math.round(totalQuestions * targetScoreRatio);
-            questions.sort(() => 0.5 - Math.random());
-            for (let i = 0; i < (totalQuestions - questionsToGetRight); i++) {
-                const q = questions[i];
-                if (q.question_type === 'single' || q.question_type === 'true-false') {
-                     const keys = Object.keys(q.answer);
-                     if (keys.length > 1) {
-                        let firstTrueKey = keys.find(k => q.answer[k] === true); let firstFalseKey = keys.find(k => q.answer[k] === false);
-                        if(firstTrueKey && firstFalseKey) { q.answer[firstTrueKey] = false; q.answer[firstFalseKey] = true; } 
-                        else if (firstTrueKey) { q.answer[firstTrueKey] = false; }
-                     } else if (keys.length === 1){ q.answer[keys[0]] = !q.answer[keys[0]]; }
-                } else { q.answer = ["resposta", "errada"]; }
-            }
-            return answers;
-        }
-
-        const handleAutomation = async (submissionStatus = 'submitted') => {
-            const selectedCheckboxes = Array.from(document.querySelectorAll('.task-checkbox')).filter(cb => cb.checked);
-            if (selectedCheckboxes.length === 0) { alert('Selecione ao menos uma tarefa!'); return; }
-            ui.automationControls.classList.add('hidden');
-            ui.automationStatusContainer.classList.remove('hidden');
-            ui.progressBar.style.width = `0%`; ui.progressBar.textContent = `0%`;
-            const duration = parseInt(ui.timeInput.value) || 120;
-            const targetScoreRatio = parseFloat(ui.targetScoreSelect.value);
-            let tasksCompleted = 0; const totalTasks = selectedCheckboxes.length;
-
-            for (const checkbox of selectedCheckboxes) {
-                const taskId = checkbox.dataset.taskId;
-                const taskData = appState.data.tarefas.find(t => t.id == taskId);
-                
-                if (!taskData) { tasksCompleted++; continue; }
+            const handleLogin = async (e) => {
+                e.preventDefault();
+                ui.loginButton.disabled = true; ui.loginButton.textContent = 'A Conectar...'; ui.loginMessage.textContent = '';
                 try {
-                    ui.statusText.textContent = `(${tasksCompleted + 1}/${totalTasks}) Obtendo gabarito para: ${taskData.title.substring(0, 35)}...`;
+                    const response = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: ui.raInput.value, senha: ui.senhaInput.value }) });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Falha no login');
+                    appState.data = data; appState.tokenB = data.tokenB;
+                    populateTaskList();
+                    ui.loginContainer.classList.add('opacity-0');
+                    setTimeout(() => {
+                        ui.loginContainer.classList.add('hidden');
+                        ui.tasksContainer.classList.remove('hidden');
+                        setTimeout(() => ui.tasksContainer.classList.remove('opacity-0'), 50);
+                        ui.logoutButton.classList.remove('hidden');
+                    }, 700);
+                } catch (error) { ui.loginMessage.textContent = `❌ ${error.message}`;
+                } finally { ui.loginButton.disabled = false; ui.loginButton.textContent = 'Entrar'; }
+            };
+
+            const handleLogout = () => {
+                ui.tasksContainer.classList.add('opacity-0');
+                setTimeout(() => {
+                    ui.tasksContainer.classList.add('hidden');
+                    ui.loginContainer.classList.remove('hidden');
+                    setTimeout(() => ui.loginContainer.classList.remove('opacity-0'), 50);
+                    ui.logoutButton.classList.add('hidden'); ui.raInput.value = ''; ui.senhaInput.value = '';
+                }, 700);
+            };
+
+            function populateTaskList() {
+                ui.taskList.innerHTML = '';
+                const tasksToDisplay = appState.data.tarefas?.filter(t => t.answer_status !== 'submitted');
+                if (!tasksToDisplay || tasksToDisplay.length === 0) {
+                    ui.taskList.innerHTML = '<p class="text-center text-gray-400">Nenhuma tarefa encontrada.</p>'; return;
+                }
+                tasksToDisplay.forEach(task => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'flex items-center bg-gray-900/50 p-4 rounded-lg';
+                    let tags = '';
+                    if (task.task_expired) tags += '<span class="tag expirada">EXPIRADA</span>';
+                    if (task.answer_status === 'draft') tags += '<span class="tag rascunho">RASCUNHO</span>';
+                    taskElement.innerHTML = `<input type="checkbox" class="task-checkbox h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-500 focus:ring-cyan-600 custom-checkbox" data-task-id="${task.id}"><span class="ml-4 text-md">${task.title}</span>${tags}`;
+                    ui.taskList.appendChild(taskElement);
+                });
+                ui.selectAllCheckbox.addEventListener('change', () => { document.querySelectorAll('.task-checkbox').forEach(checkbox => { checkbox.checked = ui.selectAllCheckbox.checked; }); });
+            }
+
+            const handleAutomation = async (submissionStatus) => {
+                const selectedCheckboxes = Array.from(document.querySelectorAll('.task-checkbox')).filter(cb => cb.checked);
+                if (selectedCheckboxes.length === 0) { showErrorToast('Selecione ao menos uma tarefa!'); return; }
+                ui.submitBtn.disabled = true; ui.draftBtn.disabled = true;
+                const minTime = parseInt(ui.minTimeInput.value) || 90;
+                const maxTime = parseInt(ui.maxTimeInput.value) || 300;
+                selectedCheckboxes.forEach((checkbox, index) => {
+                    const taskId = checkbox.dataset.taskId;
+                    const taskData = appState.data.tarefas.find(t => t.id == taskId);
+                    const taskName = taskData ? taskData.title : 'Tarefa desconhecida';
+                    // Gera um número com casas decimais, mais realista
+                    const duration = Math.random() * (maxTime - minTime) + minTime;
+                    const balloon = createProcessingBalloon(taskName, Math.round(duration), index * 300);
+                    if (taskData) {
+                        performTask(taskData, submissionStatus, duration, balloon);
+                    } else {
+                        balloon.markAsFailed('Dados da tarefa não encontrados.');
+                    }
+                });
+                setTimeout(() => { ui.submitBtn.disabled = false; ui.draftBtn.disabled = false; }, selectedCheckboxes.length * 500);
+            };
+
+            async function performTask(taskData, submissionStatus, duration, balloon) {
+                const { updateStatus, markAsCompleted, markAsFailed } = balloon;
+                try {
+                    updateStatus('Obtendo gabarito...');
                     const getAnswersPayload = { taskId: taskData.id, tokenB: appState.tokenB, room: findCorrectRoomId(taskData) };
-                    const answersResponse = await fetch('/api/get-answers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getAnswersPayload) });
+                    // Usa os teus nomes de ficheiro corretos
+                    const answersResponse = await fetch('/api/obter-respostas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getAnswersPayload) });
                     const answersData = await answersResponse.json();
                     if (!answersResponse.ok) throw new Error(`Gabarito: ${answersData.error}`);
                     
-                    const modifiedAnswers = modifyAnswersForTargetScore(JSON.parse(JSON.stringify(answersData.answers)), targetScoreRatio);
+                    // A lógica de espera foi removida para simplificar, conforme a última versão estável
+                    updateStatus('Enviando respostas...');
                     
-                    ui.statusText.textContent = `(${tasksCompleted + 1}/${totalTasks}) Aguardando ${duration}s para enviar...`;
-                    await new Promise(resolve => setTimeout(resolve, duration * 1000));
+                    // ***** CORREÇÃO PRINCIPAL AQUI *****
+                    // Garantimos que 'duration' é um NÚMERO com 2 casas decimais, não um texto.
+                    const officialPayload = { 
+                        status: submissionStatus, 
+                        answers: answersData.answers, 
+                        accessed_on: "room", 
+                        executed_on: findCorrectRoomId(taskData), 
+                        duration: parseFloat(duration.toFixed(2)) 
+                    };
 
-                    ui.statusText.textContent = `(${tasksCompleted + 1}/${totalTasks}) Enviando: ${taskData.title.substring(0, 35)}...`;
-                    const officialPayload = { status: submissionStatus, answers: modifiedAnswers, accessed_on: "room", executed_on: findCorrectRoomId(taskData), duration: duration };
-                    const submitResponse = await fetch('/api/submit-task', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ taskId: taskData.id, tokenB: appState.tokenB, payload: officialPayload }) });
+                    // Usa os teus nomes de ficheiro corretos
+                    const submitResponse = await fetch('/api/enviar-tarefa', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ taskId: taskData.id, tokenB: appState.tokenB, payload: officialPayload }) });
                     const submitData = await submitResponse.json();
-                    if (!submitResponse.ok) throw new Error(`Submissão: ${submitData.error || 'Erro'}`);
-                } catch (error) { ui.statusText.textContent = `Erro em ${taskData.title}: ${error.message}`; }
-                tasksCompleted++;
-                const progress = Math.round((tasksCompleted / totalTasks) * 100);
-                ui.progressBar.style.width = `${progress}%`; ui.progressBar.textContent = `${progress}%`;
+                    if (!submitResponse.ok) throw new Error(`Submissão: ${submitData.error || 'Erro desconhecido'}`);
+                    
+                    const finalMessage = submissionStatus === 'draft' ? 'Rascunho Salvo!' : `Finalizado! Nota: ${submitData.result_score ?? 'N/A'}`;
+                    markAsCompleted(finalMessage);
+                } catch (error) {
+                    markAsFailed(error.message);
+                }
             }
-            ui.statusText.textContent = 'Processo finalizado!';
-        };
-        
-        function findCorrectRoomId(taskData) {
-            const taskTarget = String(taskData.publication_target);
-            if (taskTarget.startsWith('r')) return taskTarget;
-            if (!appState.data.rooms) return taskTarget;
-            for (const room of appState.data.rooms) {
-                const groupIds = room.group_categories?.map(g => String(g.id)) || [];
-                if (groupIds.includes(taskTarget)) { return room.publication_target; }
+            
+            function findCorrectRoomId(taskData) {
+                const taskTarget = String(taskData.publication_target);
+                if (taskTarget.startsWith('r')) return taskTarget;
+                if (!appState.data.rooms) return taskTarget;
+                for (const room of appState.data.rooms) {
+                    const groupIds = room.group_categories?.map(g => String(g.id)) || [];
+                    if (groupIds.includes(taskTarget)) { return room.publication_target; }
+                }
+                return taskTarget;
             }
-            return taskTarget;
-        }
 
-        ui.loginForm.addEventListener('submit', handleLogin);
-        ui.logoutButton.addEventListener('click', handleLogout);
-        ui.submitBtn.addEventListener('click', () => handleAutomation('submitted'));
-        ui.draftBtn.addEventListener('click', () => handleAutomation('draft'));
-    });
+            function createProcessingBalloon(taskName, duration, delay) {
+                let balloonElement, statusElement, timerElement, intervalId;
+                setTimeout(() => {
+                    balloonElement = document.createElement('div');
+                    balloonElement.className = 'balloon glass-effect p-4 rounded-lg shadow-lg border-l-4 border-cyan-400 w-full';
+                    balloonElement.innerHTML = `<h4 class="font-bold text-sm truncate" title="${taskName}">${taskName}</h4><p class="text-xs text-gray-300">Iniciando...</p><p class="text-lg font-mono font-bold text-cyan-400">${duration}s</p>`;
+                    ui.balloonContainer.appendChild(balloonElement);
+                    statusElement = balloonElement.querySelector('p:nth-of-type(1)');
+                    timerElement = balloonElement.querySelector('p:nth-of-type(2)');
+                    let timeLeft = duration;
+                    intervalId = setInterval(() => { if (timeLeft <= 0) timeLeft = 0; timerElement.textContent = `${timeLeft}s`; timeLeft--; }, 1000);
+                }, delay);
+                const clearTimerAndRemove = (delay = 3000) => { clearInterval(intervalId); setTimeout(() => { balloonElement.classList.add('out'); setTimeout(() => balloonElement.remove(), 500); }, delay); };
+                return {
+                    updateStatus: (newStatus) => { if (statusElement) statusElement.textContent = newStatus; },
+                    markAsCompleted: (finalMessage) => { if (balloonElement) { statusElement.textContent = finalMessage; timerElement.textContent = '✓'; balloonElement.classList.remove('border-cyan-400'); balloonElement.classList.add('border-green-500'); clearTimerAndRemove(); } },
+                    markAsFailed: (errorMessage) => { if (balloonElement) { statusElement.textContent = `Erro: ${errorMessage.substring(0, 30)}...`; timerElement.textContent = '✗'; balloonElement.classList.remove('border-cyan-400'); balloonElement.classList.add('border-red-500'); clearTimerAndRemove(5000); } }
+                };
+            }
+            
+            function showErrorToast(message) {
+                ui.errorToast.textContent = message;
+                ui.errorToast.classList.remove('hidden');
+                setTimeout(() => ui.errorToast.classList.add('hidden'), 3000);
+            }
+
+            ui.loginForm.addEventListener('submit', handleLogin);
+            ui.logoutButton.addEventListener('click', handleLogout);
+            ui.submitBtn.addEventListener('click', () => handleAutomation('submitted'));
+            ui.draftBtn.addEventListener('click', () => handleAutomation('draft'));
+        });
     </script>
 </body>
 </html>
