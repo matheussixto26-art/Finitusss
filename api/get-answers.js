@@ -13,24 +13,21 @@ module.exports = async (req, res) => {
     const API_URL = "https://api.moonscripts.cloud/edusp";
 
     try {
-        const previewPayload = {
-            type: "previewTask",
-            taskId: taskId,
-            room: room,
-            token: tokenB
-        };
-        
+        const previewPayload = { type: "previewTask", taskId, room, token: tokenB };
         const previewResponse = await axios.post(API_URL, previewPayload);
         
-        if (!previewResponse.data?.answers) {
-            throw new Error('A resposta da API de preview não continha o objeto "answers".');
+        // --- NOVA VERIFICAÇÃO DE SEGURANÇA ---
+        // Se a resposta não tiver o objeto 'answers', consideramos uma falha.
+        if (!previewResponse.data || !previewResponse.data.answers) {
+            console.error("Resposta inválida do fornecedor de gabarito:", previewResponse.data);
+            return res.status(502).json({ error: "Fornecedor de gabarito retornou resposta inválida." });
         }
 
-        // Devolve apenas a resposta da API de preview
         res.status(200).json(previewResponse.data);
 
     } catch (error) {
         const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
-        res.status(500).json({ error: `Falha ao obter respostas da tarefa. Detalhes: ${errorDetails}` });
+        console.error(`Falha em obter-respostas para taskId ${taskId}:`, errorDetails);
+        res.status(500).json({ error: `Falha ao obter gabarito.`, details: errorDetails });
     }
 };
